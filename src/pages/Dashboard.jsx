@@ -5,7 +5,7 @@ import VehicleSearch from '../components/vehiculos/VehicleSearch';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [selectedSection, setSelectedSection] = useState('inicio');
 
