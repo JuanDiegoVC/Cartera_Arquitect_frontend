@@ -1,120 +1,135 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import VehicleSearch from '../components/vehiculos/VehicleSearch';
-import './Dashboard.css';
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { DollarSign, TrendingUp, AlertCircle, Users, Car } from "lucide-react";
 
 const Dashboard = () => {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-  const [selectedSection, setSelectedSection] = useState('inicio');
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const menuItems = [
-    { id: 'inicio', label: 'Inicio', icon: '🏠' },
-    { id: 'vehiculos', label: 'Vehículos', icon: '🚗' },
-    { id: 'cobros', label: 'Cobros', icon: '💰' },
-    { id: 'egresos', label: 'Egresos', icon: '💸' },
-    { id: 'reportes', label: 'Reportes', icon: '📊' },
-  ];
-
   return (
-    <div className="dashboard">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <h1>SOTRAP</h1>
-        </div>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Bienvenido al Sistema de Gestión de Recaudos Sotrapeñol
+        </p>
+      </div>
 
-        <nav className="sidebar-nav">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              className={`nav-item ${selectedSection === item.id ? 'active' : ''}`}
-              onClick={() => setSelectedSection(item.id)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-label">{item.label}</span>
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Recaudos del Día
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">$ -</div>
+            <p className="text-xs text-muted-foreground">
+              Total recaudado hoy
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Vehículos Activos
+            </CardTitle>
+            <Car className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">-</div>
+            <p className="text-xs text-muted-foreground">
+              Afiliados al sistema
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Deudas Pendientes
+            </CardTitle>
+            <AlertCircle className="h-4 w-4 text-warning" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">-</div>
+            <p className="text-xs text-muted-foreground">
+              Vehículos con deudas
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Recaudo Mensual
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">$ -</div>
+            <p className="text-xs text-muted-foreground">
+              Total del mes en curso
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Acciones Rápidas</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <button className="w-full text-left p-4 rounded-lg border hover:bg-accent transition-colors flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <div className="font-medium">Procesar Pago</div>
+                <div className="text-sm text-muted-foreground">Registrar un nuevo recaudo</div>
+              </div>
             </button>
-          ))}
-        </nav>
+            
+            <button className="w-full text-left p-4 rounded-lg border hover:bg-accent transition-colors flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
+                <Car className="h-5 w-5 text-success" />
+              </div>
+              <div>
+                <div className="font-medium">Registrar Vehículo</div>
+                <div className="text-sm text-muted-foreground">Agregar nuevo vehículo al sistema</div>
+              </div>
+            </button>
 
-        <div className="sidebar-footer">
-          <button onClick={handleLogout} className="btn-logout">
-            Cerrar Sesión
-          </button>
-        </div>
-      </aside>
+            <button className="w-full text-left p-4 rounded-lg border hover:bg-accent transition-colors flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-warning" />
+              </div>
+              <div>
+                <div className="font-medium">Ver Reportes</div>
+                <div className="text-sm text-muted-foreground">Consultar estadísticas y reportes</div>
+              </div>
+            </button>
+          </CardContent>
+        </Card>
 
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="content-header">
-          <h2>
-            {menuItems.find((item) => item.id === selectedSection)?.label || 'Inicio'}
-          </h2>
-          
-          {/* RF-002: Búsqueda de vehículos siempre visible */}
-          <div className="header-search">
-            <VehicleSearch />
-          </div>
-        </header>
-
-        <div className="content-body">
-          {selectedSection === 'inicio' && (
-            <div className="welcome-section">
-              <h3>Bienvenido al Sistema de Gestión de Recaudos</h3>
-              <p>Selecciona una opción del menú para comenzar.</p>
-              
-              <div className="quick-stats">
-                <div className="stat-card">
-                  <h4>Vehículos Activos</h4>
-                  <p className="stat-number">-</p>
-                </div>
-                <div className="stat-card">
-                  <h4>Cobros del Día</h4>
-                  <p className="stat-number">$-</p>
-                </div>
-                <div className="stat-card">
-                  <h4>Deudas Pendientes</h4>
-                  <p className="stat-number">-</p>
+        <Card>
+          <CardHeader>
+            <CardTitle>Actividad Reciente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 pb-4 border-b last:border-0 last:pb-0">
+                <div className="w-2 h-2 rounded-full bg-success mt-2"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Pago registrado</p>
+                  <p className="text-xs text-muted-foreground">No hay actividad reciente</p>
                 </div>
               </div>
             </div>
-          )}
-
-          {selectedSection === 'vehiculos' && (
-            <div>
-              <h3>Gestión de Vehículos</h3>
-              <p>Módulo en desarrollo...</p>
-            </div>
-          )}
-
-          {selectedSection === 'cobros' && (
-            <div>
-              <h3>Gestión de Cobros</h3>
-              <p>Módulo en desarrollo...</p>
-            </div>
-          )}
-
-          {selectedSection === 'egresos' && (
-            <div>
-              <h3>Gestión de Egresos</h3>
-              <p>Módulo en desarrollo...</p>
-            </div>
-          )}
-
-          {selectedSection === 'reportes' && (
-            <div>
-              <h3>Reportes</h3>
-              <p>Módulo en desarrollo...</p>
-            </div>
-          )}
-        </div>
-      </main>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

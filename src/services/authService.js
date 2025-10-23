@@ -15,7 +15,7 @@ export const authService = {
   login: async (email, password) => {
     try {
       const response = await apiClient.post('/auth/token/', {
-        email,
+        email,  // Ahora el backend acepta 'email'
         password,
       });
       
