@@ -1,7 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { authService } from '../services/authService';
-
-const AuthContext = createContext(null);
+import { AuthContext } from './authContextCreator';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -18,13 +17,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    try {
-      const data = await authService.login(email, password);
-      setUser({ isAuthenticated: true, ...data });
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await authService.login(email, password);
+    setUser({ isAuthenticated: true, ...data });
+    return data;
   };
 
   const logout = () => {
@@ -41,12 +36,4 @@ export const AuthProvider = ({ children }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth debe usarse dentro de un AuthProvider');
-  }
-  return context;
 };
