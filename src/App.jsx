@@ -1,14 +1,21 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/common/ProtectedRoute';
-import { AppLayout } from './components/Layout/AppLayout';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Taquilla from './pages/Taquilla';
-import Reportes from './pages/Reportes';
-import Vehiculos from './pages/Vehiculos';
-import Configuracion from './pages/Configuracion';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import { AppLayout } from "./components/Layout/AppLayout";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Taquilla from "./pages/Taquilla";
+import Reportes from "./pages/Reportes";
+import Vehiculos from "./pages/Vehiculos";
+import VehiculoDetalle from "./pages/VehiculoDetalle";
+import Configuracion from "./pages/Configuracion";
+import GenerarFacturacion from "./pages/GenerarFacturacion";
+import "./App.css";
 
 function App() {
   return (
@@ -17,8 +24,8 @@ function App() {
         <Routes>
           {/* Ruta pública */}
           <Route path="/login" element={<Login />} />
-          
-          {/* Rutas protegidas con nuevo layout */}
+
+          {/* Rutas protegidas con layout */}
           <Route
             path="/"
             element={
@@ -29,11 +36,12 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+
+          {/* Taquilla - Solo taquilla y administrador */}
           <Route
             path="/taquilla"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["taquilla", "administrador"]}>
                 <AppLayout>
                   <Taquilla />
                 </AppLayout>
@@ -41,6 +49,7 @@ function App() {
             }
           />
 
+          {/* Vehículos - Todos los autenticados */}
           <Route
             path="/vehiculos"
             element={
@@ -52,10 +61,23 @@ function App() {
             }
           />
 
+          {/* Detalle de Vehículo - Todos los autenticados */}
+          <Route
+            path="/vehiculos/:placa"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <VehiculoDetalle />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Reportes - Solo gerente y administrador */}
           <Route
             path="/reportes"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["gerente", "administrador"]}>
                 <AppLayout>
                   <Reportes />
                 </AppLayout>
@@ -63,17 +85,30 @@ function App() {
             }
           />
 
+          {/* Generar Facturación - Solo administrador */}
+          <Route
+            path="/generar-facturacion"
+            element={
+              <ProtectedRoute allowedRoles={["administrador"]}>
+                <AppLayout>
+                  <GenerarFacturacion />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Configuración - Solo administrador */}
           <Route
             path="/configuracion"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["administrador"]}>
                 <AppLayout>
                   <Configuracion />
                 </AppLayout>
               </ProtectedRoute>
             }
           />
-          
+
           {/* Redirección por defecto */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

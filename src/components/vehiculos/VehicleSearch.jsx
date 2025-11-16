@@ -1,39 +1,51 @@
-import { useState } from 'react';
-import { useDebounce } from '../../hooks/useDebounce';
-import { vehiculosService } from '../../services/vehiculosService';
-import { formatPlaca } from '../../utils/formatters';
-import './VehicleSearch.css';
+import { useState, useEffect } from "react";
+import { useDebounce } from "../../hooks/useDebounce";
+import { vehiculosService } from "../../services/vehiculosService";
+import { formatPlaca } from "../../utils/formatters";
+import "./VehicleSearch.css";
 
 /**
  * Componente de búsqueda de vehículos por placa
  * RF-002: La búsqueda debe estar siempre visible/accesible
+ * HU-04: Consulta de estado de cuenta
  */
 const VehicleSearch = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [results, setResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [vehicleData, setVehicleData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [error, setError] = useState(null);
 
-  const debouncedSearch = useDebounce(searchTerm, 300);
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   // Efecto para realizar la búsqueda cuando cambia el término con debounce
-  useState(() => {
+  useEffect(() => {
     const performSearch = async () => {
-      if (debouncedSearch.length >= 2) {
+      if (debouncedSearch.length >= 3) {
         setLoading(true);
+        setError(null);
         try {
-          const data = await vehiculosService.buscarPorPlaca(debouncedSearch);
-          setResults(data.results || []);
+          const data = await vehiculosService.buscarPorPlaca(
+            debouncedSearch.toUpperCase()
+          );
+          setVehicleData(data);
           setShowResults(true);
-        } catch (error) {
-          console.error('Error en búsqueda:', error);
-          setResults([]);
+        } catch (err) {
+          console.error("Error en búsqueda:", err);
+          if (err.response?.status === 404) {
+            setError("Vehículo no encontrado");
+          } else {
+            setError("Error al buscar el vehículo");
+          }
+          setVehicleData(null);
+          setShowResults(true);
         } finally {
           setLoading(false);
         }
       } else {
-        setResults([]);
+        setVehicleData(null);
         setShowResults(false);
+        setError(null);
       }
     };
 
@@ -45,12 +57,27 @@ const VehicleSearch = () => {
     setSearchTerm(value);
   };
 
-  const handleSelectVehicle = (vehiculo) => {
-    // Aquí se puede navegar a la vista de detalle del vehículo
-    // o mostrar un modal con la información
-    console.log('Vehículo seleccionado:', vehiculo);
-    setSearchTerm('');
+  const handleClose = () => {
+    setSearchTerm("");
     setShowResults(false);
+    setVehicleData(null);
+    setError(null);
+  };
+
+  const calcularTotalDeuda = () => {
+    if (!vehicleData?.deudas_pendientes) return 0;
+    return vehicleData.deudas_pendientes.reduce(
+      (total, deuda) => total + parseFloat(deuda.saldo_pendiente),
+      0
+    );
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    }).format(value);
   };
 
   return (
@@ -58,7 +85,7 @@ const VehicleSearch = () => {
       <div className="search-input-wrapper">
         <input
           type="text"
-          placeholder="Buscar por placa..."
+          placeholder="Buscar por placa (ej: ABC123)..."
           value={searchTerm}
           onChange={handleInputChange}
           className="search-input"
@@ -67,34 +94,89 @@ const VehicleSearch = () => {
         {loading && <span className="search-loading">🔍</span>}
       </div>
 
-      {showResults && results.length > 0 && (
+      {showResults && vehicleData && (
         <div className="search-results">
-          {results.map((vehiculo) => (
-            <div
-              key={vehiculo.vehiculo_id}
-              className="search-result-item"
-              onClick={() => handleSelectVehicle(vehiculo)}
-            >
-              <div className="result-placa">{vehiculo.placa}</div>
-              <div className="result-info">
-                <span className="result-tipo">{vehiculo.tipo_vehiculo}</span>
-                {vehiculo.propietario_nombre && (
-                  <span className="result-propietario">
-                    {vehiculo.propietario_nombre}
-                  </span>
-                )}
+          <div className="search-result-card">
+            <div className="result-header">
+              <div>
+                <div className="result-placa">{vehicleData.placa}</div>
+                <div className="result-tipo">{vehicleData.tipo_vehiculo}</div>
               </div>
-              <div className={`result-estado ${vehiculo.estado}`}>
-                {vehiculo.estado}
-              </div>
+              <button onClick={handleClose} className="close-btn">
+                ✕
+              </button>
             </div>
-          ))}
+
+            {vehicleData.propietario_nombre && (
+              <div className="result-propietario">
+                <strong>Propietario:</strong> {vehicleData.propietario_nombre}
+              </div>
+            )}
+
+            <div className="deudas-section">
+              <h3>Estado de Cuenta</h3>
+
+              {vehicleData.deudas_pendientes &&
+              vehicleData.deudas_pendientes.length > 0 ? (
+                <>
+                  <div className="deudas-list">
+                    {vehicleData.deudas_pendientes.map((deuda) => (
+                      <div key={deuda.deuda_id} className="deuda-item">
+                        <div className="deuda-info">
+                          <span className="deuda-rubro">
+                            {deuda.rubro.nombre}
+                          </span>
+                          <span className="deuda-periodo">
+                            {new Date(deuda.periodo).toLocaleDateString(
+                              "es-CO",
+                              {
+                                year: "numeric",
+                                month: "long",
+                              }
+                            )}
+                          </span>
+                        </div>
+                        <div className="deuda-montos">
+                          <div>
+                            <small>Valor:</small>
+                            <span>{formatCurrency(deuda.valor_cargado)}</span>
+                          </div>
+                          <div>
+                            <small>Saldo:</small>
+                            <strong className="saldo-pendiente">
+                              {formatCurrency(deuda.saldo_pendiente)}
+                            </strong>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="total-deuda">
+                    <strong>Total Pendiente:</strong>
+                    <span className="total-amount">
+                      {formatCurrency(calcularTotalDeuda())}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="sin-deudas">
+                  ✅ Este vehículo no tiene deudas pendientes
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
-      {showResults && results.length === 0 && searchTerm.length >= 2 && !loading && (
+      {showResults && error && (
         <div className="search-results">
-          <div className="no-results">No se encontraron vehículos</div>
+          <div className="no-results">
+            {error}
+            <button onClick={handleClose} className="close-btn-small">
+              Cerrar
+            </button>
+          </div>
         </div>
       )}
     </div>
