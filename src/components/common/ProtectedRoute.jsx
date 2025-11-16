@@ -1,5 +1,9 @@
+
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+
 
 /**
  * Componente para proteger rutas que requieren autenticación
