@@ -1,4 +1,4 @@
-import apiClient from './api';
+import apiClient from "./api";
 
 /**
  * Servicio de Vehículos
@@ -14,7 +14,7 @@ export const vehiculosService = {
    */
   getAll: async (params = {}) => {
     try {
-      const response = await apiClient.get('/vehiculos/', { params });
+      const response = await apiClient.get("/vehiculos/", { params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -23,14 +23,31 @@ export const vehiculosService = {
 
   /**
    * Buscar vehículo por placa (RF-002)
+   * Obtiene el estado de cuenta del vehículo (HU-04)
    * @param {string} placa - Placa del vehículo
    * @returns {Promise}
    */
   buscarPorPlaca: async (placa) => {
     try {
-      const response = await apiClient.get('/vehiculos/', {
-        params: { placa },
-      });
+      const response = await apiClient.get(
+        `/v1/flota/estado-de-cuenta/${placa}/`
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
+   * Obtener estado de cuenta de un vehículo (HU-04)
+   * @param {string} placa - Placa del vehículo
+   * @returns {Promise}
+   */
+  getEstadoCuenta: async (placa) => {
+    try {
+      const response = await apiClient.get(
+        `/v1/flota/estado-de-cuenta/${placa}/`
+      );
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -58,7 +75,7 @@ export const vehiculosService = {
    */
   create: async (data) => {
     try {
-      const response = await apiClient.post('/vehiculos/', data);
+      const response = await apiClient.post("/vehiculos/", data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -88,7 +105,7 @@ export const vehiculosService = {
   desactivar: async (id) => {
     try {
       const response = await apiClient.patch(`/vehiculos/${id}/`, {
-        estado: 'inactivo',
+        estado: "inactivo",
       });
       return response.data;
     } catch (error) {
@@ -104,7 +121,7 @@ export const vehiculosService = {
   activar: async (id) => {
     try {
       const response = await apiClient.patch(`/vehiculos/${id}/`, {
-        estado: 'activo',
+        estado: "activo",
       });
       return response.data;
     } catch (error) {
