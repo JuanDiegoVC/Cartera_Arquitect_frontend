@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Car, Plus, Search, ArrowRight } from "lucide-react";
+import { Car, Plus, Search, ArrowRight, List } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Alert, AlertDescription } from "../components/ui/alert";
@@ -15,8 +15,8 @@ export default function Vehiculos() {
     e.preventDefault();
     setError(null);
     
-    if (searchPlate.trim().length < 3) {
-      setError("Ingrese al menos 3 caracteres de la placa");
+    if (searchPlate.trim().length < 6) {
+      setError("Ingrese la placa completa (mínimo 6 caracteres, ej: ABC123 o ESC-201)");
       return;
     }
 
@@ -33,10 +33,20 @@ export default function Vehiculos() {
             Gestione el registro de vehículos afiliados
           </p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nuevo Vehículo
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            className="gap-2"
+            onClick={() => navigate('/vehiculos/lista')}
+          >
+            <List className="h-4 w-4" />
+            Ver Lista Completa
+          </Button>
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nuevo Vehículo
+          </Button>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">

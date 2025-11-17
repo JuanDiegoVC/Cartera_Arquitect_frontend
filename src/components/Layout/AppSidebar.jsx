@@ -7,6 +7,7 @@ import {
   LogOut,
   User,
   FileSpreadsheet,
+  List,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -43,6 +44,12 @@ const menuItems = [
     title: "Vehículos",
     url: "/vehiculos",
     icon: Car,
+    roles: ["taquilla", "administrador", "gerente"], // Todos
+  },
+  {
+    title: "Lista de Vehículos",
+    url: "/vehiculos/lista",
+    icon: List,
     roles: ["taquilla", "administrador", "gerente"], // Todos
   },
   {

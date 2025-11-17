@@ -14,8 +14,25 @@ export const vehiculosService = {
    */
   getAll: async (params = {}) => {
     try {
-      const response = await apiClient.get("/vehiculos/", { params });
+      const response = await apiClient.get("/v1/flota/vehiculos/", { params });
       return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
+   * Exportar vehículos filtrados a Excel (RF-004, RF-008)
+   * @param {Object} filters - Filtros aplicados (tipo_vehiculo, estado, search)
+   * @returns {Promise<Blob>}
+   */
+  exportToExcel: async (filters = {}) => {
+    try {
+      const response = await apiClient.get("/v1/flota/vehiculos/export-to-excel/", {
+        params: filters,
+        responseType: 'blob' // CRÍTICO para archivos binarios
+      });
+      return response;
     } catch (error) {
       throw error.response?.data || error;
     }

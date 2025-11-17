@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Taquilla from "./pages/Taquilla";
 import Reportes from "./pages/Reportes";
 import Vehiculos from "./pages/Vehiculos";
+import VehiculosLista from "./pages/VehiculosLista";
 import VehiculoDetalle from "./pages/VehiculoDetalle";
 import Configuracion from "./pages/Configuracion";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
@@ -56,6 +57,18 @@ function App() {
               <ProtectedRoute>
                 <AppLayout>
                   <Vehiculos />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Lista de Vehículos con Exportación - Todos los autenticados */}
+          <Route
+            path="/vehiculos/lista"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <VehiculosLista />
                 </AppLayout>
               </ProtectedRoute>
             }
