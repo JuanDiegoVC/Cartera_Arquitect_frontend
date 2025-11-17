@@ -77,8 +77,50 @@ const SidebarProvider = React.forwardRef(({ defaultOpen = true, open: openProp, 
 SidebarProvider.displayName = "SidebarProvider";
 
 const Sidebar = React.forwardRef(({ side = "left", variant = "sidebar", collapsible = "icon", className, children, ...props }, ref) => {
-  const { state } = useSidebar();
+  const { state, openMobile, setOpenMobile } = useSidebar();
+  const isMobile = useIsMobile();
 
+  // Cerrar el sidebar cuando se hace clic en el overlay (solo móvil)
+  const handleOverlayClick = () => {
+    if (isMobile && openMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  if (isMobile) {
+    return (
+      <>
+        {/* Overlay/Backdrop para móvil */}
+        {openMobile && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50"
+            onClick={handleOverlayClick}
+            aria-hidden="true"
+          />
+        )}
+        {/* Sidebar para móvil */}
+        <div
+          ref={ref}
+          className={cn(
+            "fixed inset-y-0 z-50 h-svh w-[--sidebar-width] transition-transform duration-200 ease-linear",
+            side === "left" ? "left-0" : "right-0",
+            openMobile ? "translate-x-0" : side === "left" ? "-translate-x-full" : "translate-x-full",
+            className,
+          )}
+          data-state={openMobile ? "expanded" : "collapsed"}
+          data-variant={variant}
+          data-side={side}
+          {...props}
+        >
+          <div data-sidebar="sidebar" className="flex h-full w-full flex-col bg-sidebar border-r border-sidebar-border">
+            {children}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Vista desktop (sin cambios)
   return (
     <div
       ref={ref}
@@ -196,7 +238,7 @@ const SidebarMenuItem = React.forwardRef(({ className, ...props }, ref) => (
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm text-sidebar-foreground outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {

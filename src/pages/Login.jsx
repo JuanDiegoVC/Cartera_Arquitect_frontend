@@ -95,6 +95,19 @@ const Login = () => {
           </CardContent>
         </Card>
 
+        {/* Credenciales de prueba - SOLO DESARROLLO */}
+        <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <p className="text-xs font-semibold text-amber-800 dark:text-amber-400 mb-2 text-center">
+            🔑 Credenciales de Prueba (Solo Desarrollo)
+          </p>
+          <div className="space-y-1 text-xs text-amber-700 dark:text-amber-300">
+            <p><strong>Gerente:</strong> gerente@sotrap.com / gerente123</p>
+            <p><strong>Administrador:</strong> admin@sotrap.com / admin123</p>
+            <p><strong>Taquilla 1:</strong> taquilla1@sotrap.com / taquilla123</p>
+            <p><strong>Taquilla 2:</strong> taquilla2@sotrap.com / taquilla123</p>
+          </div>
+        </div>
+
         <p className="text-center text-sm text-muted-foreground mt-6">
           © 2025 Sotrapeñol. Todos los derechos reservados.
         </p>

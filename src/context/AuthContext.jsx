@@ -37,9 +37,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       throw error;
     }
-    const data = await authService.login(email, password);
-    setUser({ isAuthenticated: true, ...data });
-    return data;
   };
 
   const logout = () => {
