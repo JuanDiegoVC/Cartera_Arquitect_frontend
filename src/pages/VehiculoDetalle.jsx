@@ -37,11 +37,19 @@ export default function VehiculoDetalle() {
       setVehiculo(data);
     } catch (err) {
       console.error("Error cargando vehículo:", err);
-      setError(
-        err.response?.data?.detalle ||
-          err.detalle ||
-          "Error al cargar la información del vehículo"
-      );
+      
+      // Mensaje de error personalizado
+      let errorMessage = "Error al cargar la información del vehículo";
+      
+      if (err.response?.status === 404 || err.error === "Vehículo no encontrado") {
+        errorMessage = `No se encontró ningún vehículo con la placa "${placa.toUpperCase()}". Verifique que la placa esté completa y correcta.`;
+      } else if (err.detalle) {
+        errorMessage = err.detalle;
+      } else if (err.response?.data?.detalle) {
+        errorMessage = err.response.data.detalle;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -102,17 +110,33 @@ export default function VehiculoDetalle() {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
-        <Button
-          variant="outline"
-          onClick={() => navigate("/vehiculos")}
-          className="gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Volver a Vehículos
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/vehiculos")}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Volver a Búsqueda
+          </Button>
+          <Button
+            variant="default"
+            onClick={() => navigate("/vehiculos/lista")}
+            className="gap-2"
+          >
+            Ver Lista Completa
+          </Button>
+        </div>
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            <div className="space-y-2">
+              <p className="font-semibold">{error}</p>
+              <p className="text-sm">
+                Sugerencia: Use la "Lista Completa" para buscar el vehículo correcto.
+              </p>
+            </div>
+          </AlertDescription>
         </Alert>
       </div>
     );
