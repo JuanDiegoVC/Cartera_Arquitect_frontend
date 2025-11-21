@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { FileText, TrendingUp, AlertCircle } from "lucide-react";
+import { FileText, TrendingUp, AlertCircle, FileSpreadsheet } from "lucide-react";
+import ReporteCarteraModal from "../components/Reportes/ReporteCarteraModal";
 
 export default function Reportes() {
+  const [modalCarteraOpen, setModalCarteraOpen] = useState(false);
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
@@ -53,17 +57,30 @@ export default function Reportes() {
             </p>
           </CardContent>
         </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200 hover:border-blue-400"
+          onClick={() => setModalCarteraOpen(true)}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <FileSpreadsheet className="h-5 w-5 text-blue-600" />
+              Cartera Detallada
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-sm">
+              Desglose completo de deudas por mes, vehículo y rubro en Excel
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="text-center py-20">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-4">
-          <FileText className="h-10 w-10 text-muted-foreground" />
-        </div>
-        <h3 className="text-xl font-semibold mb-2">Módulo de Reportes</h3>
-        <p className="text-muted-foreground">
-          Seleccione un tipo de reporte para continuar
-        </p>
-      </div>
+      {/* Modal de Reporte de Cartera */}
+      <ReporteCarteraModal 
+        open={modalCarteraOpen} 
+        onOpenChange={setModalCarteraOpen} 
+      />
     </div>
   );
 }
