@@ -24,11 +24,15 @@ import {
 import { Separator } from "../components/ui/separator";
 import { vehiculosService } from "../services/vehiculosService";
 import { pagosService } from "../services/pagosService";
+import BotonDescargarRecibo from "../components/Reportes/BotonDescargarRecibo";
+import { useReciboData } from "../hooks/useReciboData";
 
 export default function Taquilla() {
   const [searchParams] = useSearchParams();
   const [plate, setPlate] = useState("");
   const [searchedVehicle, setSearchedVehicle] = useState(null);
+  const [datosRecibo, setDatosRecibo] = useState(null);
+  const { buildReciboData } = useReciboData();
   const [selectedItems, setSelectedItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -138,7 +142,7 @@ export default function Taquilla() {
   const handleSelectAll = () => {
     const allPendingIds = pendingItems.map((item) => item.id);
     setSelectedItems(allPendingIds);
-    
+
     // Inicializar modo de pago para cada item seleccionado
     const newPaymentModes = {};
     allPendingIds.forEach((id) => {
@@ -170,7 +174,9 @@ export default function Taquilla() {
     setSelectedItems([]);
 
     try {
-      const data = await vehiculosService.getEstadoCuenta(plateToSearch.toUpperCase());
+      const data = await vehiculosService.getEstadoCuenta(
+        plateToSearch.toUpperCase()
+      );
 
       // Transformar los datos del backend al formato que usa el componente
       const transformedData = {
@@ -274,7 +280,13 @@ export default function Taquilla() {
   };
 
   const handlePayment = async () => {
+    console.log(
+      "💳 [Taquilla] ========== INICIANDO PROCESO DE PAGO =========="
+    );
+    console.log("📋 [Taquilla] Items seleccionados:", selectedItems);
+
     if (selectedItems.length === 0) {
+      console.warn("⚠️ [Taquilla] No hay items seleccionados");
       setError("Por favor seleccione al menos un rubro para pagar");
       return;
     }
@@ -322,8 +334,12 @@ export default function Taquilla() {
         })),
       };
 
+      console.log("📤 [Taquilla] Enviando payload al backend:", payload);
+
       // Llamar al servicio de pagos
+      console.log("🌐 [Taquilla] Llamando a pagosService.registrarPago...");
       const response = await pagosService.registrarPago(payload);
+      console.log("✅ [Taquilla] Respuesta del backend recibida:", response);
 
       // Mostrar mensaje de éxito
       setPaymentSuccess({
@@ -332,6 +348,42 @@ export default function Taquilla() {
         montoTotal: montoTotal,
         rubros: selectedItems.length,
       });
+
+      // Construir datos del recibo para el PDF
+      console.log("🎫 [Taquilla] Iniciando construcción de datos del recibo");
+      console.log("🚗 [Taquilla] Datos del vehículo:", searchedVehicle);
+      console.log("💳 [Taquilla] Deudas seleccionadas:", deudasSeleccionadas);
+      console.log("💵 [Taquilla] Monto total:", montoTotal);
+      console.log("🏦 [Taquilla] Medio de pago:", medioPago);
+      console.log("📝 [Taquilla] Observación:", observacion);
+      console.log("🔢 [Taquilla] Ingreso ID:", response.ingreso.ingreso_id);
+
+      const reciboData = buildReciboData({
+        vehiculo: {
+          placa: searchedVehicle.plate,
+          tipo_vehiculo: searchedVehicle.vehicleType,
+          tipo_vehiculo_display: searchedVehicle.vehicleType,
+          propietario_nombre: searchedVehicle.owner,
+          conductor_actual_nombre: searchedVehicle.conductor || null,
+        },
+        deudasPagadas: deudasSeleccionadas.map((item) => ({
+          rubro: { nombre: item.concept },
+          periodo: item.periodo,
+          monto_abonado: getAmountToPay(item),
+          valor_cargado: item.amount,
+        })),
+        totalPagado: montoTotal,
+        medioPago: medioPago,
+        observacion: observacion,
+        ingresoId: response.ingreso.ingreso_id,
+        fechaPago: new Date().toISOString(),
+      });
+
+      console.log(
+        "✅ [Taquilla] Datos del recibo construidos, seteando estado..."
+      );
+      setDatosRecibo(reciboData);
+      console.log("✅ [Taquilla] Estado datosRecibo actualizado");
 
       // Limpiar selección y formulario
       setSelectedItems([]);
@@ -475,11 +527,32 @@ export default function Taquilla() {
               <Alert className="bg-success/10 border-success/20">
                 <CheckCircle2 className="h-4 w-4 text-success" />
                 <AlertDescription className="text-success">
-                  <strong>¡Pago registrado exitosamente!</strong>
-                  <br />
-                  Recibo #{paymentSuccess.ingresoId} - $
-                  {paymentSuccess.montoTotal.toLocaleString("es-CO")} (
-                  {paymentSuccess.rubros} rubros)
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                      <strong>¡Pago registrado exitosamente!</strong>
+                      <br />
+                      Recibo #{paymentSuccess.ingresoId} - $
+                      {paymentSuccess.montoTotal.toLocaleString("es-CO")} (
+                      {paymentSuccess.rubros} rubros)
+                    </div>
+                    {datosRecibo ? (
+                      <>
+                        {console.log(
+                          "🎨 [Taquilla] Renderizando BotonDescargarRecibo con datos:",
+                          datosRecibo
+                        )}
+                        <BotonDescargarRecibo
+                          datosRecibo={datosRecibo}
+                          variant="default"
+                          className="bg-primary hover:bg-primary/90"
+                        />
+                      </>
+                    ) : (
+                      console.log(
+                        "⚠️ [Taquilla] datosRecibo es null, no se renderiza el botón"
+                      )
+                    )}
+                  </div>
                 </AlertDescription>
               </Alert>
             )}
@@ -629,7 +702,9 @@ export default function Taquilla() {
                           onClick={handleSelectAll}
                           variant="outline"
                           size="sm"
-                          disabled={processingPayment || pendingItems.length === 0}
+                          disabled={
+                            processingPayment || pendingItems.length === 0
+                          }
                           className="text-xs"
                         >
                           ✓ Seleccionar Todos ({pendingItems.length})
