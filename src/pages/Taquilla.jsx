@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import jsPDF from "jspdf";
+import logoSotrapanol from "../assets/SOTRAPEÑOL.png";
 import {
   Card,
   CardContent,
@@ -38,6 +40,7 @@ export default function Taquilla() {
   const [error, setError] = useState(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(null);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
 
   // Estado para el formulario de pago
   const [medioPago, setMedioPago] = useState("efectivo");
@@ -276,6 +279,283 @@ export default function Taquilla() {
         return parseFloat(mode.customAmount) || 0;
       default:
         return item.saldoPendiente;
+    }
+  };
+
+  const handleGeneratePDF = async (ingresoId) => {
+    setGeneratingPDF(true);
+    try {
+      // Obtener datos del recibo
+      const reciboData = await pagosService.getReciboPago(ingresoId);
+
+      // Convertir logo a base64
+      const getBase64FromImage = (img) => {
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          image.crossOrigin = "anonymous";
+          image.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = image.width;
+            canvas.height = image.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(image, 0, 0);
+            resolve(canvas.toDataURL("image/png"));
+          };
+          image.onerror = reject;
+          image.src = img;
+        });
+      };
+
+      // Crear el PDF usando jsPDF
+      const doc = new jsPDF();
+
+      // Colores corporativos
+      const azulPrimario = [37, 99, 235]; // #2563eb
+      const azulClaro = [219, 234, 254]; // #dbeafe
+      const gris = [107, 114, 128]; // #6b7280
+
+      let y = 20;
+
+      // ========== ENCABEZADO ==========
+      // Logo de SOTRAPEÑOL (izquierda superior)
+      try {
+        const logoBase64 = await getBase64FromImage(logoSotrapanol);
+        doc.addImage(logoBase64, "PNG", 20, y - 5, 35, 35);
+      } catch (error) {
+        console.warn("No se pudo cargar el logo:", error);
+      }
+
+      // Nombre de la empresa (izquierda, al lado del logo)
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 0, 0);
+      doc.text("SOTRAPEÑOL", 60, y + 5);
+
+      // Información de contacto (izquierda, debajo del nombre)
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...gris);
+      y += 11;
+      doc.text("NIT: 900.123.456-7", 60, y);
+      y += 4;
+      doc.text("Calle 50 #45-30, Peñol, Antioquia", 60, y);
+      y += 4;
+      doc.text("Tel: (604) 861-9000 | info@sotrapanol.com", 60, y);
+
+      // Título del recibo (derecha)
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...azulPrimario);
+      doc.text("RECIBO DE PAGO", 190, 20, { align: "right" });
+
+      doc.setFontSize(20);
+      doc.text(
+        `N° ${String(reciboData.ingreso_id).padStart(6, "0")}`,
+        190,
+        28,
+        { align: "right" }
+      );
+
+      // Fecha (derecha)
+      const fechaFormateada = new Date(
+        reciboData.fecha_ingreso
+      ).toLocaleDateString("es-CO", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...gris);
+      doc.text(fechaFormateada, 190, 34, { align: "right" });
+
+      y = 50;
+
+      // Línea azul separadora
+      doc.setDrawColor(...azulPrimario);
+      doc.setLineWidth(1);
+      doc.line(20, y, 190, y);
+      y += 12;
+
+      // ========== INFORMACIÓN DEL VEHÍCULO ==========
+      doc.setFillColor(...azulClaro);
+      doc.rect(20, y - 5, 170, 8, "F");
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(60, 60, 60);
+      doc.text("INFORMACIÓN DEL VEHÍCULO", 25, y);
+      y += 10;
+
+      // Datos del vehículo en dos columnas
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...gris);
+      doc.text("Placa:", 25, y);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...azulPrimario);
+      doc.setFontSize(14);
+      doc.text(reciboData.vehiculo.placa, 70, y);
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...gris);
+      y += 7;
+      doc.text("Tipo de Vehículo:", 25, y);
+      doc.setTextColor(0, 0, 0);
+      doc.text(reciboData.vehiculo.tipo_vehiculo, 70, y);
+
+      y += 7;
+      doc.setTextColor(...gris);
+      doc.text("Conductor/Propietario:", 25, y);
+      doc.setTextColor(0, 0, 0);
+      doc.text(reciboData.vehiculo.propietario_nombre || "N/A", 70, y);
+
+      y += 7;
+      doc.setTextColor(...gris);
+      doc.text("Documento:", 25, y);
+      doc.setTextColor(0, 0, 0);
+      doc.text("N/A", 70, y);
+
+      y += 15;
+
+      // ========== DETALLE DEL PAGO ==========
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(60, 60, 60);
+      doc.text("DETALLE DEL PAGO", 20, y);
+      y += 8;
+
+      // Encabezado de la tabla
+      doc.setFillColor(...azulPrimario);
+      doc.rect(20, y - 5, 170, 10, "F");
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(255, 255, 255);
+      doc.text("CONCEPTO", 25, y);
+      doc.text("PERIODO", 95, y);
+      doc.text("VALOR", 170, y, { align: "right" });
+      y += 10;
+
+      // Filas de la tabla
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(0, 0, 0);
+
+      reciboData.detalles.forEach((detalle, index) => {
+        // Fondo alternado
+        if (index % 2 === 0) {
+          doc.setFillColor(249, 250, 251);
+          doc.rect(20, y - 6, 170, 10, "F");
+        }
+
+        const periodoFormateado = new Date(detalle.periodo).toLocaleDateString(
+          "es-CO",
+          {
+            month: "long",
+            year: "numeric",
+          }
+        );
+        const montoFormateado = parseFloat(
+          detalle.monto_abonado
+        ).toLocaleString("es-CO", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        });
+
+        doc.text(detalle.rubro_nombre, 25, y);
+        doc.text(periodoFormateado, 95, y);
+        doc.text(`$${montoFormateado}`, 185, y, { align: "right" });
+        y += 10;
+
+        // Si nos quedamos sin espacio, agregar nueva página
+        if (y > 260) {
+          doc.addPage();
+          y = 20;
+        }
+      });
+
+      y += 5;
+
+      // Línea separadora
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.3);
+      doc.line(20, y, 190, y);
+      y += 10;
+
+      // ========== RESUMEN ==========
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...gris);
+      doc.text("Medio de Pago:", 25, y);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "bold");
+      doc.text(
+        reciboData.medio_pago.charAt(0).toUpperCase() +
+          reciboData.medio_pago.slice(1),
+        135,
+        y,
+        { align: "right" }
+      );
+      y += 12;
+
+      // Total pagado con fondo azul claro
+      doc.setFillColor(...azulClaro);
+      doc.rect(20, y - 7, 170, 12, "F");
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...azulPrimario);
+      doc.text("TOTAL PAGADO", 25, y);
+
+      const totalFormateado = parseFloat(reciboData.monto_total).toLocaleString(
+        "es-CO",
+        {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }
+      );
+      doc.setFontSize(16);
+      doc.text(`$${totalFormateado}`, 185, y, { align: "right" });
+      y += 15;
+
+      // Observaciones (si existen)
+      if (reciboData.observacion) {
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(...gris);
+        doc.text(`Observaciones: ${reciboData.observacion}`, 25, y);
+        y += 8;
+      }
+
+      // Cajero
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...gris);
+      doc.text(`Atendido por: ${reciboData.usuario_nombre}`, 25, y);
+
+      // Pie de página
+      y = 280;
+      doc.setFontSize(8);
+      doc.setTextColor(...gris);
+      doc.text(
+        "Gracias por su pago. Conserve este recibo como comprobante de su transacción.",
+        105,
+        y,
+        { align: "center" }
+      );
+
+      // Descargar el PDF
+      doc.save(
+        `recibo_${String(ingresoId).padStart(6, "0")}_${
+          reciboData.vehiculo.placa
+        }.pdf`
+      );
+    } catch (err) {
+      console.error("Error generando PDF:", err);
+      setError("Error al generar el recibo. Por favor intente nuevamente.");
+    } finally {
+      setGeneratingPDF(false);
     }
   };
 
