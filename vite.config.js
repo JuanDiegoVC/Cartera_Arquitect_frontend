@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
+import __dirname from "./src/utils/__dirname.js";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -7,6 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       buffer: "buffer/",
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   define: {
@@ -14,5 +17,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["buffer"],
+    esbuildOptions: {
+      define: {
+        global: "globalThis",
+      },
+    },
   },
 });

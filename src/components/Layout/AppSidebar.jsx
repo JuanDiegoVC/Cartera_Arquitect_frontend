@@ -8,6 +8,7 @@ import {
   User,
   FileSpreadsheet,
   List,
+  Receipt,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -38,6 +39,12 @@ const menuItems = [
     title: "Taquilla",
     url: "/taquilla",
     icon: DollarSign,
+    roles: ["taquilla", "administrador"], // Solo taquilla y admin
+  },
+  {
+    title: "Egresos",
+    url: "/egresos",
+    icon: Receipt,
     roles: ["taquilla", "administrador"], // Solo taquilla y admin
   },
   {

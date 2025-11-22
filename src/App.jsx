@@ -16,6 +16,7 @@ import VehiculosLista from "./pages/VehiculosLista";
 import VehiculoDetalle from "./pages/VehiculoDetalle";
 import Configuracion from "./pages/Configuracion";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
+import GestionEgresos from "./pages/GestionEgresos";
 import "./App.css";
 
 function App() {
@@ -45,6 +46,18 @@ function App() {
               <ProtectedRoute allowedRoles={["taquilla", "administrador"]}>
                 <AppLayout>
                   <Taquilla />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Egresos - Solo taquilla y administrador */}
+          <Route
+            path="/egresos"
+            element={
+              <ProtectedRoute allowedRoles={["taquilla", "administrador"]}>
+                <AppLayout>
+                  <GestionEgresos />
                 </AppLayout>
               </ProtectedRoute>
             }
@@ -105,6 +118,18 @@ function App() {
               <ProtectedRoute allowedRoles={["administrador"]}>
                 <AppLayout>
                   <GenerarFacturacion />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Gestión de Egresos - Solo taquilla y administrador */}
+          <Route
+            path="/egresos"
+            element={
+              <ProtectedRoute allowedRoles={["taquilla", "administrador"]}>
+                <AppLayout>
+                  <GestionEgresos />
                 </AppLayout>
               </ProtectedRoute>
             }
