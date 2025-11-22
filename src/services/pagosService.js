@@ -75,6 +75,23 @@ export const pagosService = {
   },
 
   /**
+   * Obtener datos del recibo para generar PDF
+   *
+   * @param {number} ingresoId - ID del ingreso
+   * @returns {Promise<Object>}
+   */
+  getReciboPago: async (ingresoId) => {
+    try {
+      const response = await apiClient.get(
+        `/v1/cobros/recibo-pago/${ingresoId}/`
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
    * Obtener pagos realizados en un rango de fechas
    * (Endpoint pendiente de implementación en backend)
    *
