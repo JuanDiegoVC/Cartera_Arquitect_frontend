@@ -15,7 +15,7 @@ export default function VehiculosLista() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [exporting, setExporting] = useState(false);
-  
+
   // Estado de filtros
   const [filters, setFilters] = useState({
     tipo_vehiculo: '',
@@ -47,7 +47,7 @@ export default function VehiculosLista() {
     setExporting(true);
     try {
       const response = await vehiculosService.exportToExcel(filters);
-      
+
       // Crear blob y forzar descarga
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -86,6 +86,29 @@ export default function VehiculosLista() {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  // Cambiar estado del vehículo (SOT-26)
+  const handleToggleEstado = async (id, currentStatus) => {
+    const action = currentStatus === 'activo' ? 'desactivar' : 'activar';
+    const confirmMsg = currentStatus === 'activo'
+      ? "¿Está seguro de desactivar este vehículo? No se generarán nuevos cobros."
+      : "¿Está seguro de activar este vehículo?";
+
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      if (action === 'desactivar') {
+        await vehiculosService.desactivar(id);
+      } else {
+        await vehiculosService.activar(id);
+      }
+      // Recargar lista manteniendo filtros
+      fetchVehiculos();
+    } catch (err) {
+      console.error('Error al cambiar estado:', err);
+      alert('Error al cambiar el estado del vehículo');
+    }
   };
 
   return (
@@ -223,6 +246,7 @@ export default function VehiculosLista() {
                     <th className="px-4 py-3 text-left text-sm font-semibold">Conductor</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold">Estado</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold">Registro</th>
+                    <th className="px-4 py-3 text-right text-sm font-semibold">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -247,17 +271,26 @@ export default function VehiculosLista() {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            vehiculo.estado === 'activo'
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${vehiculo.estado === 'activo'
                               ? 'bg-success/10 text-success'
                               : 'bg-muted text-muted-foreground'
-                          }`}
+                            }`}
                         >
                           {vehiculo.estado_display || vehiculo.estado}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-muted-foreground">
                         {formatDate(vehiculo.creado_en)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Button
+                          variant={vehiculo.estado === 'activo' ? "destructive" : "outline"}
+                          size="sm"
+                          onClick={() => handleToggleEstado(vehiculo.vehiculo_id, vehiculo.estado)}
+                          className="h-8 text-xs"
+                        >
+                          {vehiculo.estado === 'activo' ? 'Desactivar' : 'Activar'}
+                        </Button>
                       </td>
                     </tr>
                   ))}

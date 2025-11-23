@@ -26,7 +26,10 @@ export default function Configuracion() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Card
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => window.location.href = '/configuracion/cobros'}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Database className="h-5 w-5 text-success" />
