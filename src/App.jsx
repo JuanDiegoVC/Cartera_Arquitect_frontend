@@ -15,6 +15,7 @@ import Vehiculos from "./pages/Vehiculos";
 import VehiculosLista from "./pages/VehiculosLista";
 import VehiculoDetalle from "./pages/VehiculoDetalle";
 import Configuracion from "./pages/Configuracion";
+import ConfiguracionCobros from "./pages/ConfiguracionCobros";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
 import "./App.css";
@@ -142,6 +143,17 @@ function App() {
               <ProtectedRoute allowedRoles={["administrador"]}>
                 <AppLayout>
                   <Configuracion />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/configuracion/cobros"
+            element={
+              <ProtectedRoute allowedRoles={["administrador"]}>
+                <AppLayout>
+                  <ConfiguracionCobros />
                 </AppLayout>
               </ProtectedRoute>
             }

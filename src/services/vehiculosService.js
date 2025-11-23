@@ -78,7 +78,7 @@ export const vehiculosService = {
    */
   getById: async (id) => {
     try {
-      const response = await apiClient.get(`/vehiculos/${id}/`);
+      const response = await apiClient.get(`/v1/flota/vehiculos/${id}/`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -92,7 +92,7 @@ export const vehiculosService = {
    */
   create: async (data) => {
     try {
-      const response = await apiClient.post("/vehiculos/", data);
+      const response = await apiClient.post("/v1/flota/vehiculos/", data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -107,7 +107,7 @@ export const vehiculosService = {
    */
   update: async (id, data) => {
     try {
-      const response = await apiClient.patch(`/vehiculos/${id}/`, data);
+      const response = await apiClient.patch(`/v1/flota/vehiculos/${id}/`, data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -121,7 +121,7 @@ export const vehiculosService = {
    */
   desactivar: async (id) => {
     try {
-      const response = await apiClient.patch(`/vehiculos/${id}/`, {
+      const response = await apiClient.patch(`/v1/flota/vehiculos/${id}/`, {
         estado: "inactivo",
       });
       return response.data;
@@ -137,7 +137,7 @@ export const vehiculosService = {
    */
   activar: async (id) => {
     try {
-      const response = await apiClient.patch(`/vehiculos/${id}/`, {
+      const response = await apiClient.patch(`/v1/flota/vehiculos/${id}/`, {
         estado: "activo",
       });
       return response.data;
