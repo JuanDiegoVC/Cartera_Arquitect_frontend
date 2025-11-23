@@ -11,10 +11,11 @@ export const facturacionService = {
    * @param {string} periodo - Fecha del primer día del mes (YYYY-MM-DD)
    * @returns {Promise}
    */
-  generarCargos: async (periodo) => {
+  generarCargos: async (periodo, seguridad_variable = []) => {
     try {
       const response = await apiClient.post("/v1/facturacion/generar-cargos/", {
         periodo,
+        seguridad_variable,
       });
       return response.data;
     } catch (error) {
