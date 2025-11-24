@@ -1,10 +1,22 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { FileText, TrendingUp, AlertCircle, FileSpreadsheet } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  FileText,
+  TrendingUp,
+  AlertCircle,
+  FileSpreadsheet,
+} from "lucide-react";
 import ReporteCarteraModal from "../components/Reportes/ReporteCarteraModal";
 
 export default function Reportes() {
   const [modalCarteraOpen, setModalCarteraOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -16,7 +28,10 @@ export default function Reportes() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Card
+          className="hover:shadow-lg transition-all cursor-pointer hover:scale-105 border-2 hover:border-primary"
+          onClick={() => navigate("/cierre-turno")}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <FileText className="h-5 w-5 text-primary" />
@@ -58,7 +73,7 @@ export default function Reportes() {
           </CardContent>
         </Card>
 
-        <Card 
+        <Card
           className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200 hover:border-blue-400"
           onClick={() => setModalCarteraOpen(true)}
         >
@@ -77,9 +92,9 @@ export default function Reportes() {
       </div>
 
       {/* Modal de Reporte de Cartera */}
-      <ReporteCarteraModal 
-        open={modalCarteraOpen} 
-        onOpenChange={setModalCarteraOpen} 
+      <ReporteCarteraModal
+        open={modalCarteraOpen}
+        onOpenChange={setModalCarteraOpen}
       />
     </div>
   );

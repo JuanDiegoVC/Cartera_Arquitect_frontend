@@ -18,6 +18,8 @@ import Configuracion from "./pages/Configuracion";
 import ConfiguracionCobros from "./pages/ConfiguracionCobros";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
+import CierreDeTurno from "./pages/CierreDeTurno";
+import { Toaster } from "sonner";
 import "./App.css";
 
 function App() {
@@ -59,6 +61,18 @@ function App() {
               <ProtectedRoute allowedRoles={["taquilla", "administrador"]}>
                 <AppLayout>
                   <GestionEgresos />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Cierre de Turno - Solo taquilla y administrador */}
+          <Route
+            path="/cierre-turno"
+            element={
+              <ProtectedRoute allowedRoles={["taquilla", "administrador"]}>
+                <AppLayout>
+                  <CierreDeTurno />
                 </AppLayout>
               </ProtectedRoute>
             }
@@ -162,6 +176,7 @@ function App() {
           {/* Redirección por defecto */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Toaster position="top-right" richColors />
       </Router>
     </AuthProvider>
   );

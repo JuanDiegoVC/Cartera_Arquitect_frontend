@@ -132,12 +132,52 @@ export default function Taquilla() {
   }, [searchedVehicle?.items, filterMonth, filterYear]);
 
   /**
+   * Obtiene los años únicos presentes en las deudas
+   */
+  const availableYears = useMemo(() => {
+    if (!searchedVehicle?.items) return [];
+
+    const years = searchedVehicle.items.map((item) => {
+      const itemDate = new Date(item.periodo + "T00:00:00");
+      return itemDate.getFullYear();
+    });
+
+    // Retornar años únicos ordenados descendentemente
+    return [...new Set(years)].sort((a, b) => b - a);
+  }, [searchedVehicle?.items]);
+
+  /**
    * Limpia los filtros de fecha
    */
   const clearFilters = () => {
     setFilterMonth("");
     setFilterYear("");
   };
+
+  /**
+   * Efecto para limpiar selecciones cuando cambia el filtro
+   * Esto previene que rubros ocultos permanezcan seleccionados
+   */
+  useEffect(() => {
+    if (filterMonth || filterYear) {
+      // Obtener IDs de items filtrados
+      const filteredIds = filteredItems.map((item) => item.id);
+
+      // Mantener solo las selecciones que están en items filtrados
+      setSelectedItems((prev) => prev.filter((id) => filteredIds.includes(id)));
+
+      // Limpiar modos de pago de items no visibles
+      setPaymentModes((prev) => {
+        const newModes = {};
+        Object.keys(prev).forEach((id) => {
+          if (filteredIds.includes(id)) {
+            newModes[id] = prev[id];
+          }
+        });
+        return newModes;
+      });
+    }
+  }, [filterMonth, filterYear, filteredItems]);
 
   /**
    * Selecciona todos los rubros pendientes filtrados
@@ -852,6 +892,11 @@ export default function Taquilla() {
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Filter className="h-5 w-5 text-primary" />
                 Filtrar Rubros por Periodo
+                {(filterMonth || filterYear) && (
+                  <Badge variant="secondary" className="ml-2">
+                    Filtro activo
+                  </Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -887,14 +932,11 @@ export default function Taquilla() {
                     className="w-full p-2 border rounded-md bg-background"
                   >
                     <option value="">Todos los años</option>
-                    {Array.from({ length: 10 }, (_, i) => {
-                      const year = new Date().getFullYear() - i;
-                      return (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      );
-                    })}
+                    {availableYears.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -909,8 +951,24 @@ export default function Taquilla() {
                 )}
 
                 <div className="ml-auto text-sm text-muted-foreground">
-                  Mostrando <strong>{filteredItems.length}</strong> de{" "}
-                  <strong>{searchedVehicle.items.length}</strong> rubros
+                  {filterMonth || filterYear ? (
+                    <span>
+                      Mostrando{" "}
+                      <strong className="text-primary">
+                        {filteredItems.length}
+                      </strong>{" "}
+                      de <strong>{searchedVehicle.items.length}</strong> rubros
+                      totales
+                    </span>
+                  ) : (
+                    <span>
+                      Total:{" "}
+                      <strong className="text-primary">
+                        {filteredItems.length}
+                      </strong>{" "}
+                      rubros
+                    </span>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -936,10 +994,42 @@ export default function Taquilla() {
               <CardContent className="pt-6">
                 <div className="space-y-3">
                   {filteredItems.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                      <p>No hay rubros para el periodo seleccionado</p>
-                    </div>
+                    <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+                      <Calendar className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                      <AlertDescription className="text-amber-800 dark:text-amber-300">
+                        {filterMonth || filterYear ? (
+                          <>
+                            <p className="font-semibold mb-1">
+                              No se encontraron deudas para el periodo
+                              seleccionado
+                            </p>
+                            <p className="text-sm">
+                              {filterMonth &&
+                                `Mes: ${
+                                  [
+                                    "Enero",
+                                    "Febrero",
+                                    "Marzo",
+                                    "Abril",
+                                    "Mayo",
+                                    "Junio",
+                                    "Julio",
+                                    "Agosto",
+                                    "Septiembre",
+                                    "Octubre",
+                                    "Noviembre",
+                                    "Diciembre",
+                                  ][parseInt(filterMonth) - 1]
+                                }`}
+                              {filterMonth && filterYear && " • "}
+                              {filterYear && `Año: ${filterYear}`}
+                            </p>
+                          </>
+                        ) : (
+                          <p>Este vehículo no tiene deudas pendientes</p>
+                        )}
+                      </AlertDescription>
+                    </Alert>
                   ) : (
                     filteredItems.map((item) => (
                       <div
