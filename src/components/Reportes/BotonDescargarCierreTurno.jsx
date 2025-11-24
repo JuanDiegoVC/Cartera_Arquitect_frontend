@@ -60,14 +60,19 @@ const BotonDescargarCierreTurno = ({
       document.body.appendChild(link);
       console.log("📥 [BotonDescargarCierreTurno] Iniciando descarga...");
       link.click();
-      console.log("✅ [BotonDescargarCierreTurno] Descarga iniciada exitosamente");
+      console.log(
+        "✅ [BotonDescargarCierreTurno] Descarga iniciada exitosamente"
+      );
 
       // Limpiar
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       console.log("🧹 [BotonDescargarCierreTurno] Limpieza completada");
     } catch (error) {
-      console.error("❌ [BotonDescargarCierreTurno] Error al generar PDF:", error);
+      console.error(
+        "❌ [BotonDescargarCierreTurno] Error al generar PDF:",
+        error
+      );
       alert("Error al generar el PDF: " + error.message);
     } finally {
       setIsGenerating(false);

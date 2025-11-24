@@ -532,7 +532,7 @@ export default function Taquilla() {
       doc.setFont("helvetica", "bold");
       doc.text(
         reciboData.medio_pago.charAt(0).toUpperCase() +
-          reciboData.medio_pago.slice(1),
+        reciboData.medio_pago.slice(1),
         135,
         y,
         { align: "right" }
@@ -587,8 +587,7 @@ export default function Taquilla() {
 
       // Descargar el PDF
       doc.save(
-        `recibo_${String(ingresoId).padStart(6, "0")}_${
-          reciboData.vehiculo.placa
+        `recibo_${String(ingresoId).padStart(6, "0")}_${reciboData.vehiculo.placa
         }.pdf`
       );
     } catch (err) {
@@ -624,8 +623,7 @@ export default function Taquilla() {
       }
       if (amountToPay > item.saldoPendiente) {
         setError(
-          `El monto para ${
-            item.concept
+          `El monto para ${item.concept
           } no puede ser mayor al saldo pendiente ($${item.saldoPendiente.toLocaleString(
             "es-CO"
           )})`
@@ -748,8 +746,8 @@ export default function Taquilla() {
       console.error("Error procesando pago:", err);
       setError(
         err.detalle ||
-          err.error ||
-          "Error al procesar el pago. Por favor intente nuevamente."
+        err.error ||
+        "Error al procesar el pago. Por favor intente nuevamente."
       );
     } finally {
       setProcessingPayment(false);
@@ -818,6 +816,12 @@ export default function Taquilla() {
                   placeholder="Ingrese placa del vehículo (ej: ABC123)"
                   value={plate}
                   onChange={(e) => setPlate(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && plate.trim().length >= 3) {
+                      e.preventDefault();
+                      handleSearch(e);
+                    }
+                  }}
                   className="pl-10 text-lg font-semibold"
                   disabled={loading}
                 />
@@ -1096,11 +1100,10 @@ export default function Taquilla() {
                       {pendingItems.map((item) => (
                         <div
                           key={item.id}
-                          className={`p-4 rounded-lg border-2 transition-all ${
-                            selectedItems.includes(item.id)
+                          className={`p-4 rounded-lg border-2 transition-all ${selectedItems.includes(item.id)
                               ? "border-primary bg-primary/5"
                               : "border-muted hover:border-muted-foreground/30"
-                          }`}
+                            }`}
                         >
                           {/* Header con checkbox */}
                           <div className="flex items-start gap-3">
@@ -1212,25 +1215,25 @@ export default function Taquilla() {
                                       </span>
                                       {paymentModes[item.id]?.mode ===
                                         "personalizado" && (
-                                        <Input
-                                          type="number"
-                                          placeholder="Ingrese monto"
-                                          value={
-                                            paymentModes[item.id]
-                                              ?.customAmount || ""
-                                          }
-                                          onChange={(e) =>
-                                            handleCustomAmountChange(
-                                              item.id,
-                                              e.target.value
-                                            )
-                                          }
-                                          disabled={processingPayment}
-                                          className="mt-1"
-                                          min="1"
-                                          max={item.saldoPendiente}
-                                        />
-                                      )}
+                                          <Input
+                                            type="number"
+                                            placeholder="Ingrese monto"
+                                            value={
+                                              paymentModes[item.id]
+                                                ?.customAmount || ""
+                                            }
+                                            onChange={(e) =>
+                                              handleCustomAmountChange(
+                                                item.id,
+                                                e.target.value
+                                              )
+                                            }
+                                            disabled={processingPayment}
+                                            className="mt-1"
+                                            min="1"
+                                            max={item.saldoPendiente}
+                                          />
+                                        )}
                                     </div>
                                   </label>
                                 </div>
