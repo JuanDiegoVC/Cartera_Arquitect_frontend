@@ -9,6 +9,7 @@ import {
   FileSpreadsheet,
   List,
   Receipt,
+  ClipboardCheck,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -45,6 +46,12 @@ const menuItems = [
     title: "Egresos",
     url: "/egresos",
     icon: Receipt,
+    roles: ["taquilla", "administrador"], // Solo taquilla y admin
+  },
+  {
+    title: "Cierre de Turno",
+    url: "/cierre-turno",
+    icon: ClipboardCheck,
     roles: ["taquilla", "administrador"], // Solo taquilla y admin
   },
   {

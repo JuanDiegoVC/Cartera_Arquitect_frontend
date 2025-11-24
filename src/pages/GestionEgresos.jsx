@@ -51,6 +51,7 @@ export default function GestionEgresos() {
     categoria: "",
     vehiculo: null,
     fecha_egreso: new Date().toISOString().split("T")[0],
+    medio_pago: "efectivo",
     valor: "",
     descripcion: "",
   });
@@ -188,6 +189,7 @@ export default function GestionEgresos() {
       const egresoData = {
         categoria: parseInt(formData.categoria),
         fecha_egreso: formData.fecha_egreso,
+        medio_pago: formData.medio_pago,
         valor: valorNumerico,
         descripcion:
           formData.descripcion || `Egreso categoría ${catSeleccionada?.nombre}`,
@@ -207,6 +209,7 @@ export default function GestionEgresos() {
         categoria: "",
         vehiculo: null,
         fecha_egreso: new Date().toISOString().split("T")[0],
+        medio_pago: "efectivo",
         valor: "",
         descripcion: "",
       });
@@ -382,6 +385,25 @@ export default function GestionEgresos() {
                 />
               </div>
 
+              {/* Medio de Pago */}
+              <div className="space-y-2">
+                <Label htmlFor="medio_pago">Método de Pago *</Label>
+                <Select
+                  value={formData.medio_pago}
+                  onValueChange={(value) =>
+                    handleInputChange("medio_pago", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione método" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="efectivo">Efectivo</SelectItem>
+                    <SelectItem value="transferencia">Transferencia</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Monto */}
               <div className="space-y-2">
                 <Label htmlFor="valor">Monto *</Label>
@@ -450,6 +472,7 @@ export default function GestionEgresos() {
                       <TableRow>
                         <TableHead>Categoría</TableHead>
                         <TableHead>Vehículo/Conductor</TableHead>
+                        <TableHead>Método</TableHead>
                         <TableHead>Hora</TableHead>
                         <TableHead className="text-right">Monto</TableHead>
                       </TableRow>
@@ -473,6 +496,19 @@ export default function GestionEgresos() {
                             ) : (
                               <span className="text-muted-foreground">-</span>
                             )}
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                                egreso.medio_pago === "efectivo"
+                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                  : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                              }`}
+                            >
+                              {egreso.medio_pago_display ||
+                                egreso.medio_pago ||
+                                "Efectivo"}
+                            </span>
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground">
                             {egreso.hora}
