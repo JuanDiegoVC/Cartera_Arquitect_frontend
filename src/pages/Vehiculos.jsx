@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Car, Plus, Search, ArrowRight, List } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import { Alert, AlertDescription } from "../components/ui/alert";
+import PlacaAutocomplete from "../components/common/PlacaAutocomplete";
 
 export default function Vehiculos() {
   const navigate = useNavigate();
@@ -14,14 +19,21 @@ export default function Vehiculos() {
   const handleSearch = (e) => {
     e.preventDefault();
     setError(null);
-    
+
     if (searchPlate.trim().length < 6) {
-      setError("Ingrese la placa completa (mínimo 6 caracteres, ej: ABC123 o ESC-201)");
+      setError(
+        "Ingrese la placa completa (mínimo 6 caracteres, ej: ABC123 o ESC-201)"
+      );
       return;
     }
 
     // Navegar a la vista de detalle del vehículo
     navigate(`/vehiculos/${searchPlate.trim().toUpperCase()}`);
+  };
+
+  // Cuando se selecciona una placa del autocompletado
+  const handlePlacaSelect = (vehiculo) => {
+    navigate(`/vehiculos/${vehiculo.placa}`);
   };
 
   return (
@@ -34,10 +46,10 @@ export default function Vehiculos() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="gap-2"
-            onClick={() => navigate('/vehiculos/lista')}
+            onClick={() => navigate("/vehiculos/lista")}
           >
             <List className="h-4 w-4" />
             Ver Lista Completa
@@ -58,7 +70,9 @@ export default function Vehiculos() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground mt-1">Registrados en el sistema</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Registrados en el sistema
+            </p>
           </CardContent>
         </Card>
 
@@ -70,7 +84,9 @@ export default function Vehiculos() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-success">-</div>
-            <p className="text-xs text-muted-foreground mt-1">Al día en sus pagos</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Al día en sus pagos
+            </p>
           </CardContent>
         </Card>
 
@@ -82,7 +98,9 @@ export default function Vehiculos() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-warning">-</div>
-            <p className="text-xs text-muted-foreground mt-1">Tienen pagos pendientes</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Tienen pagos pendientes
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -99,12 +117,11 @@ export default function Vehiculos() {
           <form onSubmit={handleSearch} className="space-y-3">
             <div className="flex gap-3">
               <div className="flex-1 relative">
-                <Input
-                  type="text"
-                  placeholder="Ingrese placa del vehículo (ej: ABC123)"
+                <PlacaAutocomplete
                   value={searchPlate}
-                  onChange={(e) => setSearchPlate(e.target.value.toUpperCase())}
-                  className="text-lg font-semibold"
+                  onChange={setSearchPlate}
+                  onSelect={handlePlacaSelect}
+                  placeholder="Ingrese placa del vehículo (ej: ABC123)"
                 />
               </div>
               <Button type="submit" size="lg" className="gap-2">
@@ -127,7 +144,8 @@ export default function Vehiculos() {
         </div>
         <h3 className="text-xl font-semibold mb-2">Gestión de Vehículos</h3>
         <p className="text-muted-foreground mb-4">
-          Busque un vehículo por placa para ver su información completa y estado de cuenta
+          Busque un vehículo por placa para ver su información completa y estado
+          de cuenta
         </p>
         <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto mt-6">
           <Card className="text-left hover:shadow-md transition-shadow cursor-pointer">
@@ -139,7 +157,8 @@ export default function Vehiculos() {
                 <div className="flex-1">
                   <h4 className="font-semibold mb-1">Consultar Estado</h4>
                   <p className="text-sm text-muted-foreground">
-                    Vea el estado de cuenta y deudas pendientes de cualquier vehículo
+                    Vea el estado de cuenta y deudas pendientes de cualquier
+                    vehículo
                   </p>
                 </div>
               </div>
@@ -154,7 +173,8 @@ export default function Vehiculos() {
                 <div className="flex-1">
                   <h4 className="font-semibold mb-1">Ir a Taquilla</h4>
                   <p className="text-sm text-muted-foreground">
-                    Desde la vista del vehículo puede registrar pagos directamente
+                    Desde la vista del vehículo puede registrar pagos
+                    directamente
                   </p>
                 </div>
               </div>

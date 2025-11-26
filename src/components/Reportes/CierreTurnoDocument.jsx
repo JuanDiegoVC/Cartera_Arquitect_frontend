@@ -166,37 +166,63 @@ const styles = StyleSheet.create({
     padding: 5,
   },
 
-  // Columnas de tabla de ingresos
+  // Columnas de tabla de ingresos (actualizado para más detalle)
   colHora: {
-    width: "15%",
-    fontSize: 8,
+    width: "8%",
+    fontSize: 7,
   },
   colPlaca: {
-    width: "25%",
-    fontSize: 8,
+    width: "12%",
+    fontSize: 7,
+    fontWeight: "bold",
+  },
+  colPropietario: {
+    width: "18%",
+    fontSize: 7,
+  },
+  colTipoVehiculo: {
+    width: "12%",
+    fontSize: 6,
+  },
+  colConcepto: {
+    width: "14%",
+    fontSize: 7,
+  },
+  colPeriodo: {
+    width: "12%",
+    fontSize: 7,
   },
   colMedio: {
-    width: "35%",
-    fontSize: 8,
+    width: "10%",
+    fontSize: 7,
   },
   colMonto: {
-    width: "25%",
-    fontSize: 8,
+    width: "14%",
+    fontSize: 7,
     textAlign: "right",
   },
 
   // Columnas de tabla de egresos
+  colHoraEgreso: {
+    width: "10%",
+    fontSize: 7,
+  },
   colCategoria: {
-    width: "25%",
-    fontSize: 8,
+    width: "22%",
+    fontSize: 7,
   },
   colDescripcion: {
-    width: "35%",
-    fontSize: 8,
+    width: "38%",
+    fontSize: 7,
   },
   colMetodo: {
-    width: "20%",
+    width: "15%",
     fontSize: 7,
+  },
+  colMontoEgreso: {
+    width: "15%",
+    fontSize: 7,
+    textAlign: "right",
   },
 
   // Badges
@@ -369,9 +395,9 @@ const CierreTurnoDocument = ({ datosCierre }) => {
           </View>
         </View>
 
-        {/* Tabla de Ingresos */}
+        {/* Tabla de Ingresos - Versión Detallada */}
         <View style={styles.movementSection}>
-          <Text style={styles.sectionTitle}>Ingresos del Día</Text>
+          <Text style={styles.sectionTitle}>Detalle de Ingresos del Día</Text>
           {movimientos.ingresos.length === 0 ? (
             <Text style={styles.emptyMessage}>
               No hay ingresos registrados en este turno
@@ -381,7 +407,11 @@ const CierreTurnoDocument = ({ datosCierre }) => {
               <View style={styles.tableHeader}>
                 <Text style={styles.colHora}>Hora</Text>
                 <Text style={styles.colPlaca}>Placa</Text>
-                <Text style={styles.colMedio}>Medio de Pago</Text>
+                <Text style={styles.colPropietario}>Propietario</Text>
+                <Text style={styles.colTipoVehiculo}>Tipo</Text>
+                <Text style={styles.colConcepto}>Concepto</Text>
+                <Text style={styles.colPeriodo}>Periodo</Text>
+                <Text style={styles.colMedio}>Medio</Text>
                 <Text style={styles.colMonto}>Monto</Text>
               </View>
               {movimientos.ingresos.map((ingreso, index) => (
@@ -391,7 +421,21 @@ const CierreTurnoDocument = ({ datosCierre }) => {
                 >
                   <Text style={styles.colHora}>{ingreso.hora}</Text>
                   <Text style={styles.colPlaca}>{ingreso.placa}</Text>
-                  <Text style={styles.colMedio}>{ingreso.medio_pago}</Text>
+                  <Text style={styles.colPropietario}>
+                    {ingreso.propietario || "Sin propietario"}
+                  </Text>
+                  <Text style={styles.colTipoVehiculo}>
+                    {ingreso.tipo_vehiculo || "-"}
+                  </Text>
+                  <Text style={styles.colConcepto}>
+                    {ingreso.concepto || "-"}
+                  </Text>
+                  <Text style={styles.colPeriodo}>
+                    {ingreso.periodo || "-"}
+                  </Text>
+                  <Text style={styles.colMedio}>
+                    {ingreso.medio_pago || "-"}
+                  </Text>
                   <Text style={styles.colMonto}>
                     {formatCurrency(ingreso.monto)}
                   </Text>
@@ -403,7 +447,7 @@ const CierreTurnoDocument = ({ datosCierre }) => {
 
         {/* Tabla de Egresos */}
         <View style={styles.movementSection}>
-          <Text style={styles.sectionTitle}>Egresos del Día</Text>
+          <Text style={styles.sectionTitle}>Detalle de Egresos del Día</Text>
           {movimientos.egresos.length === 0 ? (
             <Text style={styles.emptyMessage}>
               No hay egresos registrados en este turno
@@ -411,24 +455,24 @@ const CierreTurnoDocument = ({ datosCierre }) => {
           ) : (
             <View style={styles.table}>
               <View style={styles.tableHeader}>
-                <Text style={styles.colHora}>Hora</Text>
+                <Text style={styles.colHoraEgreso}>Hora</Text>
                 <Text style={styles.colCategoria}>Categoría</Text>
                 <Text style={styles.colDescripcion}>Descripción</Text>
                 <Text style={styles.colMetodo}>Método</Text>
-                <Text style={styles.colMonto}>Monto</Text>
+                <Text style={styles.colMontoEgreso}>Monto</Text>
               </View>
               {movimientos.egresos.map((egreso, index) => (
                 <View
                   key={index}
                   style={index % 2 === 0 ? styles.tableRow : styles.tableRowAlt}
                 >
-                  <Text style={styles.colHora}>{egreso.hora}</Text>
+                  <Text style={styles.colHoraEgreso}>{egreso.hora}</Text>
                   <Text style={styles.colCategoria}>{egreso.categoria}</Text>
                   <Text style={styles.colDescripcion}>
                     {egreso.descripcion || "-"}
                   </Text>
                   <Text style={styles.colMetodo}>{egreso.medio_pago}</Text>
-                  <Text style={styles.colMonto}>
+                  <Text style={styles.colMontoEgreso}>
                     {formatCurrency(egreso.monto)}
                   </Text>
                 </View>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDebounce } from "../../hooks/useDebounce";
 import { vehiculosService } from "../../services/vehiculosService";
-import { formatPlaca } from "../../utils/formatters";
+import PlacaAutocomplete from "../common/PlacaAutocomplete";
 import "./VehicleSearch.css";
 
 /**
@@ -21,7 +21,7 @@ const VehicleSearch = () => {
   // Efecto para realizar la búsqueda cuando cambia el término con debounce
   useEffect(() => {
     const performSearch = async () => {
-      if (debouncedSearch.length >= 3) {
+      if (debouncedSearch.length >= 6) {
         setLoading(true);
         setError(null);
         try {
@@ -43,18 +43,34 @@ const VehicleSearch = () => {
           setLoading(false);
         }
       } else {
-        setVehicleData(null);
-        setShowResults(false);
-        setError(null);
+        // No limpiar cuando hay menos de 6 caracteres para permitir autocompletado
+        if (debouncedSearch.length === 0) {
+          setVehicleData(null);
+          setShowResults(false);
+          setError(null);
+        }
       }
     };
 
     performSearch();
   }, [debouncedSearch]);
 
-  const handleInputChange = (e) => {
-    const value = formatPlaca(e.target.value);
-    setSearchTerm(value);
+  // Manejar selección de placa desde autocompletado
+  const handlePlacaSelect = async (vehiculo) => {
+    setSearchTerm(vehiculo.placa);
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await vehiculosService.buscarPorPlaca(vehiculo.placa);
+      setVehicleData(data);
+      setShowResults(true);
+    } catch (err) {
+      console.error("Error al cargar datos:", err);
+      setError("Error al cargar datos del vehículo");
+      setShowResults(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -83,13 +99,11 @@ const VehicleSearch = () => {
   return (
     <div className="vehicle-search">
       <div className="search-input-wrapper">
-        <input
-          type="text"
-          placeholder="Buscar por placa (ej: ABC123)..."
+        <PlacaAutocomplete
           value={searchTerm}
-          onChange={handleInputChange}
-          className="search-input"
-          maxLength={10}
+          onChange={setSearchTerm}
+          onSelect={handlePlacaSelect}
+          placeholder="Buscar por placa (ej: ABC123)..."
         />
         {loading && <span className="search-loading">🔍</span>}
       </div>

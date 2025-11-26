@@ -10,6 +10,7 @@ import {
   List,
   Receipt,
   ClipboardCheck,
+  ShieldCheck,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -40,19 +41,19 @@ const menuItems = [
     title: "Taquilla",
     url: "/taquilla",
     icon: DollarSign,
-    roles: ["taquilla", "administrador"], // Solo taquilla y admin
+    roles: ["taquilla", "administrador", "gerente"], // Todos
   },
   {
     title: "Egresos",
     url: "/egresos",
     icon: Receipt,
-    roles: ["taquilla", "administrador"], // Solo taquilla y admin
+    roles: ["taquilla", "administrador", "gerente"], // Todos
   },
   {
     title: "Cierre de Turno",
     url: "/cierre-turno",
     icon: ClipboardCheck,
-    roles: ["taquilla", "administrador"], // Solo taquilla y admin
+    roles: ["taquilla", "administrador", "gerente"], // Todos
   },
   {
     title: "Vehículos",
@@ -70,19 +71,25 @@ const menuItems = [
     title: "Reportes",
     url: "/reportes",
     icon: FileText,
-    roles: ["gerente", "administrador"], // Solo gerente y admin
+    roles: ["gerente", "administrador"], // Gerente y admin
   },
   {
     title: "Generar Facturación",
     url: "/generar-facturacion",
     icon: FileSpreadsheet,
-    roles: ["administrador"], // Solo admin
+    roles: ["administrador", "gerente"], // Admin y gerente
   },
   {
     title: "Configuración",
     url: "/configuracion",
     icon: Settings,
-    roles: ["administrador"], // Solo admin
+    roles: ["administrador", "gerente"], // Admin y gerente
+  },
+  {
+    title: "Auditoría",
+    url: "/auditoria",
+    icon: ShieldCheck,
+    roles: ["administrador", "gerente"], // Admin y gerente
   },
 ];
 
