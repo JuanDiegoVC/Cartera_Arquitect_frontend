@@ -22,16 +22,40 @@ export const vehiculosService = {
   },
 
   /**
+   * Buscar placas para autocompletado
+   * Endpoint optimizado que retorna solo los campos necesarios
+   * @param {string} query - Texto a buscar en la placa (mínimo 2 caracteres)
+   * @param {number} limit - Máximo de resultados (default 10)
+   * @returns {Promise<{resultados: Array, total: number}>}
+   */
+  buscarPlacas: async (query, limit = 10) => {
+    try {
+      const response = await apiClient.get(
+        "/v1/flota/vehiculos/buscar-placas/",
+        {
+          params: { q: query, limit },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
    * Exportar vehículos filtrados a Excel (RF-004, RF-008)
    * @param {Object} filters - Filtros aplicados (tipo_vehiculo, estado, search)
    * @returns {Promise<Blob>}
    */
   exportToExcel: async (filters = {}) => {
     try {
-      const response = await apiClient.get("/v1/flota/vehiculos/export-to-excel/", {
-        params: filters,
-        responseType: 'blob' // CRÍTICO para archivos binarios
-      });
+      const response = await apiClient.get(
+        "/v1/flota/vehiculos/export-to-excel/",
+        {
+          params: filters,
+          responseType: "blob", // CRÍTICO para archivos binarios
+        }
+      );
       return response;
     } catch (error) {
       throw error.response?.data || error;
@@ -107,7 +131,10 @@ export const vehiculosService = {
    */
   update: async (id, data) => {
     try {
-      const response = await apiClient.patch(`/v1/flota/vehiculos/${id}/`, data);
+      const response = await apiClient.patch(
+        `/v1/flota/vehiculos/${id}/`,
+        data
+      );
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

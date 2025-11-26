@@ -19,6 +19,7 @@ import ConfiguracionCobros from "./pages/ConfiguracionCobros";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
 import CierreDeTurno from "./pages/CierreDeTurno";
+import Auditoria from "./pages/Auditoria";
 import { Toaster } from "sonner";
 import "./App.css";
 
@@ -42,11 +43,13 @@ function App() {
             }
           />
 
-          {/* Taquilla - Solo taquilla y administrador */}
+          {/* Taquilla - Taquilla, administrador y gerente */}
           <Route
             path="/taquilla"
             element={
-              <ProtectedRoute allowedRoles={["taquilla", "administrador"]}>
+              <ProtectedRoute
+                allowedRoles={["taquilla", "administrador", "gerente"]}
+              >
                 <AppLayout>
                   <Taquilla />
                 </AppLayout>
@@ -54,11 +57,13 @@ function App() {
             }
           />
 
-          {/* Egresos - Solo taquilla y administrador */}
+          {/* Egresos - Taquilla, administrador y gerente */}
           <Route
             path="/egresos"
             element={
-              <ProtectedRoute allowedRoles={["taquilla", "administrador"]}>
+              <ProtectedRoute
+                allowedRoles={["taquilla", "administrador", "gerente"]}
+              >
                 <AppLayout>
                   <GestionEgresos />
                 </AppLayout>
@@ -66,11 +71,13 @@ function App() {
             }
           />
 
-          {/* Cierre de Turno - Solo taquilla y administrador */}
+          {/* Cierre de Turno - Taquilla, administrador y gerente */}
           <Route
             path="/cierre-turno"
             element={
-              <ProtectedRoute allowedRoles={["taquilla", "administrador"]}>
+              <ProtectedRoute
+                allowedRoles={["taquilla", "administrador", "gerente"]}
+              >
                 <AppLayout>
                   <CierreDeTurno />
                 </AppLayout>
@@ -126,11 +133,11 @@ function App() {
             }
           />
 
-          {/* Generar Facturación - Solo administrador */}
+          {/* Generar Facturación - Administrador y gerente */}
           <Route
             path="/generar-facturacion"
             element={
-              <ProtectedRoute allowedRoles={["administrador"]}>
+              <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
                 <AppLayout>
                   <GenerarFacturacion />
                 </AppLayout>
@@ -150,11 +157,11 @@ function App() {
             }
           />
 
-          {/* Configuración - Solo administrador */}
+          {/* Configuración - Administrador y gerente */}
           <Route
             path="/configuracion"
             element={
-              <ProtectedRoute allowedRoles={["administrador"]}>
+              <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
                 <AppLayout>
                   <Configuracion />
                 </AppLayout>
@@ -165,9 +172,21 @@ function App() {
           <Route
             path="/configuracion/cobros"
             element={
-              <ProtectedRoute allowedRoles={["administrador"]}>
+              <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
                 <AppLayout>
                   <ConfiguracionCobros />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Auditoría - Administrador y gerente */}
+          <Route
+            path="/auditoria"
+            element={
+              <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                <AppLayout>
+                  <Auditoria />
                 </AppLayout>
               </ProtectedRoute>
             }

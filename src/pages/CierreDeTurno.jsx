@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -16,6 +16,14 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DollarSign,
   CreditCard,
@@ -27,6 +35,9 @@ import {
   History,
   Save,
   Eye,
+  Search,
+  Clock,
+  X,
 } from "lucide-react";
 import { reportesService } from "@/services/reportesService";
 import { toast } from "sonner";
@@ -52,6 +63,10 @@ const CierreDeTurno = () => {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
+
+  // Estados para filtros
+  const [filtroPlaca, setFiltroPlaca] = useState("");
+  const [filtroTiempo, setFiltroTiempo] = useState("todo"); // 'todo', '1h', '2h', '4h', '8h'
 
   const cargarDatos = async () => {
     setCargando(true);
@@ -171,6 +186,92 @@ const CierreDeTurno = () => {
       maximumFractionDigits: 0,
     }).format(numero);
   };
+
+  // Función para filtrar ingresos por tiempo
+  const filtrarPorTiempo = (ingresos, filtro) => {
+    if (filtro === "todo") return ingresos;
+
+    const ahora = new Date();
+    const horaActual = ahora.getHours() * 60 + ahora.getMinutes(); // Hora actual en minutos desde medianoche
+
+    const minutosAtras = {
+      "1h": 60,
+      "2h": 120,
+      "4h": 240,
+      "8h": 480,
+    };
+
+    const minutosLimite = horaActual - minutosAtras[filtro];
+
+    return ingresos.filter((ingreso) => {
+      if (!ingreso.hora) return true;
+
+      // Parsear hora en formato HH:MM
+      const partes = ingreso.hora.split(":");
+      if (partes.length < 2) return true;
+
+      const horas = parseInt(partes[0], 10);
+      const minutos = parseInt(partes[1], 10);
+
+      if (isNaN(horas) || isNaN(minutos)) return true;
+
+      // Convertir hora del ingreso a minutos desde medianoche
+      const minutosIngreso = horas * 60 + minutos;
+
+      // Si minutosLimite es negativo, significa que el rango cruza la medianoche
+      // Para simplificar, solo filtramos hacia atrás en el mismo día
+      if (minutosLimite < 0) {
+        // Si el límite es negativo, incluir pagos desde medianoche hasta ahora
+        // O desde el límite ajustado (próximo día) - caso especial
+        return minutosIngreso >= 0 && minutosIngreso <= horaActual;
+      }
+
+      // Filtro normal: el ingreso debe estar entre el límite y la hora actual
+      return minutosIngreso >= minutosLimite && minutosIngreso <= horaActual;
+    });
+  };
+
+  // Ingresos filtrados usando useMemo para optimización
+  const ingresosFiltrados = useMemo(() => {
+    if (!datos?.movimientos?.ingresos) return [];
+
+    let resultado = [...datos.movimientos.ingresos];
+
+    // Filtrar por placa
+    if (filtroPlaca.trim()) {
+      const placaBuscada = filtroPlaca.trim().toUpperCase();
+      resultado = resultado.filter((ingreso) =>
+        ingreso.placa?.toUpperCase().includes(placaBuscada)
+      );
+    }
+
+    // Filtrar por tiempo
+    resultado = filtrarPorTiempo(resultado, filtroTiempo);
+
+    return resultado;
+  }, [datos?.movimientos?.ingresos, filtroPlaca, filtroTiempo]);
+
+  // Calcular totales filtrados
+  const totalesFiltrados = useMemo(() => {
+    const totalFiltrado = ingresosFiltrados.reduce(
+      (sum, ing) => sum + (parseFloat(ing.monto) || 0),
+      0
+    );
+    return {
+      cantidad: ingresosFiltrados.length,
+      total: totalFiltrado,
+    };
+  }, [ingresosFiltrados]);
+
+  // Limpiar filtros
+  const limpiarFiltros = () => {
+    setFiltroPlaca("");
+    setFiltroTiempo("todo");
+  };
+
+  // Verificar si hay filtros activos
+  const hayFiltrosActivos =
+    filtroPlaca.trim() !== "" || filtroTiempo !== "todo";
 
   if (cargando) {
     return (
@@ -443,33 +544,74 @@ const CierreDeTurno = () => {
         </div>
 
         {/* Tablas de detalle */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Ingresos */}
+        <div className="space-y-6">
+          {/* Ingresos - Versión Detallada */}
           <Card>
             <CardHeader>
               <CardTitle>Detalle de Ingresos</CardTitle>
-              <CardDescription>Cobros realizados en el turno</CardDescription>
+              <CardDescription>
+                Cobros realizados en el turno - {movimientos.ingresos.length}{" "}
+                {movimientos.ingresos.length === 1 ? "pago" : "pagos"}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Vehículo</TableHead>
+                      <TableHead className="w-[60px]">Hora</TableHead>
+                      <TableHead className="w-[90px]">Placa</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Propietario
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        Tipo
+                      </TableHead>
                       <TableHead>Concepto</TableHead>
+                      <TableHead className="hidden sm:table-cell">
+                        Periodo
+                      </TableHead>
                       <TableHead className="text-right">Monto</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {movimientos.ingresos.map((ingreso, index) => (
                       <TableRow key={ingreso.ingreso_id || `ingreso-${index}`}>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-xs">
+                          {ingreso.hora || "-"}
+                        </TableCell>
+                        <TableCell className="font-semibold">
                           {ingreso.placa || ingreso.vehiculo_placa || "N/A"}
                         </TableCell>
-                        <TableCell>
-                          {ingreso.concepto_pago || "Cuota mensual"}
+                        <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                          <span className="truncate max-w-[120px] block">
+                            {ingreso.propietario || "Sin propietario"}
+                          </span>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="hidden lg:table-cell">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                            {ingreso.tipo_vehiculo || "-"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                              ingreso.concepto === "Administración"
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                : ingreso.concepto === "Pólizas"
+                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                            }`}
+                          >
+                            {ingreso.concepto ||
+                              ingreso.concepto_pago ||
+                              "Cuota"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-sm">
+                          {ingreso.periodo || "-"}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-green-600 dark:text-green-400">
                           {formatearMoneda(ingreso.monto)}
                         </TableCell>
                       </TableRow>
@@ -484,7 +626,10 @@ const CierreDeTurno = () => {
           <Card>
             <CardHeader>
               <CardTitle>Detalle de Egresos</CardTitle>
-              <CardDescription>Gastos realizados en el turno</CardDescription>
+              <CardDescription>
+                Gastos realizados en el turno - {movimientos.egresos.length}{" "}
+                {movimientos.egresos.length === 1 ? "egreso" : "egresos"}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -670,55 +815,158 @@ const CierreDeTurno = () => {
       </div>
 
       {/* Sección Inferior: Detalle de Movimientos */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Tabla de Ingresos */}
+      <div className="space-y-6">
+        {/* Tabla de Ingresos - Versión Detallada */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-green-600" />
-              Ingresos del Día
-            </CardTitle>
-            <CardDescription>
-              {movimientos.ingresos.length}{" "}
-              {movimientos.ingresos.length === 1
-                ? "ingreso registrado"
-                : "ingresos registrados"}
-            </CardDescription>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-green-600" />
+                    Ingresos del Día
+                  </CardTitle>
+                  <CardDescription>
+                    {hayFiltrosActivos ? (
+                      <>
+                        Mostrando {totalesFiltrados.cantidad} de{" "}
+                        {movimientos.ingresos.length} pagos (
+                        {formatearMoneda(totalesFiltrados.total)})
+                      </>
+                    ) : (
+                      <>
+                        {movimientos.ingresos.length}{" "}
+                        {movimientos.ingresos.length === 1
+                          ? "pago registrado"
+                          : "pagos registrados"}{" "}
+                        - Detalle completo por concepto
+                      </>
+                    )}
+                  </CardDescription>
+                </div>
+                {hayFiltrosActivos && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={limpiarFiltros}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Limpiar filtros
+                  </Button>
+                )}
+              </div>
+
+              {/* Filtros */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Filtro por placa */}
+                <div className="relative flex-1 max-w-xs">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Filtrar por placa..."
+                    value={filtroPlaca}
+                    onChange={(e) => setFiltroPlaca(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+
+                {/* Filtro por tiempo */}
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <Select value={filtroTiempo} onValueChange={setFiltroTiempo}>
+                    <SelectTrigger className="w-[160px]">
+                      <SelectValue placeholder="Periodo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todo">Todo el día</SelectItem>
+                      <SelectItem value="1h">Última hora</SelectItem>
+                      <SelectItem value="2h">Últimas 2 horas</SelectItem>
+                      <SelectItem value="4h">Últimas 4 horas</SelectItem>
+                      <SelectItem value="8h">Últimas 8 horas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[80px]">Hora</TableHead>
-                    <TableHead>Placa</TableHead>
+                    <TableHead className="w-[60px]">Hora</TableHead>
+                    <TableHead className="w-[90px]">Placa</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Propietario
+                    </TableHead>
+                    <TableHead className="hidden lg:table-cell">Tipo</TableHead>
+                    <TableHead>Concepto</TableHead>
                     <TableHead className="hidden sm:table-cell">
+                      Periodo
+                    </TableHead>
+                    <TableHead className="hidden xl:table-cell">
                       Medio
                     </TableHead>
                     <TableHead className="text-right">Valor</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {movimientos.ingresos.length === 0 ? (
+                  {ingresosFiltrados.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={4}
+                        colSpan={8}
                         className="text-center text-muted-foreground py-8"
                       >
-                        No hay ingresos registrados hoy
+                        {hayFiltrosActivos
+                          ? "No hay ingresos que coincidan con los filtros"
+                          : "No hay ingresos registrados hoy"}
                       </TableCell>
                     </TableRow>
                   ) : (
-                    movimientos.ingresos.map((ingreso, index) => (
-                      <TableRow
-                        key={ingreso.ingreso_id || `ingreso-main-${index}`}
-                      >
-                        <TableCell className="font-medium">
+                    ingresosFiltrados.map((ingreso, index) => (
+                      <TableRow key={`ingreso-${ingreso.ingreso_id}-${index}`}>
+                        <TableCell className="font-medium text-xs">
                           {ingreso.hora}
                         </TableCell>
-                        <TableCell>{ingreso.placa}</TableCell>
-                        <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
-                          {ingreso.medio_pago}
+                        <TableCell className="font-semibold">
+                          {ingreso.placa}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                          <span className="truncate max-w-[120px] block">
+                            {ingreso.propietario}
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                            {ingreso.tipo_vehiculo}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                              ingreso.concepto === "Administración"
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                : ingreso.concepto === "Pólizas"
+                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                            }`}
+                          >
+                            {ingreso.concepto}
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-sm">
+                          {ingreso.periodo}
+                        </TableCell>
+                        <TableCell className="hidden xl:table-cell">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                              ingreso.medio_pago === "Efectivo"
+                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                            }`}
+                          >
+                            {ingreso.medio_pago}
+                          </span>
                         </TableCell>
                         <TableCell className="text-right font-semibold text-green-600 dark:text-green-400">
                           {formatearMoneda(ingreso.monto)}
@@ -729,6 +977,21 @@ const CierreDeTurno = () => {
                 </TableBody>
               </Table>
             </div>
+            {/* Info adicional visible en móvil */}
+            <div className="sm:hidden mt-4 text-xs text-muted-foreground">
+              <p>* Desliza horizontalmente para ver más detalles</p>
+            </div>
+            {/* Subtotal filtrado */}
+            {hayFiltrosActivos && ingresosFiltrados.length > 0 && (
+              <div className="mt-4 pt-4 border-t flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">
+                  Subtotal filtrado ({totalesFiltrados.cantidad} pagos):
+                </span>
+                <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                  {formatearMoneda(totalesFiltrados.total)}
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
