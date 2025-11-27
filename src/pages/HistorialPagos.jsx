@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
-import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { pagosService } from "../services/pagosService";
 import { Loader2, Download, Search } from "lucide-react";
 import { Alert, AlertDescription } from "../components/ui/alert";
+import PlacaAutocomplete from "../components/common/PlacaAutocomplete";
 
 export default function HistorialPagos() {
     const [plate, setPlate] = useState("");
@@ -15,7 +15,7 @@ export default function HistorialPagos() {
     const [downloading, setDownloading] = useState(null);
 
     const handleSearch = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         if (plate.length < 3) return;
 
         setLoading(true);
@@ -70,17 +70,35 @@ export default function HistorialPagos() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSearch} className="flex gap-4">
-                        <Input
-                            placeholder="Ingrese placa (ej: ABC123)"
-                            value={plate}
-                            onChange={(e) => setPlate(e.target.value.toUpperCase())}
-                            className="max-w-xs"
-                        />
-                        <Button type="submit" disabled={loading || plate.length < 3}>
+                    <div className="flex gap-4 items-start">
+                        <div className="flex-1 max-w-md">
+                            <PlacaAutocomplete
+                                value={plate}
+                                onChange={setPlate}
+                                onSelect={(suggestion) => {
+                                    setPlate(suggestion.placa);
+                                    // Trigger search immediately on selection
+                                    // We need to wait a tick for state to update or pass the value directly
+                                    // But handleSearch uses 'plate' state. 
+                                    // Better to just set state and let user click search or use effect?
+                                    // The user requested dynamic search behavior similar to Taquilla.
+                                    // But Taquilla just fills the form. 
+                                    // Let's trigger search here for better UX.
+                                    // We'll pass the suggestion.placa to a modified handleSearch or just rely on the user clicking search 
+                                    // as the original code did, but the user asked for "same functionality".
+                                    // In Taquilla, selecting fills the search.
+                                    // Let's just fill it for now to be safe, user can click search.
+                                }}
+                                placeholder="Ingrese placa (ej: ABC123)"
+                            />
+                        </div>
+                        <Button
+                            onClick={handleSearch}
+                            disabled={loading || plate.length < 3}
+                        >
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Buscar"}
                         </Button>
-                    </form>
+                    </div>
                     {error && (
                         <Alert variant="destructive" className="mt-4">
                             <AlertDescription>{error}</AlertDescription>
