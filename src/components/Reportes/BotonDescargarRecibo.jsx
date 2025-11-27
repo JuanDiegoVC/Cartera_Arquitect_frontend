@@ -27,7 +27,7 @@ const BotonDescargarRecibo = ({
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = nombreArchivo;
+      // link.download = nombreArchivo; // Removed to let backend set filename via Content-Disposition
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
