@@ -49,9 +49,10 @@ export const pagosService = {
    * @param {string} placa - Placa del vehículo
    * @returns {Promise<Array>}
    */
-  getHistorialPorVehiculo: async (placa) => {
+  getHistorialPorVehiculo: async (placa, month = null) => {
     try {
-      const response = await apiClient.get(`/v1/pagos/historial/${placa}/`);
+      const params = month ? { month } : {};
+      const response = await apiClient.get(`/v1/cobros/historial-pagos/${placa}/`, { params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -84,6 +85,24 @@ export const pagosService = {
     try {
       const response = await apiClient.get(
         `/v1/cobros/recibo-pago/${ingresoId}/`
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
+   * Descargar recibo en PDF
+   *
+   * @param {number} ingresoId - ID del ingreso
+   * @returns {Promise<Blob>}
+   */
+  downloadRecibo: async (ingresoId) => {
+    try {
+      const response = await apiClient.get(
+        `/v1/cobros/recibo-pago/${ingresoId}/download/`,
+        { responseType: "blob" }
       );
       return response.data;
     } catch (error) {

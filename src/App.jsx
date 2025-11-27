@@ -21,6 +21,7 @@ import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
 import CierreDeTurno from "./pages/CierreDeTurno";
 import Auditoria from "./pages/Auditoria";
+import HistorialPagos from "./pages/HistorialPagos";
 import { Toaster } from "sonner";
 import "./App.css";
 
@@ -117,6 +118,18 @@ function App() {
               <ProtectedRoute>
                 <AppLayout>
                   <VehiculoDetalle />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Historial de Pagos - Todos los autenticados */}
+          <Route
+            path="/historial-pagos"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <HistorialPagos />
                 </AppLayout>
               </ProtectedRoute>
             }

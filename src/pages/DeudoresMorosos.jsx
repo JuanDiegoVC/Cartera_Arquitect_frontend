@@ -106,7 +106,10 @@ export default function DeudoresMorosos() {
                                         <tr key={item.placa} className="border-b hover:bg-muted/30 transition-colors">
                                             <td className="px-4 py-3 font-medium">{item.placa}</td>
                                             <td className="px-4 py-3 text-muted-foreground">{item.propietario}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-red-600 font-medium">
+                                            <td className={`px-4 py-3 text-right font-mono font-medium ${item.estado_semaforo === 'rojo' ? 'text-red-600' :
+                                                    item.estado_semaforo === 'amarillo' ? 'text-yellow-600' :
+                                                        'text-green-600'
+                                                }`}>
                                                 ${parseFloat(item.total_deuda).toLocaleString('es-CO', { minimumFractionDigits: 2 })}
                                             </td>
                                             <td className="px-4 py-3 text-right font-mono text-muted-foreground">
