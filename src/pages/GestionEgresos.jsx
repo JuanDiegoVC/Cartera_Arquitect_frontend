@@ -91,26 +91,25 @@ export default function GestionEgresos() {
     }
   };
 
+  // Categorías que requieren selección de vehículo
+  const categoriasConVehiculo = ["Parqueadero", "Seguros", "Seguro", "Poliza", "Póliza"];
+
+  // Helper para verificar si una categoría requiere vehículo
+  const categoriaRequiereVehiculo = (nombreCategoria) => {
+    if (!nombreCategoria) return false;
+    return categoriasConVehiculo.some(
+      (cat) => nombreCategoria.toLowerCase().includes(cat.toLowerCase())
+    );
+  };
+
   const handleInputChange = (field, value) => {
     if (field === "valor") {
       // Usar el hook para formatear moneda
       const formatted = currencyInput.handleChange(value);
       setFormData((prev) => ({ ...prev, [field]: formatted }));
     } else if (field === "categoria") {
-      // Si es Parqueadero, limpiar búsqueda y vehículo
-      if (value) {
-        const catSeleccionada = categorias.find(
-          (c) => c.categoria_id === parseInt(value)
-        );
-        if (catSeleccionada?.nombre === "Parqueadero") {
-          // Parqueadero requiere vehículo
-          setFormData((prev) => ({ ...prev, [field]: value, vehiculo: null }));
-        } else {
-          setFormData((prev) => ({ ...prev, [field]: value, vehiculo: null }));
-        }
-      } else {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-      }
+      // Limpiar vehículo al cambiar categoría
+      setFormData((prev) => ({ ...prev, [field]: value, vehiculo: null }));
       setVehiculoSeleccionado(null);
       setBusquedaVehiculo("");
     } else {
@@ -163,12 +162,12 @@ export default function GestionEgresos() {
       return;
     }
 
-    // Validar que Parqueadero tenga vehículo seleccionado
+    // Validar que categorías que requieren vehículo lo tengan seleccionado
     const catSeleccionada = categorias.find(
       (c) => c.categoria_id === parseInt(formData.categoria)
     );
-    if (catSeleccionada?.nombre === "Parqueadero" && !formData.vehiculo) {
-      setError("Debe seleccionar un vehículo para Parqueadero");
+    if (categoriaRequiereVehiculo(catSeleccionada?.nombre) && !formData.vehiculo) {
+      setError(`Debe seleccionar un vehículo para ${catSeleccionada?.nombre}`);
       return;
     }
 
@@ -302,11 +301,13 @@ export default function GestionEgresos() {
                 </Select>
               </div>
 
-              {/* Vehículo - Solo para Parqueadero */}
+              {/* Vehículo - Para categorías que lo requieren (Parqueadero, Seguros, Poliza) */}
               {formData.categoria &&
-                categorias.find(
-                  (c) => c.categoria_id === parseInt(formData.categoria)
-                )?.nombre === "Parqueadero" && (
+                categoriaRequiereVehiculo(
+                  categorias.find(
+                    (c) => c.categoria_id === parseInt(formData.categoria)
+                  )?.nombre
+                ) && (
                   <div className="space-y-2">
                     <Label htmlFor="vehiculo">Vehículo *</Label>
                     {vehiculoSeleccionado ? (

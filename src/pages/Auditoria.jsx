@@ -49,9 +49,11 @@ import {
   DollarSign,
   TrendingDown,
   Car,
+  Users,
 } from "lucide-react";
 import { auditoriaService } from "@/services/auditoriaService";
 import { toast } from "sonner";
+import VerCierresTrabajadores from "@/components/Auditoria/VerCierresTrabajadores";
 
 /**
  * Página de Auditoría
@@ -181,6 +183,9 @@ const Auditoria = () => {
   const [logSeleccionado, setLogSeleccionado] = useState(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
+
+  // Modal de cierres de trabajadores
+  const [mostrarCierresTrabajadores, setMostrarCierresTrabajadores] = useState(false);
 
   useEffect(() => {
     cargarDatosIniciales();
@@ -382,10 +387,19 @@ const Auditoria = () => {
             Historial de todas las transacciones y acciones del sistema
           </p>
         </div>
-        <Button onClick={cargarDatosIniciales} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Actualizar
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setMostrarCierresTrabajadores(true)}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Ver Cierres
+          </Button>
+          <Button onClick={cargarDatosIniciales} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualizar
+          </Button>
+        </div>
       </div>
 
       {/* Tarjetas de Resumen */}
@@ -773,6 +787,12 @@ const Auditoria = () => {
           ) : null}
         </DialogContent>
       </Dialog>
+
+      {/* Modal de Cierres de Trabajadores */}
+      <VerCierresTrabajadores
+        open={mostrarCierresTrabajadores}
+        onOpenChange={setMostrarCierresTrabajadores}
+      />
     </div>
   );
 };
