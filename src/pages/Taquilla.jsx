@@ -7,6 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription } from "../components/ui/alert";
@@ -569,39 +577,62 @@ export default function Taquilla() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            {paymentSuccess && (
-              <Alert className="bg-success/10 border-success/20">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <AlertDescription className="text-success">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                      <strong>¡Pago registrado exitosamente!</strong>
-                      <br />
-                      Recibo #{paymentSuccess.ingresoId} - $
-                      {paymentSuccess.montoTotal.toLocaleString("es-CO")} (
-                      {paymentSuccess.rubros} rubros)
+            {/* Success Modal */}
+            <Dialog open={!!paymentSuccess} onOpenChange={(open) => !open && setPaymentSuccess(null)}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-success">
+                    <CheckCircle2 className="h-6 w-6" />
+                    ¡Pago registrado exitosamente!
+                  </DialogTitle>
+                  <DialogDescription>
+                    La transacción ha sido procesada correctamente.
+                  </DialogDescription>
+                </DialogHeader>
+
+                {paymentSuccess && (
+                  <div className="py-4 space-y-4">
+                    <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Recibo N°:</span>
+                        <span className="font-medium">{paymentSuccess.ingresoId}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Monto Total:</span>
+                        <span className="font-bold text-lg text-primary">
+                          ${paymentSuccess.montoTotal.toLocaleString("es-CO")}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Rubros:</span>
+                        <span>{paymentSuccess.rubros}</span>
+                      </div>
                     </div>
-                    {datosRecibo ? (
-                      <>
-                        {console.log(
-                          "🎨 [Taquilla] Renderizando BotonDescargarRecibo con datos:",
-                          datosRecibo
-                        )}
+
+                    <div className="flex flex-col gap-3">
+                      {datosRecibo && (
                         <BotonDescargarRecibo
                           datosRecibo={datosRecibo}
                           variant="default"
-                          className="bg-primary hover:bg-primary/90"
+                          className="w-full bg-primary hover:bg-primary/90"
                         />
-                      </>
-                    ) : (
-                      console.log(
-                        "⚠️ [Taquilla] datosRecibo es null, no se renderiza el botón"
-                      )
-                    )}
+                      )}
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setPaymentSuccess(null);
+                          setDatosRecibo(null);
+                          // Optional: Clear search or reset form if needed
+                        }}
+                        className="w-full"
+                      >
+                        Cerrar y Continuar
+                      </Button>
+                    </div>
                   </div>
-                </AlertDescription>
-              </Alert>
-            )}
+                )}
+              </DialogContent>
+            </Dialog>
           </form>
         </CardContent>
       </Card>
@@ -768,7 +799,7 @@ export default function Taquilla() {
                           </div>
                         </div>
                         <span className="text-lg font-bold ml-4">
-                          ${item.amount.toLocaleString("es-CO")}
+                          ${item.saldoPendiente.toLocaleString("es-CO")}
                         </span>
                       </div>
                     ))
