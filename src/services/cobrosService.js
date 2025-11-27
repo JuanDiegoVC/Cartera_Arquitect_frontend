@@ -78,4 +78,14 @@ export const cobrosService = {
             throw error.response?.data || error;
         }
     },
+
+    // --- REPORTES ---
+    getReporteMorosidad: async () => {
+        try {
+            const response = await apiClient.get("/v1/cobros/reportes/morosidad/");
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
 };

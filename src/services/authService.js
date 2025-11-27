@@ -37,9 +37,14 @@ export const authService = {
    */
   getMe: async () => {
     try {
+      console.log('📡 authService: Calling /usuarios/me/');
       const response = await apiClient.get("/usuarios/me/");
+      console.log('✅ authService: /usuarios/me/ response:', response);
+      console.log('📦 authService: response.data:', response.data);
+      console.log('👤 authService: user rol:', response.data?.rol);
       return response.data;
     } catch (error) {
+      console.error('❌ authService: /usuarios/me/ error:', error);
       throw error.response?.data || error;
     }
   },
