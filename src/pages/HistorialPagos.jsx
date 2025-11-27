@@ -42,9 +42,17 @@ export default function HistorialPagos() {
         try {
             const blob = await pagosService.downloadRecibo(ingresoId);
             const url = window.URL.createObjectURL(blob);
+
+            // Construct filename: PAGO_{PLACA}_{FECHA}.pdf
+            // Find payment details to get date
+            const payment = payments.find(p => p.ingreso_id === ingresoId);
+            const dateObj = payment ? new Date(payment.fecha_transaccion) : new Date();
+            const dateStr = dateObj.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+            const filename = `PAGO_${plate}_${dateStr}.pdf`;
+
             const a = document.createElement('a');
             a.href = url;
-            a.download = `recibo_${ingresoId}.pdf`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);

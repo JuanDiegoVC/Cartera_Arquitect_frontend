@@ -18,7 +18,13 @@ const BotonDescargarRecibo = ({
 
   const ingresoId = datosRecibo.ingresoId || datosRecibo.recibo?.numero;
   const placa = datosRecibo.cliente?.placa || 'VEHICULO';
-  const nombreArchivo = `Recibo_${placa}_${ingresoId}.pdf`;
+
+  // Construct filename: PAGO_{PLACA}_{FECHA}.pdf
+  // Use current date if transaction date is not available in datosRecibo (it usually is in receipt details)
+  // For immediate download after payment, we can use current date or extract from response if available.
+  // Let's use current date as fallback or try to find it.
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const nombreArchivo = `PAGO_${placa}_${dateStr}.pdf`;
 
   const handleDownload = async () => {
     setIsGenerating(true);
