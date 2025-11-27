@@ -49,9 +49,10 @@ export const pagosService = {
    * @param {string} placa - Placa del vehículo
    * @returns {Promise<Array>}
    */
-  getHistorialPorVehiculo: async (placa) => {
+  getHistorialPorVehiculo: async (placa, month = null) => {
     try {
-      const response = await apiClient.get(`/v1/cobros/historial-pagos/${placa}/`);
+      const params = month ? { month } : {};
+      const response = await apiClient.get(`/v1/cobros/historial-pagos/${placa}/`, { params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

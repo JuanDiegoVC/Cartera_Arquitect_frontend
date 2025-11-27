@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { pagosService } from "../services/pagosService";
 import { Loader2, Download, Search } from "lucide-react";
@@ -9,6 +10,7 @@ import PlacaAutocomplete from "../components/common/PlacaAutocomplete";
 
 export default function HistorialPagos() {
     const [plate, setPlate] = useState("");
+    const [month, setMonth] = useState("");
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -23,7 +25,7 @@ export default function HistorialPagos() {
         setPayments([]);
 
         try {
-            const data = await pagosService.getHistorialPorVehiculo(plate);
+            const data = await pagosService.getHistorialPorVehiculo(plate, month);
             // Manejar respuesta paginada o lista directa
             const listaPagos = data.results || data;
             setPayments(Array.isArray(listaPagos) ? listaPagos : []);
@@ -90,6 +92,14 @@ export default function HistorialPagos() {
                                     // Let's just fill it for now to be safe, user can click search.
                                 }}
                                 placeholder="Ingrese placa (ej: ABC123)"
+                            />
+                        </div>
+                        <div className="w-48">
+                            <Input
+                                type="month"
+                                value={month}
+                                onChange={(e) => setMonth(e.target.value)}
+                                className="w-full"
                             />
                         </div>
                         <Button

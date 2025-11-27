@@ -5,6 +5,15 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { vehiculosService } from "../services/vehiculosService";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../components/ui/dialog";
+import { Label } from "../components/ui/label";
+import { Plus, Pencil } from "lucide-react";
 
 /**
  * Página de lista completa de vehículos con filtros y exportación
@@ -15,6 +24,18 @@ export default function VehiculosLista() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [exporting, setExporting] = useState(false);
+
+  // Estado para el modal de creación/edición
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState(null);
+  const [formData, setFormData] = useState({
+    placa: "",
+    tipo_vehiculo: "taxi_blanco",
+    propietario_nombre: "",
+    conductor_actual_nombre: "",
+    estado: "activo",
+  });
+  const [saving, setSaving] = useState(false);
 
   // Estado de filtros
   const [filters, setFilters] = useState({
@@ -111,6 +132,56 @@ export default function VehiculosLista() {
     }
   };
 
+  // Abrir modal para crear
+  const handleCreate = () => {
+    setEditingVehicle(null);
+    setFormData({
+      placa: "",
+      tipo_vehiculo: "taxi_blanco",
+      propietario_nombre: "",
+      conductor_actual_nombre: "",
+      estado: "activo",
+    });
+    setIsModalOpen(true);
+  };
+
+  // Abrir modal para editar
+  const handleEdit = (vehicle) => {
+    setEditingVehicle(vehicle);
+    setFormData({
+      placa: vehicle.placa,
+      tipo_vehiculo: vehicle.tipo_vehiculo,
+      propietario_nombre: vehicle.propietario_nombre || "",
+      conductor_actual_nombre: vehicle.conductor_actual_nombre || "",
+      estado: vehicle.estado,
+    });
+    setIsModalOpen(true);
+  };
+
+  // Guardar vehículo (Crear o Actualizar)
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      if (editingVehicle) {
+        await vehiculosService.update(editingVehicle.vehiculo_id, formData);
+      } else {
+        await vehiculosService.create(formData);
+      }
+      setIsModalOpen(false);
+      fetchVehiculos();
+    } catch (err) {
+      console.error("Error al guardar:", err);
+      alert(
+        err.mensaje ||
+        err.detail ||
+        "Error al guardar el vehículo. Verifique los datos."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -123,6 +194,10 @@ export default function VehiculosLista() {
             Gestione y exporte el registro completo de vehículos afiliados
           </p>
         </div>
+        <Button onClick={handleCreate}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nuevo Vehículo
+        </Button>
       </div>
 
       {/* Filtros y Exportación */}
@@ -272,8 +347,8 @@ export default function VehiculosLista() {
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${vehiculo.estado === 'activo'
-                              ? 'bg-success/10 text-success'
-                              : 'bg-muted text-muted-foreground'
+                            ? 'bg-success/10 text-success'
+                            : 'bg-muted text-muted-foreground'
                             }`}
                         >
                           {vehiculo.estado_display || vehiculo.estado}
@@ -282,7 +357,15 @@ export default function VehiculosLista() {
                       <td className="px-4 py-3 text-sm text-muted-foreground">
                         {formatDate(vehiculo.creado_en)}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-right flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(vehiculo)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant={vehiculo.estado === 'activo' ? "destructive" : "outline"}
                           size="sm"
@@ -300,6 +383,89 @@ export default function VehiculosLista() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de edición/creación */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingVehicle ? "Editar Vehículo" : "Nuevo Vehículo"}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSave}>
+            <div className="p-6 space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="placa">Placa</Label>
+                <Input
+                  id="placa"
+                  value={formData.placa}
+                  onChange={(e) =>
+                    setFormData({ ...formData, placa: e.target.value.toUpperCase() })
+                  }
+                  placeholder="ABC123"
+                  disabled={!!editingVehicle} // No editar placa una vez creado
+                  required
+                  minLength={6}
+                  maxLength={6}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="tipo">Tipo de Vehículo</Label>
+                <select
+                  id="tipo"
+                  value={formData.tipo_vehiculo}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tipo_vehiculo: e.target.value })
+                  }
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="taxi_blanco">Taxi Blanco</option>
+                  <option value="taxi_amarillo">Taxi Amarillo</option>
+                  <option value="escalera">Escalera</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="propietario">Propietario</Label>
+                <Input
+                  id="propietario"
+                  value={formData.propietario_nombre}
+                  onChange={(e) =>
+                    setFormData({ ...formData, propietario_nombre: e.target.value })
+                  }
+                  placeholder="Nombre completo"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="conductor">Conductor Actual</Label>
+                <Input
+                  id="conductor"
+                  value={formData.conductor_actual_nombre}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      conductor_actual_nombre: e.target.value,
+                    })
+                  }
+                  placeholder="Nombre completo"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={saving}>
+                {saving ? "Guardando..." : "Guardar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
