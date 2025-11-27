@@ -135,8 +135,14 @@ export default function ConfiguracionCobros() {
             loadData();
         } catch (err) {
             console.error(err);
-            if (err.status === 409 || err.status === 400) {
-                alert(err.data?.error || "No se puede eliminar este registro porque está en uso.");
+            // Check for status or specific error content (IntegrityError)
+            // The service might return the data object directly, so status might be missing.
+            // We check for 'detail' containing IntegrityError as a fallback.
+            const isIntegrityError = err.detail && (err.detail.includes("IntegrityError") || err.detail.includes("Foreign Key"));
+
+            if (err.status === 409 || err.status === 400 || isIntegrityError) {
+                // Use the friendly error message from backend if available
+                alert(err.error || err.data?.error || "No se puede eliminar este registro porque está en uso o tiene dependencias.");
             } else {
                 setError("Error al eliminar: " + (err.detail || JSON.stringify(err)));
             }
