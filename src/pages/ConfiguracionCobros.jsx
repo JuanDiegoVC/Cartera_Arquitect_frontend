@@ -132,8 +132,14 @@ export default function ConfiguracionCobros() {
                 await cobrosService.deleteTarifa(id);
             }
             loadData();
+            loadData();
         } catch (err) {
-            setError("Error al eliminar: " + (err.detail || JSON.stringify(err)));
+            console.error(err);
+            if (err.status === 409 || err.status === 400) {
+                alert(err.data?.error || "No se puede eliminar este registro porque está en uso.");
+            } else {
+                setError("Error al eliminar: " + (err.detail || JSON.stringify(err)));
+            }
         }
     };
 
@@ -159,8 +165,8 @@ export default function ConfiguracionCobros() {
                 <button
                     onClick={() => setActiveTab("rubros")}
                     className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 ${activeTab === "rubros"
-                            ? "bg-background shadow text-foreground"
-                            : "text-muted-foreground hover:bg-white/[0.12] hover:text-white"
+                        ? "bg-background shadow text-foreground"
+                        : "text-muted-foreground hover:bg-white/[0.12] hover:text-white"
                         }`}
                 >
                     Rubros (Conceptos)
@@ -168,8 +174,8 @@ export default function ConfiguracionCobros() {
                 <button
                     onClick={() => setActiveTab("tarifas")}
                     className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 ${activeTab === "tarifas"
-                            ? "bg-background shadow text-foreground"
-                            : "text-muted-foreground hover:bg-white/[0.12] hover:text-white"
+                        ? "bg-background shadow text-foreground"
+                        : "text-muted-foreground hover:bg-white/[0.12] hover:text-white"
                         }`}
                 >
                     Tarifas

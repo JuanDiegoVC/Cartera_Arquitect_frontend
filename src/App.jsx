@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Taquilla from "./pages/Taquilla";
 import Reportes from "./pages/Reportes";
+import DeudoresMorosos from "./pages/DeudoresMorosos";
 import Vehiculos from "./pages/Vehiculos";
 import VehiculosLista from "./pages/VehiculosLista";
 import VehiculoDetalle from "./pages/VehiculoDetalle";
@@ -128,6 +129,17 @@ function App() {
               <ProtectedRoute allowedRoles={["gerente", "administrador"]}>
                 <AppLayout>
                   <Reportes />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/reportes/morosos"
+            element={
+              <ProtectedRoute allowedRoles={["gerente", "administrador"]}>
+                <AppLayout>
+                  <DeudoresMorosos />
                 </AppLayout>
               </ProtectedRoute>
             }
