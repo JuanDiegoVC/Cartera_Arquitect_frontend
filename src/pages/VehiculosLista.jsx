@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { Download, Search, Filter, RefreshCw, Car } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Alert, AlertDescription } from "../components/ui/alert";
@@ -14,12 +19,14 @@ import {
 } from "../components/ui/dialog";
 import { Label } from "../components/ui/label";
 import { Plus, Pencil } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 
 /**
  * Página de lista completa de vehículos con filtros y exportación
  * Implementa RF-004 y RF-008: Exportación a Excel con filtros
  */
 export default function VehiculosLista() {
+  const { isAdministrador } = useAuth();
   const [vehiculos, setVehiculos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -39,9 +46,9 @@ export default function VehiculosLista() {
 
   // Estado de filtros
   const [filters, setFilters] = useState({
-    tipo_vehiculo: '',
-    estado: 'activo', // Por defecto, mostrar solo activos
-    search: ''
+    tipo_vehiculo: "",
+    estado: "activo", // Por defecto, mostrar solo activos
+    search: "",
   });
 
   // Cargar vehículos cuando cambian los filtros
@@ -56,8 +63,8 @@ export default function VehiculosLista() {
       const data = await vehiculosService.getAll(filters);
       setVehiculos(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
-      console.error('Error al cargar vehículos:', err);
-      setError('Error al cargar la lista de vehículos');
+      console.error("Error al cargar vehículos:", err);
+      setError("Error al cargar la lista de vehículos");
     } finally {
       setLoading(false);
     }
@@ -71,16 +78,16 @@ export default function VehiculosLista() {
 
       // Crear blob y forzar descarga
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', `vehiculos_${Date.now()}.xlsx`);
+      link.setAttribute("download", `vehiculos_${Date.now()}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Error al exportar:', err);
-      setError('Error al exportar a Excel');
+      console.error("Error al exportar:", err);
+      setError("Error al exportar a Excel");
     } finally {
       setExporting(false);
     }
@@ -88,38 +95,47 @@ export default function VehiculosLista() {
 
   // Actualizar filtros
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   // Limpiar filtros
   const handleClearFilters = () => {
     setFilters({
-      tipo_vehiculo: '',
-      estado: 'activo',
-      search: ''
+      tipo_vehiculo: "",
+      estado: "activo",
+      search: "",
     });
   };
 
   // Formato de fecha
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-CO', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   // Cambiar estado del vehículo (SOT-26)
   const handleToggleEstado = async (id, currentStatus) => {
-    const action = currentStatus === 'activo' ? 'desactivar' : 'activar';
-    const confirmMsg = currentStatus === 'activo'
-      ? "¿Está seguro de desactivar este vehículo? No se generarán nuevos cobros."
-      : "¿Está seguro de activar este vehículo?";
+    // Verificar permisos antes de intentar
+    if (!isAdministrador()) {
+      alert(
+        "No tienes permisos para cambiar el estado de vehículos. Solo administradores y gerentes pueden realizar esta acción."
+      );
+      return;
+    }
+
+    const action = currentStatus === "activo" ? "desactivar" : "activar";
+    const confirmMsg =
+      currentStatus === "activo"
+        ? "¿Está seguro de desactivar este vehículo? No se generarán nuevos cobros."
+        : "¿Está seguro de activar este vehículo?";
 
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      if (action === 'desactivar') {
+      if (action === "desactivar") {
         await vehiculosService.desactivar(id);
       } else {
         await vehiculosService.activar(id);
@@ -127,8 +143,22 @@ export default function VehiculosLista() {
       // Recargar lista manteniendo filtros
       fetchVehiculos();
     } catch (err) {
-      console.error('Error al cambiar estado:', err);
-      alert('Error al cambiar el estado del vehículo');
+      console.error("Error al cambiar estado:", err);
+
+      // Mensajes de error más específicos
+      let errorMsg = "Error al cambiar el estado del vehículo";
+
+      if (err.response?.status === 403) {
+        errorMsg =
+          "No tienes permisos para cambiar el estado de vehículos. Solo administradores y gerentes pueden realizar esta acción.";
+      } else if (err.response?.status === 401) {
+        errorMsg =
+          "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.";
+      } else if (err.response?.data?.detail) {
+        errorMsg = err.response.data.detail;
+      }
+
+      alert(errorMsg);
     }
   };
 
@@ -217,7 +247,9 @@ export default function VehiculosLista() {
               </label>
               <select
                 value={filters.tipo_vehiculo}
-                onChange={(e) => handleFilterChange('tipo_vehiculo', e.target.value)}
+                onChange={(e) =>
+                  handleFilterChange("tipo_vehiculo", e.target.value)
+                }
                 className="w-full px-3 py-2 border rounded-md bg-background"
               >
                 <option value="">Todos los tipos</option>
@@ -230,12 +262,10 @@ export default function VehiculosLista() {
 
             {/* Filtro por estado */}
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                Estado
-              </label>
+              <label className="text-sm font-medium mb-2 block">Estado</label>
               <select
                 value={filters.estado}
-                onChange={(e) => handleFilterChange('estado', e.target.value)}
+                onChange={(e) => handleFilterChange("estado", e.target.value)}
                 className="w-full px-3 py-2 border rounded-md bg-background"
               >
                 <option value="">Todos los estados</option>
@@ -246,16 +276,14 @@ export default function VehiculosLista() {
 
             {/* Búsqueda */}
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                Buscar
-              </label>
+              <label className="text-sm font-medium mb-2 block">Buscar</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="Placa, propietario..."
                   value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -277,7 +305,7 @@ export default function VehiculosLista() {
                 className="flex-1"
               >
                 <Download className="h-4 w-4 mr-2" />
-                {exporting ? 'Exportando...' : 'Excel'}
+                {exporting ? "Exportando..." : "Excel"}
               </Button>
             </div>
           </div>
@@ -315,13 +343,27 @@ export default function VehiculosLista() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-muted/50">
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Placa</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Tipo</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Propietario</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Conductor</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Estado</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Registro</th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold">Acciones</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                      Placa
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                      Tipo
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                      Propietario
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                      Conductor
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                      Estado
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                      Registro
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-semibold">
+                      Acciones
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -335,21 +377,23 @@ export default function VehiculosLista() {
                       </td>
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                          {vehiculo.tipo_vehiculo_display || vehiculo.tipo_vehiculo}
+                          {vehiculo.tipo_vehiculo_display ||
+                            vehiculo.tipo_vehiculo}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">
-                        {vehiculo.propietario_nombre || 'N/A'}
+                        {vehiculo.propietario_nombre || "N/A"}
                       </td>
                       <td className="px-4 py-3 text-sm">
-                        {vehiculo.conductor_actual_nombre || 'N/A'}
+                        {vehiculo.conductor_actual_nombre || "N/A"}
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${vehiculo.estado === 'activo'
-                            ? 'bg-success/10 text-success'
-                            : 'bg-muted text-muted-foreground'
-                            }`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            vehiculo.estado === "activo"
+                              ? "bg-success/10 text-success"
+                              : "bg-muted text-muted-foreground"
+                          }`}
                         >
                           {vehiculo.estado_display || vehiculo.estado}
                         </span>
@@ -357,23 +401,42 @@ export default function VehiculosLista() {
                       <td className="px-4 py-3 text-sm text-muted-foreground">
                         {formatDate(vehiculo.creado_en)}
                       </td>
-                      <td className="px-4 py-3 text-right flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(vehiculo)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant={vehiculo.estado === 'activo' ? "destructive" : "outline"}
-                          size="sm"
-                          onClick={() => handleToggleEstado(vehiculo.vehiculo_id, vehiculo.estado)}
-                          className="h-8 text-xs"
-                        >
-                          {vehiculo.estado === 'activo' ? 'Desactivar' : 'Activar'}
-                        </Button>
+                      <td className="px-4 py-3 text-right">
+                        {isAdministrador() ? (
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(vehiculo)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant={
+                                vehiculo.estado === "activo"
+                                  ? "destructive"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() =>
+                                handleToggleEstado(
+                                  vehiculo.vehiculo_id,
+                                  vehiculo.estado
+                                )
+                              }
+                              className="h-8 text-xs"
+                            >
+                              {vehiculo.estado === "activo"
+                                ? "Desactivar"
+                                : "Activar"}
+                            </Button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            Sin permisos
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}
