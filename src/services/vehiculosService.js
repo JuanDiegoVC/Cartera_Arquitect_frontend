@@ -153,7 +153,12 @@ export const vehiculosService = {
       });
       return response.data;
     } catch (error) {
-      throw error.response?.data || error;
+      console.error("Error desactivar vehículo:", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+      throw error;
     }
   },
 
@@ -169,7 +174,12 @@ export const vehiculosService = {
       });
       return response.data;
     } catch (error) {
-      throw error.response?.data || error;
+      console.error("Error activar vehículo:", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+      throw error;
     }
   },
 };
