@@ -51,7 +51,7 @@ export const pagosService = {
    */
   getHistorialPorVehiculo: async (placa) => {
     try {
-      const response = await apiClient.get(`/v1/pagos/historial/${placa}/`);
+      const response = await apiClient.get(`/v1/cobros/historial-pagos/${placa}/`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -84,6 +84,24 @@ export const pagosService = {
     try {
       const response = await apiClient.get(
         `/v1/cobros/recibo-pago/${ingresoId}/`
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
+   * Descargar recibo en PDF
+   *
+   * @param {number} ingresoId - ID del ingreso
+   * @returns {Promise<Blob>}
+   */
+  downloadRecibo: async (ingresoId) => {
+    try {
+      const response = await apiClient.get(
+        `/v1/cobros/recibo-pago/${ingresoId}/download/`,
+        { responseType: "blob" }
       );
       return response.data;
     } catch (error) {

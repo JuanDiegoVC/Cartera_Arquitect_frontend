@@ -11,6 +11,7 @@ import {
   Receipt,
   ClipboardCheck,
   ShieldCheck,
+  History,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -65,6 +66,12 @@ const menuItems = [
     title: "Lista de Vehículos",
     url: "/vehiculos/lista",
     icon: List,
+    roles: ["taquilla", "administrador", "gerente"], // Todos
+  },
+  {
+    title: "Historial de Pagos",
+    url: "/historial-pagos",
+    icon: History,
     roles: ["taquilla", "administrador", "gerente"], // Todos
   },
   {
@@ -155,8 +162,8 @@ export function AppSidebar() {
                     {user.rol === "administrador"
                       ? "Admin"
                       : user.rol === "gerente"
-                      ? "Gerente"
-                      : "Taquilla"}
+                        ? "Gerente"
+                        : "Taquilla"}
                   </span>
                 </div>
               </div>
