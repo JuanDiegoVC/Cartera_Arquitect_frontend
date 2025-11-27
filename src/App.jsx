@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Taquilla from "./pages/Taquilla";
 import Reportes from "./pages/Reportes";
+import DeudoresMorosos from "./pages/DeudoresMorosos";
 import Vehiculos from "./pages/Vehiculos";
 import VehiculosLista from "./pages/VehiculosLista";
 import VehiculoDetalle from "./pages/VehiculoDetalle";
@@ -20,6 +21,7 @@ import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
 import CierreDeTurno from "./pages/CierreDeTurno";
 import Auditoria from "./pages/Auditoria";
+import HistorialPagos from "./pages/HistorialPagos";
 import { Toaster } from "sonner";
 import "./App.css";
 
@@ -121,6 +123,18 @@ function App() {
             }
           />
 
+          {/* Historial de Pagos - Todos los autenticados */}
+          <Route
+            path="/historial-pagos"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <HistorialPagos />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* Reportes - Solo gerente y administrador */}
           <Route
             path="/reportes"
@@ -128,6 +142,17 @@ function App() {
               <ProtectedRoute allowedRoles={["gerente", "administrador"]}>
                 <AppLayout>
                   <Reportes />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/reportes/morosos"
+            element={
+              <ProtectedRoute allowedRoles={["gerente", "administrador"]}>
+                <AppLayout>
+                  <DeudoresMorosos />
                 </AppLayout>
               </ProtectedRoute>
             }

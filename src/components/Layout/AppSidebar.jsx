@@ -11,7 +11,14 @@ import {
   Receipt,
   ClipboardCheck,
   ShieldCheck,
+  History,
+  ChevronRight,
 } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import {
@@ -23,6 +30,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarHeader,
   useSidebar,
   SidebarSeparator,
@@ -57,15 +67,22 @@ const menuItems = [
   },
   {
     title: "Vehículos",
-    url: "/vehiculos",
     icon: Car,
     roles: ["taquilla", "administrador", "gerente"], // Todos
-  },
-  {
-    title: "Lista de Vehículos",
-    url: "/vehiculos/lista",
-    icon: List,
-    roles: ["taquilla", "administrador", "gerente"], // Todos
+    children: [
+      {
+        title: "Lista de Vehículos",
+        url: "/vehiculos/lista",
+        icon: List,
+        roles: ["taquilla", "administrador", "gerente"],
+      },
+      {
+        title: "Historial de Pagos",
+        url: "/historial-pagos",
+        icon: History,
+        roles: ["taquilla", "administrador", "gerente"],
+      },
+    ],
   },
   {
     title: "Reportes",
@@ -155,8 +172,8 @@ export function AppSidebar() {
                     {user.rol === "administrador"
                       ? "Admin"
                       : user.rol === "gerente"
-                      ? "Gerente"
-                      : "Taquilla"}
+                        ? "Gerente"
+                        : "Taquilla"}
                   </span>
                 </div>
               </div>
@@ -177,12 +194,38 @@ export function AppSidebar() {
             <SidebarMenu>
               {visibleMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
+                  {item.children ? (
+                    <Collapsible className="group/collapsible">
+                      <SidebarMenuButton asChild>
+                        <CollapsibleTrigger>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                          <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        </CollapsibleTrigger>
+                      </SidebarMenuButton>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.children.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton asChild isActive={isActive(subItem.url)}>
+                                <NavLink to={subItem.url}>
+                                  <subItem.icon className="h-4 w-4" />
+                                  <span>{subItem.title}</span>
+                                </NavLink>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ) : (
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink to={item.url}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

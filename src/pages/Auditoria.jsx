@@ -73,7 +73,11 @@ const ACCIONES_TRADUCIDAS = {
   CIERRE_TURNO_GUARDADO: "Cierre de Turno",
   VEHICULO_CREADO: "Vehículo Creado",
   VEHICULO_ACTUALIZADO: "Vehículo Actualizado",
+  VEHICULO_INACTIVADO: "Vehículo Inactivado",
+  VEHICULO_ACTIVADO: "Vehículo Activado",
   USUARIO_LOGIN: "Inicio de Sesión",
+  TARIFA_CREADA: "Tarifa Creada",
+  TARIFA_ACTUALIZADA: "Tarifa Actualizada",
   UPDATE: "Actualización",
   CREATE: "Creación",
   DELETE: "Eliminación",
@@ -82,6 +86,38 @@ const ACCIONES_TRADUCIDAS = {
 // Función para traducir acción
 const traducirAccion = (accion) => {
   return ACCIONES_TRADUCIDAS[accion] || accion.replace(/_/g, " ");
+};
+
+/**
+ * Extrae datos del vehículo del campo "detalles" cuando no están disponibles
+ * en datos_nuevos o datos_anteriores (para registros antiguos).
+ *
+ * Formato esperado: "Vehículo inactivado: ABC123 (Juan Pérez García)"
+ * o "Vehículo marcado como inactivo" (sin datos estructurados)
+ */
+const extraerDatosVehiculoDeDetalles = (detalles, estado) => {
+  if (!detalles) return { estado };
+
+  // Intentar extraer placa y propietario del formato "Vehículo inactivado: ABC123 (Juan Pérez)"
+  const regex = /(?:inactivado|activado|marcado):\s*(\S+)\s*(?:\(([^)]+)\))?/i;
+  const match = detalles.match(regex);
+
+  if (match) {
+    return {
+      placa: match[1] || null,
+      propietario: match[2] || "Sin propietario",
+      tipo: null,
+      estado: estado || "inactivo",
+    };
+  }
+
+  // Si no se encuentra el formato esperado, retornar solo el estado
+  return {
+    placa: null,
+    propietario: null,
+    tipo: null,
+    estado: estado || "inactivo",
+  };
 };
 
 // Diccionario de etiquetas para campos
@@ -107,10 +143,15 @@ const ETIQUETAS_CAMPOS = {
   tarifa_id: "ID de Tarifa",
   monto: "Monto",
   tipo_vehiculo: "Tipo de Vehículo",
+  valor: "Valor",
+  fecha_vigencia: "Fecha de Vigencia",
+  fecha_inicio_vigencia: "Fecha de Inicio de Vigencia",
+  fecha_fin_vigencia: "Fecha de Fin de Vigencia",
+  vigente: "Vigente",
   // General
   fecha: "Fecha",
   estado: "Estado",
-  descripcion: "Descripción",
+  descripción: "Descripción",
   // Login
   ip_address: "Dirección IP",
   user_agent: "Navegador / Dispositivo",
@@ -750,22 +791,95 @@ const Auditoria = () => {
                 </div>
               )}
 
-              {/* Datos Registrados - Formateados */}
-              {logSeleccionado.datos_nuevos && (
-                <div className="border rounded-lg overflow-hidden">
-                  <div className="bg-green-50 dark:bg-green-950/30 px-4 py-2 border-b">
-                    <p className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      Información Registrada
-                    </p>
-                  </div>
-                  <div className="p-4 space-y-4">
-                    <RenderDatosFormateados
-                      datos={logSeleccionado.datos_nuevos}
-                    />
-                  </div>
-                </div>
+              {/* Información de Vehículo - Cuando se inactiva/activa un vehículo */}
+              {(logSeleccionado.accion === "VEHICULO_INACTIVADO" ||
+                logSeleccionado.accion === "VEHICULO_ACTIVADO") && (
+                <>
+                  {/* Intenta mostrar datos_nuevos, si no, intenta datos_anteriores, si no extrae de detalles */}
+                  {(() => {
+                    const datosVehiculo = logSeleccionado.datos_nuevos?.placa
+                      ? logSeleccionado.datos_nuevos
+                      : logSeleccionado.datos_anteriores?.placa
+                      ? logSeleccionado.datos_anteriores
+                      : extraerDatosVehiculoDeDetalles(
+                          logSeleccionado.detalles,
+                          logSeleccionado.datos_nuevos?.estado ||
+                            logSeleccionado.datos_anteriores?.estado
+                        );
+
+                    // Si tiene placa, mostrar info del vehículo
+                    if (datosVehiculo?.placa) {
+                      return (
+                        <RenderInfoVehiculo
+                          datos={datosVehiculo}
+                          titulo={
+                            logSeleccionado.accion === "VEHICULO_INACTIVADO"
+                              ? "Vehículo Inactivado"
+                              : "Vehículo Activado"
+                          }
+                        />
+                      );
+                    }
+
+                    // Si no hay placa, mostrar mensaje informativo
+                    return (
+                      <div className="border border-yellow-200 dark:border-yellow-800 rounded-lg overflow-hidden">
+                        <div className="bg-yellow-50 dark:bg-yellow-950/30 px-4 py-2 border-b border-yellow-200 dark:border-yellow-800">
+                          <p className="text-sm font-medium text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
+                            <AlertCircle className="h-4 w-4" />
+                            {logSeleccionado.accion === "VEHICULO_INACTIVADO"
+                              ? "Vehículo Inactivado"
+                              : "Vehículo Activado"}
+                          </p>
+                        </div>
+                        <div className="p-4">
+                          <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                            Este registro fue creado antes de la actualización
+                            del sistema. Los datos detallados del vehículo no
+                            están disponibles.
+                          </p>
+                          {logSeleccionado.detalles && (
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                              <span className="font-medium">
+                                Descripción original:{" "}
+                              </span>
+                              {logSeleccionado.detalles}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Vista de Comparación: Antes vs Después */}
+                  {logSeleccionado.datos_anteriores &&
+                    logSeleccionado.datos_nuevos && (
+                      <RenderComparacion
+                        datosAnteriores={logSeleccionado.datos_anteriores}
+                        datosNuevos={logSeleccionado.datos_nuevos}
+                      />
+                    )}
+                </>
               )}
+
+              {/* Datos Registrados - Formateados (para otras acciones) */}
+              {logSeleccionado.datos_nuevos &&
+                logSeleccionado.accion !== "VEHICULO_INACTIVADO" &&
+                logSeleccionado.accion !== "VEHICULO_ACTIVADO" && (
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="bg-green-50 dark:bg-green-950/30 px-4 py-2 border-b">
+                      <p className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Información Registrada
+                      </p>
+                    </div>
+                    <div className="p-4 space-y-4">
+                      <RenderDatosFormateados
+                        datos={logSeleccionado.datos_nuevos}
+                      />
+                    </div>
+                  </div>
+                )}
 
               {/* Datos Anteriores (si aplica) */}
               {logSeleccionado.datos_anteriores && (
@@ -783,6 +897,15 @@ const Auditoria = () => {
                   </div>
                 </div>
               )}
+
+              {/* Vista de Comparación: Antes vs Después */}
+              {logSeleccionado.datos_anteriores &&
+                logSeleccionado.datos_nuevos && (
+                  <RenderComparacion
+                    datosAnteriores={logSeleccionado.datos_anteriores}
+                    datosNuevos={logSeleccionado.datos_nuevos}
+                  />
+                )}
             </div>
           ) : null}
         </DialogContent>
@@ -999,8 +1122,12 @@ const RenderDatosFormateados = ({ datos }) => {
           )}
           {datos.user_agent && (
             <div className="sm:col-span-2">
-              <p className="text-xs text-muted-foreground">Navegador / Dispositivo</p>
-              <p className="text-xs font-mono text-muted-foreground break-all">{datos.user_agent}</p>
+              <p className="text-xs text-muted-foreground">
+                Navegador / Dispositivo
+              </p>
+              <p className="text-xs font-mono text-muted-foreground break-all">
+                {datos.user_agent}
+              </p>
             </div>
           )}
         </div>

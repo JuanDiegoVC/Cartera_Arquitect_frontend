@@ -97,6 +97,7 @@ export const useReciboData = () => {
             : user?.email || "Usuario",
         usuario: user?.email || "N/A",
       },
+      ingresoId, // Include top-level ingresoId for download button
     };
 
     console.log(
