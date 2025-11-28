@@ -1,0 +1,145 @@
+/* Estilos personalizados para el sidebar con colores corporativos */
+/* Colores: #DB293B (Rojo) y #ECA943 (Dorado) */
+
+/* Borde izquierdo sutil en items activos con color rojo corporativo */
+[data-active="true"] {
+    border-left: 3px solid #DB293B;
+    background: linear-gradient(90deg, rgba(219, 41, 59, 0.08) 0%, rgba(219, 41, 59, 0.02) 100%);
+}
+
+/* Hover state con color dorado muy sutil */
+[data-sidebar="menu-button"]:hover:not([data-active="true"]) {
+    background: linear-gradient(90deg, rgba(236, 169, 67, 0.06) 0%, rgba(236, 169, 67, 0.01) 100%);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Iconos con tinte dorado sutil en hover */
+[data-sidebar="menu-button"]:hover svg {
+    color: #ECA943;
+    filter: drop-shadow(0 0 2px rgba(236, 169, 67, 0.3));
+    transition: all 0.2s ease-in-out;
+}
+
+/* Iconos activos con color rojo */
+[data-active="true"] svg {
+    color: #DB293B;
+}
+
+/* Sub-items con indicador dorado sutil */
+[data-sidebar="menu-sub-button"] {
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+[data-sidebar="menu-sub-button"]:hover {
+    background: rgba(236, 169, 67, 0.05);
+    padding-left: 1.25rem;
+}
+
+/* Iconos de sub-items con color dorado en hover */
+[data-sidebar="menu-sub-button"]:hover svg {
+    color: #ECA943;
+    transition: all 0.2s ease-in-out;
+}
+
+[data-sidebar="menu-sub-button"][data-active="true"] {
+    background: linear-gradient(90deg, rgba(219, 41, 59, 0.06) 0%, rgba(219, 41, 59, 0.01) 100%);
+    border-left: 2px solid #ECA943;
+    font-weight: 500;
+    color: #DB293B;
+}
+
+/* Badge de rol con colores corporativos */
+.role-badge-admin {
+    background: linear-gradient(135deg, rgba(219, 41, 59, 0.1) 0%, rgba(219, 41, 59, 0.15) 100%);
+    color: #DB293B;
+    border: 1px solid rgba(219, 41, 59, 0.2);
+    box-shadow: 0 1px 3px rgba(219, 41, 59, 0.1);
+}
+
+.role-badge-gerente {
+    background: linear-gradient(135deg, rgba(236, 169, 67, 0.1) 0%, rgba(236, 169, 67, 0.15) 100%);
+    color: #C08A2E;
+    border: 1px solid rgba(236, 169, 67, 0.25);
+    box-shadow: 0 1px 3px rgba(236, 169, 67, 0.15);
+}
+
+.role-badge-taquilla {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.15) 100%);
+    color: #15803d;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    box-shadow: 0 1px 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Separador con gradiente sutil */
+[data-sidebar="separator"] {
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(219, 41, 59, 0.1) 20%,
+            rgba(236, 169, 67, 0.1) 80%,
+            transparent 100%);
+    height: 1px;
+    border: none;
+}
+
+/* Efecto de enfoque con color dorado corporativo */
+[data-sidebar="menu-button"]:focus-visible,
+[data-sidebar="menu-sub-button"]:focus-visible {
+    outline: 2px solid rgba(236, 169, 67, 0.4);
+    outline-offset: 2px;
+}
+
+/* Transiciones suaves para todos los elementos del sidebar */
+[data-sidebar] {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Header del sidebar con borde inferior dorado sutil */
+[data-sidebar="header"] {
+    border-bottom: 1px solid rgba(236, 169, 67, 0.15);
+    position: relative;
+}
+
+[data-sidebar="header"]::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(236, 169, 67, 0.3) 50%,
+            transparent 100%);
+}
+
+/* Label del grupo con acento dorado */
+[data-sidebar="group-label"] {
+    color: #C08A2E;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    position: relative;
+    padding-left: 0.5rem;
+}
+
+[data-sidebar="group-label"]::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: linear-gradient(180deg, #ECA943 0%, rgba(236, 169, 67, 0.3) 100%);
+    border-radius: 2px;
+}
+
+/* Botón de cerrar sesión con hover dorado */
+[data-sidebar="menu-button"][data-logout="true"]:hover {
+    background: linear-gradient(90deg, rgba(236, 169, 67, 0.08) 0%, rgba(236, 169, 67, 0.02) 100%);
+    color: #C08A2E;
+}
+
+[data-sidebar="menu-button"][data-logout="true"]:hover svg {
+    color: #ECA943;
+}

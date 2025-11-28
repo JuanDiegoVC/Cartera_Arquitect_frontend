@@ -14,6 +14,8 @@ import {
   History,
   ChevronRight,
 } from "lucide-react";
+import "./AppSidebar.css";
+import logo2 from "../../assets/Logo2.png";
 import {
   Collapsible,
   CollapsibleContent,
@@ -129,33 +131,23 @@ export function AppSidebar() {
     (item) => user && item.roles.includes(user.rol)
   );
 
-  // Badge de rol con colores
+  // Badge de rol con colores corporativos
   const getRoleBadgeColor = (rol) => {
     const colors = {
-      administrador: "bg-red-500/10 text-red-600 border-red-500/20",
-      gerente: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-      taquilla: "bg-green-500/10 text-green-600 border-green-500/20",
+      administrador: "role-badge-admin",
+      gerente: "role-badge-gerente",
+      taquilla: "role-badge-taquilla",
     };
     return colors[rol] || "bg-gray-500/10 text-gray-600 border-gray-500/20";
   };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="p-4 border-b border-sidebar-border">
+      <SidebarHeader data-sidebar="header" className="p-4 border-b border-sidebar-border">
         {!isCollapsed && (
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-sidebar-primary-foreground" />
-              </div>
-              <div>
-                <h2 className="text-sm font-semibold text-sidebar-foreground">
-                  Sotrapeñol
-                </h2>
-                <p className="text-xs text-sidebar-foreground/60">
-                  Gestión de Recaudos
-                </p>
-              </div>
+              <img src={logo2} alt="Logo Sotrapeñol" className="h-10 w-auto object-contain" />
             </div>
             {user && (
               <div className="flex items-start gap-2 p-2 rounded-lg bg-sidebar-accent/50">
@@ -181,15 +173,15 @@ export function AppSidebar() {
           </div>
         )}
         {isCollapsed && (
-          <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center mx-auto">
-            <DollarSign className="h-5 w-5 text-sidebar-primary-foreground" />
+          <div className="flex items-center justify-center mx-auto">
+            <img src={logo2} alt="Logo Sotrapeñol" className="h-8 w-auto object-contain" />
           </div>
         )}
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menú Principal</SidebarGroupLabel>
+          <SidebarGroupLabel data-sidebar="group-label">Menú Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {visibleMenuItems.map((item) => (
@@ -232,13 +224,13 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className="my-4" />
+        <SidebarSeparator data-sidebar="separator" className="my-4" />
 
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleLogout}>
+                <SidebarMenuButton data-logout="true" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
                   <span>Cerrar Sesión</span>
                 </SidebarMenuButton>
