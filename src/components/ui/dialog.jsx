@@ -31,7 +31,7 @@ export function Dialog({ open, onOpenChange, children }) {
       />
       
       {/* Content Container */}
-      <div className="relative z-50 w-full max-w-lg mx-4">
+      <div className="relative z-50 w-full flex items-center justify-center px-4">
         {children}
       </div>
     </div>

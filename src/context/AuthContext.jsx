@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import { authService } from "../services/authService";
 
 const AuthContext = createContext(null);
@@ -6,6 +6,9 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // Callbacks a ejecutar antes del logout (para cierre de turno automático)
+  const preLogoutCallbacksRef = useRef([]);
 
   useEffect(() => {
     console.log('🔄 AuthContext: Initializing...');
@@ -55,8 +58,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  // Registrar callback para ejecutar antes del logout
+  const registerPreLogoutCallback = useCallback((callback) => {
+    preLogoutCallbacksRef.current.push(callback);
+    // Retornar función para desregistrar
+    return () => {
+      preLogoutCallbacksRef.current = preLogoutCallbacksRef.current.filter(cb => cb !== callback);
+    };
+  }, []);
+
+  // Logout con ejecución de callbacks
+  const logout = async () => {
     console.log('🚪 AuthContext: Logging out');
+    // Ejecutar todos los callbacks pre-logout
+    for (const callback of preLogoutCallbacksRef.current) {
+      try {
+        await callback();
+      } catch (error) {
+        console.error("Error en callback pre-logout:", error);
+      }
+    }
+    
     authService.logout();
     setUser(null);
   };
@@ -82,6 +104,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
+    registerPreLogoutCallback,
     isAuthenticated: !!user,
     hasRole,
     isTaquilla,

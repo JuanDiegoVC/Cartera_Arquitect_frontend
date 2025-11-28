@@ -126,4 +126,40 @@ export const auditoriaService = {
       return [];
     }
   },
+
+  /**
+   * Obtener cierres de turno de trabajadores (solo admin/gerente)
+   * @param {Object} filtros - Filtros opcionales
+   * @param {string} filtros.fecha - Fecha específica en formato YYYY-MM-DD (default: hoy)
+   * @param {number} filtros.usuario_id - ID del usuario para filtrar
+   * @returns {Promise<Object>} Lista de cierres con datos de trabajadores
+   */
+  obtenerCierresTrabajadores: async (filtros = {}) => {
+    try {
+      const params = {};
+      if (filtros.fecha) params.fecha = filtros.fecha;
+      if (filtros.usuario_id) params.usuario_id = filtros.usuario_id;
+
+      const response = await apiClient.get("/v1/auditoria/cierres-trabajadores/", { params });
+      return response.data;
+    } catch (error) {
+      console.error("Error en obtenerCierresTrabajadores:", error);
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
+   * Obtener detalle completo de un cierre de turno de un trabajador
+   * @param {number} cierreId - ID del cierre
+   * @returns {Promise<Object>} Detalle completo del cierre
+   */
+  obtenerDetalleCierreTrabajador: async (cierreId) => {
+    try {
+      const response = await apiClient.get(`/v1/auditoria/cierres-trabajadores/${cierreId}/`);
+      return response.data;
+    } catch (error) {
+      console.error("Error en obtenerDetalleCierreTrabajador:", error);
+      throw error.response?.data || error;
+    }
+  },
 };

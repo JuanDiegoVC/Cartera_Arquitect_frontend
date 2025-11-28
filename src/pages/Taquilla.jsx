@@ -309,10 +309,35 @@ export default function Taquilla() {
     }));
   };
 
+  /**
+   * Formatea un número con separadores de miles (puntos)
+   * @param {number|string} value - Valor a formatear
+   * @returns {string} - Valor formateado con puntos
+   */
+  const formatCurrency = (value) => {
+    if (!value && value !== 0) return "";
+    const numericValue = String(value).replace(/\D/g, "");
+    if (!numericValue) return "";
+    return parseInt(numericValue, 10).toLocaleString("es-CO");
+  };
+
+  /**
+   * Parsea un valor formateado a número
+   * @param {string} formattedValue - Valor con formato (ej: "4.000")
+   * @returns {number} - Valor numérico (ej: 4000)
+   */
+  const parseCurrency = (formattedValue) => {
+    if (!formattedValue) return 0;
+    const numericString = String(formattedValue).replace(/\D/g, "");
+    return parseInt(numericString, 10) || 0;
+  };
+
   const handleCustomAmountChange = (itemId, value) => {
+    // Remover todo excepto dígitos para almacenar el valor limpio
+    const numericValue = String(value).replace(/\D/g, "");
     setPaymentModes((prev) => ({
       ...prev,
-      [itemId]: { ...prev[itemId], customAmount: value },
+      [itemId]: { ...prev[itemId], customAmount: numericValue },
     }));
   };
 
@@ -324,7 +349,7 @@ export default function Taquilla() {
       case "saldo":
         return item.saldoPendiente;
       case "personalizado":
-        return parseFloat(mode.customAmount) || 0;
+        return parseCurrency(mode.customAmount);
       default:
         return item.saldoPendiente;
     }
@@ -879,7 +904,7 @@ export default function Taquilla() {
                                     <div className="text-sm text-muted-foreground">
                                       {item.month}
                                     </div>
-                                    {item.status === "pending" && (
+                                    {item.amount !== item.saldoPendiente && (
                                       <div className="text-xs text-warning mt-1">
                                         💰 Valor original: $
                                         {item.amount.toLocaleString("es-CO")} |
@@ -897,7 +922,7 @@ export default function Taquilla() {
                                         "es-CO"
                                       )}
                                     </div>
-                                    {item.status === "pending" && (
+                                    {item.amount !== item.saldoPendiente && (
                                       <div className="text-xs text-muted-foreground line-through">
                                         ${item.amount.toLocaleString("es-CO")}
                                       </div>
@@ -967,13 +992,15 @@ export default function Taquilla() {
                                       </span>
                                       {paymentModes[item.id]?.mode ===
                                         "personalizado" && (
+                                        <div className="relative mt-1">
+                                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                                           <Input
-                                            type="number"
-                                            placeholder="Ingrese monto"
-                                            value={
-                                              paymentModes[item.id]
-                                                ?.customAmount || ""
-                                            }
+                                            type="text"
+                                            inputMode="numeric"
+                                            placeholder="Ej: 50.000"
+                                            value={formatCurrency(
+                                              paymentModes[item.id]?.customAmount || ""
+                                            )}
                                             onChange={(e) =>
                                               handleCustomAmountChange(
                                                 item.id,
@@ -981,11 +1008,10 @@ export default function Taquilla() {
                                               )
                                             }
                                             disabled={processingPayment}
-                                            className="mt-1"
-                                            min="1"
-                                            max={item.saldoPendiente}
+                                            className="pl-7"
                                           />
-                                        )}
+                                        </div>
+                                      )}
                                     </div>
                                   </label>
                                 </div>

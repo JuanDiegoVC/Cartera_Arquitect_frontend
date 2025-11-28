@@ -49,10 +49,11 @@ import {
   DollarSign,
   TrendingDown,
   Car,
-  CheckCircle,
+  Users,
 } from "lucide-react";
 import { auditoriaService } from "@/services/auditoriaService";
 import { toast } from "sonner";
+import VerCierresTrabajadores from "@/components/Auditoria/VerCierresTrabajadores";
 
 /**
  * Página de Auditoría
@@ -223,6 +224,9 @@ const Auditoria = () => {
   const [logSeleccionado, setLogSeleccionado] = useState(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
+
+  // Modal de cierres de trabajadores
+  const [mostrarCierresTrabajadores, setMostrarCierresTrabajadores] = useState(false);
 
   useEffect(() => {
     cargarDatosIniciales();
@@ -424,10 +428,19 @@ const Auditoria = () => {
             Historial de todas las transacciones y acciones del sistema
           </p>
         </div>
-        <Button onClick={cargarDatosIniciales} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Actualizar
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setMostrarCierresTrabajadores(true)}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Ver Cierres
+          </Button>
+          <Button onClick={cargarDatosIniciales} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualizar
+          </Button>
+        </div>
       </div>
 
       {/* Tarjetas de Resumen */}
@@ -897,157 +910,12 @@ const Auditoria = () => {
           ) : null}
         </DialogContent>
       </Dialog>
-    </div>
-  );
-};
 
-/**
- * Componente para mostrar información de vehículos de forma legible
- */
-const RenderInfoVehiculo = ({ datos, titulo = "Información del Vehículo" }) => {
-  if (!datos) return null;
-
-  return (
-    <div className="border border-blue-200 dark:border-blue-900 rounded-lg overflow-hidden">
-      <div className="bg-blue-50 dark:bg-blue-950/30 px-4 py-2 border-b border-blue-200 dark:border-blue-900">
-        <p className="text-sm font-medium text-blue-700 dark:text-blue-400 flex items-center gap-2">
-          <Car className="h-4 w-4" />
-          {titulo}
-        </p>
-      </div>
-      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Placa - Si existe */}
-        {datos.placa ? (
-          <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
-            <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">
-              Placa
-            </p>
-            <p className="text-lg font-bold text-blue-900 dark:text-blue-100">
-              {datos.placa}
-            </p>
-          </div>
-        ) : (
-          <div className="bg-yellow-50 dark:bg-yellow-950/20 p-3 rounded-lg">
-            <p className="text-xs font-medium text-yellow-700 dark:text-yellow-400 mb-1">
-              Placa
-            </p>
-            <p className="text-sm text-yellow-900 dark:text-yellow-100 italic">
-              No disponible
-            </p>
-          </div>
-        )}
-
-        <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
-          <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">
-            Propietario
-          </p>
-          <p className="text-sm text-blue-900 dark:text-blue-100">
-            {datos.propietario || "Sin propietario"}
-          </p>
-        </div>
-
-        <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
-          <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">
-            Tipo de Vehículo
-          </p>
-          <p className="text-sm text-blue-900 dark:text-blue-100">
-            {datos.tipo || "-"}
-          </p>
-        </div>
-
-        {datos.estado && (
-          <div
-            className={`p-3 rounded-lg ${
-              datos.estado === "activo"
-                ? "bg-green-50 dark:bg-green-950/20"
-                : "bg-red-50 dark:bg-red-950/20"
-            }`}
-          >
-            <p
-              className={`text-xs font-medium mb-1 ${
-                datos.estado === "activo"
-                  ? "text-green-700 dark:text-green-400"
-                  : "text-red-700 dark:text-red-400"
-              }`}
-            >
-              Estado
-            </p>
-            <p
-              className={`text-sm font-medium ${
-                datos.estado === "activo"
-                  ? "text-green-900 dark:text-green-100"
-                  : "text-red-900 dark:text-red-100"
-              }`}
-            >
-              {datos.estado === "activo" ? "🟢 Activo" : "🔴 Inactivo"}
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-/**
- * Componente para mostrar comparación de cambios (Antes vs Después)
- * Útil para auditar qué cambió exactamente en operaciones de actualización
- */
-const RenderComparacion = ({ datosAnteriores, datosNuevos }) => {
-  // Obtener todas las claves de ambos objetos
-  const todasLasClaves = new Set([
-    ...Object.keys(datosAnteriores || {}),
-    ...Object.keys(datosNuevos || {}),
-  ]);
-
-  // Filtrar solo los campos que cambiaron
-  const camposModificados = Array.from(todasLasClaves).filter((clave) => {
-    const anterior = datosAnteriores?.[clave];
-    const nuevo = datosNuevos?.[clave];
-    return JSON.stringify(anterior) !== JSON.stringify(nuevo);
-  });
-
-  // Si no hay cambios, no mostrar
-  if (camposModificados.length === 0) return null;
-
-  return (
-    <div className="border border-yellow-200 dark:border-yellow-900 rounded-lg overflow-hidden">
-      <div className="bg-yellow-50 dark:bg-yellow-950/30 px-4 py-2 border-b border-yellow-200 dark:border-yellow-900">
-        <p className="text-sm font-medium text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
-          <Activity className="h-4 w-4" />
-          Cambios Realizados
-        </p>
-      </div>
-      <div className="p-4 space-y-3">
-        {camposModificados.map((clave) => {
-          const anterior = datosAnteriores?.[clave];
-          const nuevo = datosNuevos?.[clave];
-          const etiqueta = ETIQUETAS_CAMPOS[clave] || clave;
-
-          return (
-            <div key={clave} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Valor Anterior */}
-              <div className="bg-red-50 dark:bg-red-950/20 p-3 rounded-lg border border-red-200 dark:border-red-900">
-                <p className="text-xs font-medium text-red-700 dark:text-red-400 mb-1">
-                  {etiqueta} (Antes)
-                </p>
-                <p className="text-sm font-mono text-red-900 dark:text-red-100 break-all">
-                  {formatearValor(clave, anterior)}
-                </p>
-              </div>
-
-              {/* Valor Nuevo */}
-              <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-lg border border-green-200 dark:border-green-900">
-                <p className="text-xs font-medium text-green-700 dark:text-green-400 mb-1">
-                  {etiqueta} (Después)
-                </p>
-                <p className="text-sm font-mono text-green-900 dark:text-green-100 break-all">
-                  {formatearValor(clave, nuevo)}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {/* Modal de Cierres de Trabajadores */}
+      <VerCierresTrabajadores
+        open={mostrarCierresTrabajadores}
+        onOpenChange={setMostrarCierresTrabajadores}
+      />
     </div>
   );
 };

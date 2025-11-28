@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Settings, Users, Database, Bell } from "lucide-react";
+import { Settings, Users, Database, Bell, Upload } from "lucide-react";
+import { CargaMasivaModal } from "../components/CargaMasiva";
 
 export default function Configuracion() {
+  const [cargaMasivaOpen, setCargaMasivaOpen] = useState(false);
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
@@ -12,6 +16,24 @@ export default function Configuracion() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
+        {/* Carga Masiva - Nueva tarjeta */}
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
+          onClick={() => setCargaMasivaOpen(true)}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5 text-primary" />
+              Carga Masiva
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-sm">
+              Importe rubros, vehículos y cartera desde un archivo Excel
+            </p>
+          </CardContent>
+        </Card>
+
         <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -71,6 +93,12 @@ export default function Configuracion() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modal de Carga Masiva */}
+      <CargaMasivaModal 
+        open={cargaMasivaOpen} 
+        onOpenChange={setCargaMasivaOpen} 
+      />
     </div>
   );
 }
