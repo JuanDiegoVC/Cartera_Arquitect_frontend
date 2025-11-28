@@ -28,7 +28,7 @@
   position: relative;
 }
 
-/* Card con borde superior decorativo */
+/* Card con borde superior decorativo - Modo Claro */
 .login-card {
   position: relative;
   border-top: 3px solid transparent;
@@ -37,6 +37,13 @@
     linear-gradient(90deg, #DB293B 0%, #ECA943 100%);
   background-origin: border-box;
   background-clip: padding-box, border-box;
+}
+
+/* Card - Modo Oscuro */
+.dark .login-card {
+  background-image:
+    linear-gradient(hsl(220, 30%, 10%), hsl(220, 30%, 10%)),
+    linear-gradient(90deg, #DB293B 0%, #ECA943 100%);
 }
 
 /* Header del card con acento dorado sutil */
@@ -118,7 +125,7 @@
   transform: translateY(0);
 }
 
-/* Credenciales de prueba con borde dorado */
+/* Credenciales de prueba con borde dorado - Modo Claro */
 .login-credentials {
   border: 1px solid rgba(236, 169, 67, 0.3);
   background: linear-gradient(135deg,
@@ -141,6 +148,22 @@
 
 .login-credentials strong {
   color: #C08A2E;
+}
+
+/* Credenciales de prueba - Modo Oscuro */
+.dark .login-credentials {
+  border: 1px solid rgba(236, 169, 67, 0.4);
+  background: linear-gradient(135deg,
+      rgba(236, 169, 67, 0.15) 0%,
+      rgba(236, 169, 67, 0.05) 100%);
+}
+
+.dark .login-credentials::before {
+  background: hsl(220, 30%, 8%);
+}
+
+.dark .login-credentials strong {
+  color: #ECA943;
 }
 
 /* Footer con gradiente sutil */
@@ -187,11 +210,20 @@
   }
 }
 
-/* Fondo con gradiente sutil de colores corporativos */
+/* Fondo con gradiente sutil de colores corporativos - Modo Claro */
 .login-background {
   background: linear-gradient(135deg,
       rgba(219, 41, 59, 0.03) 0%,
       rgba(255, 255, 255, 1) 30%,
       rgba(255, 255, 255, 1) 70%,
       rgba(236, 169, 67, 0.03) 100%);
+}
+
+/* Fondo - Modo Oscuro */
+.dark .login-background {
+  background: linear-gradient(135deg,
+      rgba(219, 41, 59, 0.08) 0%,
+      hsl(220, 30%, 8%) 30%,
+      hsl(220, 30%, 8%) 70%,
+      rgba(236, 169, 67, 0.08) 100%);
 }

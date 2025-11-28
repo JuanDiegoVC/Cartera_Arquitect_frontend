@@ -17,6 +17,7 @@ import VehiculosLista from "./pages/VehiculosLista";
 import VehiculoDetalle from "./pages/VehiculoDetalle";
 import Configuracion from "./pages/Configuracion";
 import ConfiguracionCobros from "./pages/ConfiguracionCobros";
+import ConfiguracionGeneral from "./pages/ConfiguracionGeneral";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
 import CierreDeTurno from "./pages/CierreDeTurno";
@@ -200,6 +201,17 @@ function App() {
               <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
                 <AppLayout>
                   <ConfiguracionCobros />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/configuracion/general"
+            element={
+              <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                <AppLayout>
+                  <ConfiguracionGeneral />
                 </AppLayout>
               </ProtectedRoute>
             }

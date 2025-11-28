@@ -79,16 +79,19 @@ export default function Configuracion() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
+          onClick={() => window.location.href = '/configuracion/general'}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5 text-muted-foreground" />
+              <Settings className="h-5 w-5 text-primary" />
               Generales
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-sm">
-              Configuraciones generales del sistema
+              Configuraciones generales del sistema (tema, apariencia)
             </p>
           </CardContent>
         </Card>
