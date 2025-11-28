@@ -921,6 +921,95 @@ const Auditoria = () => {
 };
 
 /**
+ * Componente para renderizar información de vehículo en acciones de activación/inactivación
+ */
+const RenderInfoVehiculo = ({ datos, titulo }) => {
+  if (!datos) return null;
+
+  return (
+    <div className="border border-blue-200 dark:border-blue-800 rounded-lg overflow-hidden">
+      <div className="bg-blue-50 dark:bg-blue-950/30 px-4 py-2 border-b border-blue-200 dark:border-blue-800">
+        <p className="text-sm font-medium text-blue-700 dark:text-blue-400 flex items-center gap-2">
+          <Car className="h-4 w-4" />
+          {titulo}
+        </p>
+      </div>
+      <div className="p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <p className="text-xs text-muted-foreground">Placa</p>
+            <p className="text-sm font-semibold">{datos.placa || "-"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Tipo</p>
+            <p className="text-sm">{formatearValor("tipo", datos.tipo) || "-"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Propietario</p>
+            <p className="text-sm">{datos.propietario || "-"}</p>
+          </div>
+          {datos.estado && (
+            <div>
+              <p className="text-xs text-muted-foreground">Estado</p>
+              <Badge className={datos.estado === "activo" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                {datos.estado === "activo" ? "Activo" : "Inactivo"}
+              </Badge>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Componente para renderizar comparación de datos antes y después
+ */
+const RenderComparacion = ({ datosAnteriores, datosNuevos }) => {
+  if (!datosAnteriores || !datosNuevos) return null;
+
+  // Obtener todas las claves únicas de ambos objetos
+  const todasLasClaves = [...new Set([...Object.keys(datosAnteriores), ...Object.keys(datosNuevos)])];
+  
+  // Filtrar solo las claves que han cambiado
+  const clavesCambiadas = todasLasClaves.filter(clave => {
+    const valorAnterior = JSON.stringify(datosAnteriores[clave]);
+    const valorNuevo = JSON.stringify(datosNuevos[clave]);
+    return valorAnterior !== valorNuevo;
+  });
+
+  if (clavesCambiadas.length === 0) return null;
+
+  return (
+    <div className="border border-orange-200 dark:border-orange-800 rounded-lg overflow-hidden">
+      <div className="bg-orange-50 dark:bg-orange-950/30 px-4 py-2 border-b border-orange-200 dark:border-orange-800">
+        <p className="text-sm font-medium text-orange-700 dark:text-orange-400 flex items-center gap-2">
+          <Activity className="h-4 w-4" />
+          Cambios Realizados
+        </p>
+      </div>
+      <div className="p-4">
+        <div className="space-y-3">
+          {clavesCambiadas.map(clave => (
+            <div key={clave} className="grid grid-cols-3 gap-2 items-center border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0">
+              <div className="text-sm font-medium text-muted-foreground">
+                {ETIQUETAS_CAMPOS[clave] || clave}
+              </div>
+              <div className="text-sm text-red-600 dark:text-red-400 line-through">
+                {formatearValor(clave, datosAnteriores[clave])}
+              </div>
+              <div className="text-sm text-green-600 dark:text-green-400 font-medium">
+                {formatearValor(clave, datosNuevos[clave])}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
  * Componente para renderizar datos de auditoría de forma legible
  */
 const RenderDatosFormateados = ({ datos }) => {
