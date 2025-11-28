@@ -256,6 +256,9 @@ export default function VehiculosLista() {
                 <option value="taxi_blanco">Taxi Blanco</option>
                 <option value="taxi_amarillo">Taxi Amarillo</option>
                 <option value="escalera">Escalera</option>
+                <option value="campero">Campero</option>
+                <option value="bus">Bus</option>
+                <option value="microbus">Microbus</option>
                 <option value="otro">Otro</option>
               </select>
             </div>
@@ -389,11 +392,10 @@ export default function VehiculosLista() {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            vehiculo.estado === "activo"
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${vehiculo.estado === "activo"
                               ? "bg-success/10 text-success"
                               : "bg-muted text-muted-foreground"
-                          }`}
+                            }`}
                         >
                           {vehiculo.estado_display || vehiculo.estado}
                         </span>
@@ -485,6 +487,9 @@ export default function VehiculosLista() {
                   <option value="taxi_blanco">Taxi Blanco</option>
                   <option value="taxi_amarillo">Taxi Amarillo</option>
                   <option value="escalera">Escalera</option>
+                  <option value="campero">Campero</option>
+                  <option value="bus">Bus</option>
+                  <option value="microbus">Microbus</option>
                   <option value="otro">Otro</option>
                 </select>
               </div>

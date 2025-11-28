@@ -224,6 +224,9 @@ export default function ConfiguracionCobros() {
                                 <SelectItem value="taxi_blanco">Taxi Blanco</SelectItem>
                                 <SelectItem value="taxi_amarillo">Taxi Amarillo</SelectItem>
                                 <SelectItem value="escalera">Escalera</SelectItem>
+                                <SelectItem value="campero">Campero</SelectItem>
+                                <SelectItem value="bus">Bus</SelectItem>
+                                <SelectItem value="microbus">Microbus</SelectItem>
                                 <SelectItem value="otro">Otro</SelectItem>
                             </SelectContent>
                         </Select>
@@ -383,6 +386,9 @@ export default function ConfiguracionCobros() {
                                             <SelectItem value="taxi_blanco">Taxi Blanco</SelectItem>
                                             <SelectItem value="taxi_amarillo">Taxi Amarillo</SelectItem>
                                             <SelectItem value="escalera">Escalera</SelectItem>
+                                            <SelectItem value="campero">Campero</SelectItem>
+                                            <SelectItem value="bus">Bus</SelectItem>
+                                            <SelectItem value="microbus">Microbus</SelectItem>
                                             <SelectItem value="otro">Otro</SelectItem>
                                         </SelectContent>
                                     </Select>
