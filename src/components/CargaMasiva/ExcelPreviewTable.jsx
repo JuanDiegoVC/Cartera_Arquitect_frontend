@@ -30,26 +30,29 @@ const COLUMN_CONFIGS = {
   ],
   vehiculos: [
     { key: "placa", label: "Placa", type: "text", required: true, width: "w-24" },
-    { 
-      key: "tipo_vehiculo", 
-      label: "Tipo Vehículo", 
-      type: "select", 
-      required: true, 
+    {
+      key: "tipo_vehiculo",
+      label: "Tipo Vehículo",
+      type: "select",
+      required: true,
       width: "w-36",
       options: [
         { value: "taxi_blanco", label: "Taxi Blanco" },
         { value: "taxi_amarillo", label: "Taxi Amarillo" },
         { value: "escalera", label: "Escalera" },
+        { value: "campero", label: "Campero" },
+        { value: "bus", label: "Bus" },
+        { value: "microbus", label: "Microbus" },
         { value: "otro", label: "Otro" },
       ]
     },
     { key: "propietario_nombre", label: "Propietario", type: "text", required: false, width: "flex-1" },
     { key: "conductor_actual_nombre", label: "Conductor", type: "text", required: false, width: "flex-1" },
-    { 
-      key: "estado", 
-      label: "Estado", 
-      type: "select", 
-      required: true, 
+    {
+      key: "estado",
+      label: "Estado",
+      type: "select",
+      required: true,
       width: "w-28",
       options: [
         { value: "activo", label: "Activo" },
@@ -63,11 +66,11 @@ const COLUMN_CONFIGS = {
     { key: "periodo", label: "Periodo", type: "date", required: true, width: "w-32" },
     { key: "valor_cargado", label: "Valor Cargado", type: "number", required: true, width: "w-32" },
     { key: "saldo_pendiente", label: "Saldo Pendiente", type: "number", required: true, width: "w-32" },
-    { 
-      key: "estado_deuda", 
-      label: "Estado", 
-      type: "select", 
-      required: true, 
+    {
+      key: "estado_deuda",
+      label: "Estado",
+      type: "select",
+      required: true,
       width: "w-28",
       options: [
         { value: "pendiente", label: "Pendiente" },
@@ -81,10 +84,10 @@ const COLUMN_CONFIGS = {
 /**
  * Celda editable individual
  */
-function EditableCell({ 
-  value, 
-  onChange, 
-  type = "text", 
+function EditableCell({
+  value,
+  onChange,
+  type = "text",
   options = [],
   hasError = false,
   isNew = false,
@@ -154,8 +157,8 @@ function EditableCell({
         />
       ) : (
         <span className="block min-h-[28px] leading-7 cursor-text">
-          {type === "number" && value 
-            ? Number(value).toLocaleString("es-CO") 
+          {type === "number" && value
+            ? Number(value).toLocaleString("es-CO")
             : value || <span className="text-muted-foreground">{placeholder}</span>
           }
         </span>
@@ -208,8 +211,8 @@ export default function ExcelPreviewTable({
   const handleAddRow = useCallback(() => {
     const newRow = { id: Date.now() };
     columns.forEach((col) => {
-      newRow[col.key] = col.type === "select" && col.options?.length > 0 
-        ? col.options[0].value 
+      newRow[col.key] = col.type === "select" && col.options?.length > 0
+        ? col.options[0].value
         : "";
     });
     newRow.es_nuevo = true;
@@ -266,11 +269,11 @@ export default function ExcelPreviewTable({
                 Estado
               </th>
               <th className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider border-b w-12">
-                
+
               </th>
             </tr>
           </thead>
-          
+
           {/* Body */}
           <tbody>
             {data.map((row, rowIndex) => {
