@@ -19,6 +19,7 @@ export default function DeudoresMorosos() {
         try {
             setLoading(true);
             const result = await cobrosService.getReporteMorosidad();
+            console.log("Reporte Morosidad Data:", result);
             setData(result);
         } catch (err) {
             console.error(err);
@@ -30,7 +31,7 @@ export default function DeudoresMorosos() {
 
     const filteredData = data.filter(item =>
         item.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.propietario.toLowerCase().includes(searchTerm.toLowerCase())
+        item.conductor.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const getSemaforoColor = (estado) => {
@@ -60,11 +61,56 @@ export default function DeudoresMorosos() {
                 </p>
             </div>
 
+            <div className="grid gap-4 md:grid-cols-3">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Estado Crítico</CardTitle>
+                        <AlertCircle className="h-4 w-4 text-red-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-red-600">
+                            {data.filter(item => item.estado_semaforo === 'rojo').length}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            Vehículos con uso de cupo &ge; 90%
+                        </p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">En Alerta</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-yellow-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-yellow-600">
+                            {data.filter(item => item.estado_semaforo === 'amarillo').length}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            Vehículos con uso de cupo 60-89%
+                        </p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Estado Normal</CardTitle>
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-600">
+                            {data.filter(item => item.estado_semaforo === 'verde').length}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            Vehículos con uso de cupo &lt; 60%
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+
             <div className="flex items-center space-x-2">
                 <div className="relative flex-1 max-w-sm">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                        placeholder="Buscar por placa o propietario..."
+                        placeholder="Buscar por placa o conductor..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-8"
@@ -94,7 +140,7 @@ export default function DeudoresMorosos() {
                                 <thead>
                                     <tr className="border-b bg-muted/50">
                                         <th className="px-4 py-3 text-left text-sm font-semibold">Placa</th>
-                                        <th className="px-4 py-3 text-left text-sm font-semibold">Propietario</th>
+                                        <th className="px-4 py-3 text-left text-sm font-semibold">Conductor</th>
                                         <th className="px-4 py-3 text-right text-sm font-semibold">Deuda Total</th>
                                         <th className="px-4 py-3 text-right text-sm font-semibold">Límite</th>
                                         <th className="px-4 py-3 text-center text-sm font-semibold">Uso Cupo</th>
@@ -105,10 +151,10 @@ export default function DeudoresMorosos() {
                                     {filteredData.map((item) => (
                                         <tr key={item.placa} className="border-b hover:bg-muted/30 transition-colors">
                                             <td className="px-4 py-3 font-medium">{item.placa}</td>
-                                            <td className="px-4 py-3 text-muted-foreground">{item.propietario}</td>
+                                            <td className="px-4 py-3 text-muted-foreground">{item.conductor}</td>
                                             <td className={`px-4 py-3 text-right font-mono font-medium ${item.estado_semaforo === 'rojo' ? 'text-red-600' :
-                                                    item.estado_semaforo === 'amarillo' ? 'text-yellow-600' :
-                                                        'text-green-600'
+                                                item.estado_semaforo === 'amarillo' ? 'text-yellow-600' :
+                                                    'text-green-600'
                                                 }`}>
                                                 ${parseFloat(item.total_deuda).toLocaleString('es-CO', { minimumFractionDigits: 2 })}
                                             </td>
