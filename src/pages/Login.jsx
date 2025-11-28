@@ -6,14 +6,17 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Label } from '../components/ui/label';
 import { Alert, AlertDescription } from '../components/ui/alert';
-import { DollarSign, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import logo from '../assets/Logo1.png';
+import logo2 from '../assets/Logo2.png';
+import './Login.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -33,18 +36,18 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/20 p-4">
-      <div className="w-full max-w-md">
+    <div className="login-background min-h-screen flex items-center justify-center p-4">
+      <div className="login-container w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4 shadow-lg">
-            <DollarSign className="h-8 w-8 text-primary-foreground" />
+          <div className="inline-flex items-center justify-center mb-4">
+            <img src={logo} alt="Logo Sotrapeñol" className="login-logo w-24 h-24 object-contain" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Sotrapeñol</h1>
+          <img src={logo2} alt="Sotrapeñol" className="h-12 w-auto object-contain mx-auto" />
           <p className="text-muted-foreground mt-2">Sistema de Gestión de Recaudos</p>
         </div>
 
-        <Card className="shadow-xl">
-          <CardHeader className="space-y-1">
+        <Card className="login-card shadow-xl">
+          <CardHeader className="login-card-header space-y-1">
             <CardTitle className="text-2xl text-center">Iniciar Sesión</CardTitle>
             <CardDescription className="text-center">
               Ingrese sus credenciales para acceder al sistema
@@ -53,7 +56,7 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico</Label>
+                <Label htmlFor="email" className="login-label">Correo Electrónico</Label>
                 <Input
                   type="email"
                   id="email"
@@ -63,12 +66,12 @@ const Login = () => {
                   required
                   disabled={loading}
                   autoFocus
-                  className="h-11"
+                  className="login-input h-11"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password" className="login-label">Contraseña</Label>
                 <Input
                   type="password"
                   id="password"
@@ -77,18 +80,18 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
-                  className="h-11"
+                  className="login-input h-11"
                 />
               </div>
 
               {error && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="login-alert-error">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
-              <Button type="submit" disabled={loading} className="w-full h-11 text-base" size="lg">
+              <Button type="submit" disabled={loading} className="login-button w-full h-11 text-base" size="lg">
                 {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </Button>
             </form>
@@ -96,9 +99,9 @@ const Login = () => {
         </Card>
 
         {/* Credenciales de prueba - SOLO DESARROLLO */}
-        <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+        <div className="login-credentials mt-6 p-4 rounded-lg">
           <p className="text-xs font-semibold text-amber-800 dark:text-amber-400 mb-2 text-center">
-            🔑 Credenciales de Prueba (Solo Desarrollo)
+            Credenciales de Prueba (Solo Desarrollo)
           </p>
           <div className="space-y-1 text-xs text-amber-700 dark:text-amber-300">
             <p><strong>Gerente:</strong> gerente@sotrap.com / gerente123</p>
@@ -108,7 +111,7 @@ const Login = () => {
           </div>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
+        <p className="login-footer text-center text-sm text-muted-foreground mt-6 pt-4">
           © 2025 Sotrapeñol. Todos los derechos reservados.
         </p>
       </div>
