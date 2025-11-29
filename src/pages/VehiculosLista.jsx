@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { VEHICLE_TYPES } from "../utils/formatters";
 import { useLocation } from "react-router-dom";
 import { Download, Search, Filter, RefreshCw, Car } from "lucide-react";
 import {
@@ -39,7 +40,7 @@ export default function VehiculosLista() {
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [formData, setFormData] = useState({
     placa: "",
-    tipo_vehiculo: "taxi_blanco",
+    tipo_vehiculo: "automovil_intermunicipal",
     propietario_nombre: "",
     conductor_actual_nombre: "",
     estado: "activo",
@@ -180,7 +181,7 @@ export default function VehiculosLista() {
     setEditingVehicle(null);
     setFormData({
       placa: "",
-      tipo_vehiculo: "taxi_blanco",
+      tipo_vehiculo: "automovil_intermunicipal",
       propietario_nombre: "",
       conductor_actual_nombre: "",
       estado: "activo",
@@ -266,13 +267,9 @@ export default function VehiculosLista() {
                 className="w-full px-3 py-2 border rounded-md bg-background"
               >
                 <option value="">Todos los tipos</option>
-                <option value="taxi_blanco">Taxi Blanco</option>
-                <option value="taxi_amarillo">Taxi Amarillo</option>
-                <option value="escalera">Escalera</option>
-                <option value="campero">Campero</option>
-                <option value="bus">Bus</option>
-                <option value="microbus">Microbus</option>
-                <option value="otro">Otro</option>
+                {VEHICLE_TYPES.map(type => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
               </select>
             </div>
 
@@ -497,13 +494,9 @@ export default function VehiculosLista() {
                   }
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="taxi_blanco">Taxi Blanco</option>
-                  <option value="taxi_amarillo">Taxi Amarillo</option>
-                  <option value="escalera">Escalera</option>
-                  <option value="campero">Campero</option>
-                  <option value="bus">Bus</option>
-                  <option value="microbus">Microbus</option>
-                  <option value="otro">Otro</option>
+                  {VEHICLE_TYPES.map(type => (
+                    <option key={type.value} value={type.value}>{type.label}</option>
+                  ))}
                 </select>
               </div>
               <div className="grid gap-2">

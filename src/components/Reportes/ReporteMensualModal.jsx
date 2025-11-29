@@ -309,6 +309,41 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Detalle Granular por Concepto */}
+                            <div className="bg-card border rounded-xl p-6 shadow-sm">
+                                <h3 className="text-lg font-semibold mb-4">Detalle de Ingresos por Concepto</h3>
+                                {data.detalles_por_rubro && data.detalles_por_rubro.length > 0 ? (
+                                    <div className="overflow-x-auto max-h-96">
+                                        <table className="w-full text-sm text-left">
+                                            <thead className="text-xs text-muted-foreground uppercase bg-muted sticky top-0">
+                                                <tr>
+                                                    <th className="px-4 py-3">Fecha</th>
+                                                    <th className="px-4 py-3">Concepto</th>
+                                                    <th className="px-4 py-3">Placa</th>
+                                                    <th className="px-4 py-3">Propietario</th>
+                                                    <th className="px-4 py-3 text-right">Valor</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y">
+                                                {data.detalles_por_rubro.map((item, idx) => (
+                                                    <tr key={idx} className="hover:bg-muted/50">
+                                                        <td className="px-4 py-2 whitespace-nowrap">{item.fecha}</td>
+                                                        <td className="px-4 py-2 font-medium">{item.rubro}</td>
+                                                        <td className="px-4 py-2">{item.placa}</td>
+                                                        <td className="px-4 py-2 truncate max-w-[200px]">{item.propietario}</td>
+                                                        <td className="px-4 py-2 text-right font-mono">{formatCurrency(item.valor)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8 text-muted-foreground">
+                                        No hay detalles disponibles para este periodo.
+                                    </div>
+                                )}
+                            </div>
                         </>
                     )}
                 </div>

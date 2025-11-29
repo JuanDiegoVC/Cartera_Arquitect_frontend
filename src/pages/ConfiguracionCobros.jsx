@@ -20,6 +20,19 @@ import {
 } from "../components/ui/select";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { cobrosService } from "../services/cobrosService";
+import { vehiculosService } from "../services/vehiculosService";
+
+const VEHICLE_TYPES = [
+    { value: "automovil_intermunicipal", label: "Automóvil Intermunicipal" },
+    { value: "automovil_municipal", label: "Automóvil Municipal" },
+    { value: "bus_buseta_intermunicipal", label: "Bus-Buseta Intermunicipal" },
+    { value: "camioneta_intermunicipal", label: "Camioneta Intermunicipal" },
+    { value: "campero_municipal", label: "Campero Municipal" },
+    { value: "escalera", label: "Escalera" },
+    { value: "microbus_municipal", label: "Microbus Municipal" },
+    { value: "microbus_intermunicipal", label: "Microbus Intermunicipal" },
+    { value: "bus_municipal", label: "Bus Municipal" },
+];
 
 export default function ConfiguracionCobros() {
     const [activeTab, setActiveTab] = useState("rubros");
@@ -51,12 +64,41 @@ export default function ConfiguracionCobros() {
             let result;
             if (activeTab === "rubros") {
                 result = await cobrosService.getAllRubros();
-            } else {
+            } else if (activeTab === "tarifas") {
                 const params = {};
                 if (filterRubro !== "all") params.rubro = filterRubro;
                 if (filterTipoVehiculo !== "all") params.tipo_vehiculo = filterTipoVehiculo;
                 result = await cobrosService.getAllTarifas(params);
+            } else if (activeTab === "polizas") {
+                // Cargar tarifas de pólizas
+                // 1. Encontrar rubro "Pólizas"
+                const rubros = await cobrosService.getAllRubros();
+                const rubrosList = Array.isArray(rubros) ? rubros : (rubros.results || []);
+                const polizaRubro = rubrosList.find(r => r.nombre === "Pólizas");
+
+                if (polizaRubro) {
+                    // 2. Cargar tarifas de ese rubro
+                    const tarifas = await cobrosService.getAllTarifas({ rubro: polizaRubro.rubro_id });
+                    const tarifasData = Array.isArray(tarifas) ? tarifas : (tarifas.results || []);
+
+                    // 3. Mapear tipos de vehículo a sus tarifas
+                    const polizasMap = VEHICLE_TYPES.map(type => {
+                        const tarifa = tarifasData.find(t => t.tipo_vehiculo === type.value);
+                        return {
+                            tipo_vehiculo: type.value,
+                            label: type.label,
+                            valor: tarifa ? tarifa.valor : 0,
+                            tarifa_id: tarifa ? tarifa.tarifa_id : null,
+                            rubro_id: polizaRubro.rubro_id
+                        };
+                    });
+                    result = polizasMap;
+                } else {
+                    result = [];
+                    setError("No se encontró el rubro 'Pólizas'. Por favor créelo primero.");
+                }
             }
+
             // Manejar respuesta paginada o lista directa
             const listData = Array.isArray(result) ? result : (result.results || []);
             setData(listData);
@@ -149,6 +191,36 @@ export default function ConfiguracionCobros() {
         }
     };
 
+    const handleUpdatePoliza = async (item, nuevoValor) => {
+        try {
+            const valor = parseFloat(nuevoValor);
+            if (isNaN(valor)) return;
+
+            const payload = {
+                rubro: item.rubro_id,
+                tipo_vehiculo: item.tipo_vehiculo,
+                valor: valor,
+                fecha_inicio_vigencia: new Date().toISOString().split('T')[0] // Vigencia desde hoy
+            };
+
+            if (item.tarifa_id) {
+                await cobrosService.updateTarifa(item.tarifa_id, payload);
+            } else {
+                const newTarifa = await cobrosService.createTarifa(payload);
+                // Actualizar ID para futuras ediciones sin recargar
+                item.tarifa_id = newTarifa.tarifa_id;
+            }
+
+            // Actualizar estado local
+            setData(prevData => prevData.map(v =>
+                v.tipo_vehiculo === item.tipo_vehiculo ? { ...v, valor: valor, tarifa_id: item.tarifa_id || v.tarifa_id } : v
+            ));
+        } catch (err) {
+            console.error("Error actualizando póliza:", err);
+            alert("Error al actualizar el valor de la póliza");
+        }
+    };
+
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
@@ -186,6 +258,15 @@ export default function ConfiguracionCobros() {
                 >
                     Tarifas
                 </button>
+                <button
+                    onClick={() => setActiveTab("polizas")}
+                    className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 ${activeTab === "polizas"
+                        ? "bg-background shadow text-foreground"
+                        : "text-muted-foreground hover:bg-white/[0.12] hover:text-white"
+                        }`}
+                >
+                    Gestión de Pólizas
+                </button>
             </div>
 
             {/* Filters for Tarifas */}
@@ -221,12 +302,9 @@ export default function ConfiguracionCobros() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Todos los tipos</SelectItem>
-                                <SelectItem value="taxi_blanco">Taxi Blanco</SelectItem>
-                                <SelectItem value="taxi_amarillo">Taxi Amarillo</SelectItem>
-                                <SelectItem value="escalera">Escalera</SelectItem>
-                                <SelectItem value="campero">Campero</SelectItem>
-                                <SelectItem value="bus">Bus</SelectItem>
-                                <SelectItem value="microbus">Microbus</SelectItem>
+                                {VEHICLE_TYPES.map(type => (
+                                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                                ))}
                                 <SelectItem value="otro">Otro</SelectItem>
                             </SelectContent>
                         </Select>
@@ -261,12 +339,17 @@ export default function ConfiguracionCobros() {
                                                 <th className="px-4 py-3 text-left text-sm font-semibold">Nombre</th>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold">Descripción</th>
                                             </>
-                                        ) : (
+                                        ) : activeTab === "tarifas" ? (
                                             <>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold">Rubro</th>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold">Tipo Vehículo</th>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold">Valor</th>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold">Inicio Vigencia</th>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <th className="px-4 py-3 text-left text-sm font-semibold">Tipo de Vehículo</th>
+                                                <th className="px-4 py-3 text-left text-sm font-semibold">Valor Póliza (Anual)</th>
                                             </>
                                         )}
                                         <th className="px-4 py-3 text-right text-sm font-semibold">Acciones</th>
@@ -274,47 +357,67 @@ export default function ConfiguracionCobros() {
                                 </thead>
                                 <tbody>
                                     {data.map((item) => (
-                                        <tr
-                                            key={activeTab === "rubros" ? item.rubro_id : item.tarifa_id}
-                                            className="border-b hover:bg-muted/30 transition-colors"
-                                        >
-                                            {activeTab === "rubros" ? (
-                                                <>
-                                                    <td className="px-4 py-3 font-medium">{item.nombre}</td>
-                                                    <td className="px-4 py-3 text-muted-foreground">{item.descripcion}</td>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <td className="px-4 py-3 font-medium">
-                                                        {rubrosList.find(r => r.rubro_id === item.rubro)?.nombre || item.rubro}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                                                            {item.tipo_vehiculo}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-4 py-3 font-mono">${item.valor}</td>
-                                                    <td className="px-4 py-3">{item.fecha_inicio_vigencia}</td>
-                                                </>
-                                            )}
-                                            <td className="px-4 py-3 text-right space-x-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleOpenModal(item)}
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="text-destructive hover:text-destructive"
-                                                    onClick={() => handleDelete(activeTab === "rubros" ? item.rubro_id : item.tarifa_id)}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </td>
-                                        </tr>
+                                        activeTab === "polizas" ? (
+                                            <tr key={item.tipo_vehiculo} className="border-b hover:bg-muted/30 transition-colors">
+                                                <td className="px-4 py-3 font-medium">{item.label}</td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-muted-foreground">$</span>
+                                                        <Input
+                                                            type="number"
+                                                            className="h-8 w-32"
+                                                            defaultValue={item.valor}
+                                                            onBlur={(e) => handleUpdatePoliza(item, e.target.value)}
+                                                        />
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-right text-xs text-muted-foreground">
+                                                    Auto-guardado al salir
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            <tr
+                                                key={activeTab === "rubros" ? item.rubro_id : item.tarifa_id}
+                                                className="border-b hover:bg-muted/30 transition-colors"
+                                            >
+                                                {activeTab === "rubros" ? (
+                                                    <>
+                                                        <td className="px-4 py-3 font-medium">{item.nombre}</td>
+                                                        <td className="px-4 py-3 text-muted-foreground">{item.descripcion}</td>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <td className="px-4 py-3 font-medium">
+                                                            {rubrosList.find(r => r.rubro_id === item.rubro)?.nombre || item.rubro}
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                                                                {item.tipo_vehiculo}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3 font-mono">${item.valor}</td>
+                                                        <td className="px-4 py-3">{item.fecha_inicio_vigencia}</td>
+                                                    </>
+                                                )}
+                                                <td className="px-4 py-3 text-right space-x-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleOpenModal(item)}
+                                                    >
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-destructive hover:text-destructive"
+                                                        onClick={() => handleDelete(activeTab === "rubros" ? item.rubro_id : item.tarifa_id)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        )
                                     ))}
                                 </tbody>
                             </table>
@@ -383,13 +486,9 @@ export default function ConfiguracionCobros() {
                                             <SelectValue placeholder="Seleccione tipo" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="taxi_blanco">Taxi Blanco</SelectItem>
-                                            <SelectItem value="taxi_amarillo">Taxi Amarillo</SelectItem>
-                                            <SelectItem value="escalera">Escalera</SelectItem>
-                                            <SelectItem value="campero">Campero</SelectItem>
-                                            <SelectItem value="bus">Bus</SelectItem>
-                                            <SelectItem value="microbus">Microbus</SelectItem>
-                                            <SelectItem value="otro">Otro</SelectItem>
+                                            {VEHICLE_TYPES.map(type => (
+                                                <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>

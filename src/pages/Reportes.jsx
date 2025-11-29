@@ -71,7 +71,7 @@ export default function Reportes() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <AlertCircle className="h-5 w-5 text-warning" />
-              Deudores Morosos
+              Cartera Vencida
             </CardTitle>
           </CardHeader>
           <CardContent>

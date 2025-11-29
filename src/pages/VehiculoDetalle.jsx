@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Separator } from "../components/ui/separator";
 import { vehiculosService } from "../services/vehiculosService";
+import { getTipoVehiculoLabel } from "../utils/formatters";
 
 export default function VehiculoDetalle() {
   const { placa } = useParams();
@@ -37,10 +38,10 @@ export default function VehiculoDetalle() {
       setVehiculo(data);
     } catch (err) {
       console.error("Error cargando vehículo:", err);
-      
+
       // Mensaje de error personalizado
       let errorMessage = "Error al cargar la información del vehículo";
-      
+
       if (err.response?.status === 404 || err.error === "Vehículo no encontrado") {
         errorMessage = `No se encontró ningún vehículo con la placa "${placa.toUpperCase()}". Verifique que la placa esté completa y correcta.`;
       } else if (err.detalle) {
@@ -48,7 +49,7 @@ export default function VehiculoDetalle() {
       } else if (err.response?.data?.detalle) {
         errorMessage = err.response.data.detalle;
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -183,13 +184,7 @@ export default function VehiculoDetalle() {
                   {vehiculo?.placa}
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {vehiculo?.tipo_vehiculo === "taxi_blanco"
-                    ? "Taxi Blanco"
-                    : vehiculo?.tipo_vehiculo === "taxi_amarillo"
-                    ? "Taxi Amarillo"
-                    : vehiculo?.tipo_vehiculo === "escalera"
-                    ? "Escalera"
-                    : vehiculo?.tipo_vehiculo}
+                  {getTipoVehiculoLabel(vehiculo?.tipo_vehiculo)}
                 </p>
               </div>
             </div>

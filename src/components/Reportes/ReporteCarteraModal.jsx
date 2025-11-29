@@ -16,6 +16,7 @@ import { Select } from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
 import { FileSpreadsheet, Download, Loader2 } from "lucide-react";
 import { reportesService } from "../../services/reportesService";
+import { VEHICLE_TYPES } from "../../utils/formatters";
 
 export default function ReporteCarteraModal({ open, onOpenChange }) {
   const [filtros, setFiltros] = useState({
@@ -72,7 +73,7 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
 
       // Descargar reporte
       const response = await reportesService.descargarReporteCartera(filtros);
-      
+
       // Descargar archivo
       reportesService.descargarArchivo(response, "Reporte_Cartera_Detallada");
 
@@ -89,7 +90,7 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
       }, 500);
     } catch (err) {
       console.error("Error al descargar reporte:", err);
-      
+
       // Manejar error de respuesta blob
       if (err instanceof Blob) {
         try {
@@ -100,8 +101,8 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
         }
       } else {
         setError(
-          err.message || 
-          err.detalle || 
+          err.message ||
+          err.detalle ||
           "Error al descargar el reporte. Por favor, intente nuevamente."
         );
       }
@@ -198,10 +199,9 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
                 className="w-full"
               >
                 <option value="todos">Todos los tipos</option>
-                <option value="taxi_blanco">Taxi Blanco</option>
-                <option value="taxi_amarillo">Taxi Amarillo</option>
-                <option value="escalera">Escalera</option>
-                <option value="otro">Otro</option>
+                {VEHICLE_TYPES.map(type => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
               </Select>
             </div>
 
