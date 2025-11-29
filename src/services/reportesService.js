@@ -145,4 +145,21 @@ export const reportesService = {
       throw error.response?.data || error;
     }
   },
+
+
+  /**
+   * Obtener reporte mensual (Dashboard Financiero)
+   * @param {Object} filtros - Filtros de fecha (periodo_inicio, periodo_fin)
+   * @returns {Promise<Object>} Datos del reporte mensual
+   */
+  getReporteMensual: async (filtros = {}) => {
+    try {
+      const response = await apiClient.get("/v1/cobros/reportes/mensual/", {
+        params: filtros,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
 };
