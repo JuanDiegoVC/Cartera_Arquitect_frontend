@@ -147,7 +147,9 @@ export default function GenerarFacturacion() {
 
   const formatMonthYear = (dateString) => {
     if (!dateString) return "";
-    const date = new Date(dateString);
+    // Append T12:00:00 to avoid timezone issues (UTC vs Local)
+    // "YYYY-MM-DD" is parsed as UTC midnight, which is previous day in UTC-5
+    const date = new Date(`${dateString}T12:00:00`);
     return date.toLocaleDateString("es-CO", { year: "numeric", month: "long" });
   };
 
