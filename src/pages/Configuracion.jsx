@@ -1,10 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
 import { Settings, Users, Database, Bell, Upload } from "lucide-react";
 import { CargaMasivaModal } from "../components/CargaMasiva";
+import { useNotificaciones } from "../context/NotificacionesContext";
 
 export default function Configuracion() {
+  const navigate = useNavigate();
   const [cargaMasivaOpen, setCargaMasivaOpen] = useState(false);
+  const { contador, tieneNotificaciones } = useNotificaciones();
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -50,7 +55,7 @@ export default function Configuracion() {
 
         <Card
           className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => window.location.href = '/configuracion/cobros'}
+          onClick={() => navigate('/configuracion/cobros')}
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -65,23 +70,45 @@ export default function Configuracion() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary relative"
+          onClick={() => navigate('/configuracion/notificaciones')}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-warning" />
               Notificaciones
+              {tieneNotificaciones && (
+                <Badge variant="destructive" className="ml-auto text-xs">
+                  {contador.total_no_leidas}
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-sm">
               Configure alertas y notificaciones automáticas
             </p>
+            {tieneNotificaciones && (
+              <div className="flex gap-2 mt-2">
+                {contador.criticas > 0 && (
+                  <Badge variant="destructive" className="text-xs">
+                    {contador.criticas} crítica{contador.criticas > 1 ? "s" : ""}
+                  </Badge>
+                )}
+                {contador.advertencias > 0 && (
+                  <Badge className="bg-yellow-500 hover:bg-yellow-600 text-xs">
+                    {contador.advertencias} alerta{contador.advertencias > 1 ? "s" : ""}
+                  </Badge>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card 
           className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
-          onClick={() => window.location.href = '/configuracion/general'}
+          onClick={() => navigate('/configuracion/general')}
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
