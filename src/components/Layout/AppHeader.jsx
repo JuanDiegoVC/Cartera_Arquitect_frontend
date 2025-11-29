@@ -2,6 +2,7 @@ import { User } from "lucide-react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { useAuth } from "../../context/AuthContext";
 import VehicleSearch from "../vehiculos/VehicleSearch";
+import { NotificationBell } from "./NotificationBell";
 
 export function AppHeader() {
   const { user } = useAuth();
@@ -30,6 +31,8 @@ export function AppHeader() {
 
       {/* Info de usuario - Responsive */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Campanita de notificaciones */}
+        <NotificationBell />
         <div className="text-right hidden lg:block">
           <p className="text-sm font-medium text-foreground truncate max-w-[150px]">
             {user?.nombre_completo || "Usuario"}

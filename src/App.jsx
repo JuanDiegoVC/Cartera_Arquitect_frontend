@@ -5,6 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { NotificacionesProvider } from "./context/NotificacionesContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import { AppLayout } from "./components/Layout/AppLayout";
 import Login from "./pages/Login";
@@ -18,6 +19,7 @@ import VehiculoDetalle from "./pages/VehiculoDetalle";
 import Configuracion from "./pages/Configuracion";
 import ConfiguracionCobros from "./pages/ConfiguracionCobros";
 import ConfiguracionGeneral from "./pages/ConfiguracionGeneral";
+import NotificacionesConfig from "./pages/NotificacionesConfig";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
 import CierreDeTurno from "./pages/CierreDeTurno";
@@ -29,7 +31,8 @@ import "./App.css";
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <NotificacionesProvider>
+        <Router>
         <Routes>
           {/* Ruta pública */}
           <Route path="/login" element={<Login />} />
@@ -217,6 +220,17 @@ function App() {
             }
           />
 
+          <Route
+            path="/configuracion/notificaciones"
+            element={
+              <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                <AppLayout>
+                  <NotificacionesConfig />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* Auditoría - Administrador y gerente */}
           <Route
             path="/auditoria"
@@ -234,6 +248,7 @@ function App() {
         </Routes>
         <Toaster position="top-right" richColors />
       </Router>
+      </NotificacionesProvider>
     </AuthProvider>
   );
 }
