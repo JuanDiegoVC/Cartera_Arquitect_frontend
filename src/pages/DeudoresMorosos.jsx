@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
-import { Search, AlertCircle, TrendingUp, CheckCircle } from "lucide-react";
+import { Search, AlertCircle, TrendingUp, CheckCircle, FileText } from "lucide-react";
 import { cobrosService } from "../services/cobrosService";
 
 export default function DeudoresMorosos() {
@@ -50,6 +50,76 @@ export default function DeudoresMorosos() {
             case "verde": return <CheckCircle className="h-4 w-4 mr-1" />;
             default: return null;
         }
+    };
+
+    const generateCobroJuridicoPDF = (item) => {
+        import('jspdf').then(({ jsPDF }) => {
+            const doc = new jsPDF();
+            const margin = 20;
+            let y = 20;
+            const lineHeight = 7;
+
+            // Header
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text("SOTRAPEÑOL", 105, y, { align: "center" });
+            y += 10;
+            doc.setFontSize(10);
+            doc.text("NIT: 800.123.456-7", 105, y, { align: "center" });
+            y += 20;
+
+            // Date
+            const date = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+            doc.setFont("helvetica", "normal");
+            doc.text(`Medellín, ${date}`, margin, y);
+            y += 15;
+
+            // Recipient
+            doc.setFont("helvetica", "bold");
+            doc.text(`Señor(a):`, margin, y);
+            y += 5;
+            doc.text(`${item.conductor}`, margin, y);
+            y += 5;
+            doc.text(`Conductor Vehículo Placa: ${item.placa}`, margin, y);
+            y += 15;
+
+            // Subject
+            doc.setFontSize(11);
+            doc.text("ASUNTO: NOTIFICACIÓN DE COBRO PRE-JURÍDICO", margin, y);
+            y += 15;
+
+            // Body
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(11);
+
+            const deuda = parseFloat(item.total_deuda).toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+
+            const text = `Respetado(a) señor(a),
+
+Por medio de la presente comunicación, nos permitimos informarle que a la fecha de corte, el vehículo de placas ${item.placa} presenta un saldo en mora pendiente de pago por valor de ${deuda} por concepto de obligaciones con la empresa SOTRAPEÑOL.
+
+El objetivo de esta comunicación es invitarle formalmente a cancelar la totalidad de la deuda o acercarse a nuestras oficinas administrativas en un plazo no mayor a tres (3) días hábiles contados a partir de la recepción de esta misiva, con el fin de llegar a un acuerdo de pago y normalizar su estado de cuenta.
+
+Hacemos un llamado a su responsabilidad y cumplimiento para evitar el traslado de esta obligación a nuestra área jurídica. Le recordamos que el inicio de un proceso de cobro jurídico implicará para usted la asunción de costos adicionales por concepto de honorarios de abogado, intereses moratorios de ley y gastos procesales, además del posible reporte negativo en centrales de riesgo.
+
+Agradecemos su atención y esperamos su pronta gestión para evitar inconvenientes futuros.
+
+Cordialmente,`;
+
+            const splitText = doc.splitTextToSize(text, 170);
+            doc.text(splitText, margin, y);
+
+            y += (splitText.length * lineHeight) + 20;
+
+            // Signature
+            doc.setFont("helvetica", "bold");
+            doc.text("DEPARTAMENTO DE COBROS Y CARTERA", margin, y);
+            y += 5;
+            doc.text("SOTRAPEÑOL", margin, y);
+
+            // Save
+            doc.save(`Cobro_Juridico_${item.placa}.pdf`);
+        });
     };
 
     return (
@@ -145,6 +215,7 @@ export default function DeudoresMorosos() {
                                         <th className="px-4 py-3 text-right text-sm font-semibold">Límite</th>
                                         <th className="px-4 py-3 text-center text-sm font-semibold">Uso Cupo</th>
                                         <th className="px-4 py-3 text-center text-sm font-semibold">Estado</th>
+                                        <th className="px-4 py-3 text-center text-sm font-semibold">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -169,6 +240,15 @@ export default function DeudoresMorosos() {
                                                     {getSemaforoIcon(item.estado_semaforo)}
                                                     {item.estado_semaforo.toUpperCase()}
                                                 </Badge>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <button
+                                                    onClick={() => generateCobroJuridicoPDF(item)}
+                                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
+                                                    title="Generar Carta de Cobro Jurídico"
+                                                >
+                                                    <FileText className="h-4 w-4" />
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}

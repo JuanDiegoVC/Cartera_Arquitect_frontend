@@ -145,4 +145,38 @@ export const reportesService = {
       throw error.response?.data || error;
     }
   },
+
+
+  /**
+   * Obtener reporte mensual (Dashboard Financiero)
+   * @param {Object} filtros - Filtros de fecha (periodo_inicio, periodo_fin)
+   * @returns {Promise<Object>} Datos del reporte mensual
+   */
+  getReporteMensual: async (filtros = {}) => {
+    try {
+      const response = await apiClient.get("/v1/cobros/reportes/mensual/", {
+        params: filtros,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
+   * Descargar reporte mensual en Excel
+   * @param {Object} filtros - Filtros de fecha
+   * @returns {Promise<Response>} Response con el blob del archivo
+   */
+  descargarReporteMensual: async (filtros = {}) => {
+    try {
+      const response = await apiClient.get("/v1/cobros/reportes/mensual/excel/", {
+        params: filtros,
+        responseType: "blob",
+      });
+      return response;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
 };

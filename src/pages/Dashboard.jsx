@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { DollarSign, TrendingUp, AlertCircle, Car, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { dashboardService } from "../services/dashboardService";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -152,7 +154,10 @@ const Dashboard = () => {
             <CardTitle>Acciones Rápidas</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <button className="w-full text-left p-4 rounded-lg border hover:bg-accent transition-colors flex items-center gap-3">
+            <button
+              className="w-full text-left p-4 rounded-lg border hover:bg-accent transition-colors flex items-center gap-3"
+              onClick={() => navigate('/taquilla')}
+            >
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <DollarSign className="h-5 w-5 text-primary" />
               </div>
@@ -162,7 +167,10 @@ const Dashboard = () => {
               </div>
             </button>
 
-            <button className="w-full text-left p-4 rounded-lg border hover:bg-accent transition-colors flex items-center gap-3">
+            <button
+              className="w-full text-left p-4 rounded-lg border hover:bg-accent transition-colors flex items-center gap-3"
+              onClick={() => navigate('/vehiculos/lista', { state: { openCreateModal: true } })}
+            >
               <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
                 <Car className="h-5 w-5 text-success" />
               </div>
@@ -172,7 +180,10 @@ const Dashboard = () => {
               </div>
             </button>
 
-            <button className="w-full text-left p-4 rounded-lg border hover:bg-accent transition-colors flex items-center gap-3">
+            <button
+              className="w-full text-left p-4 rounded-lg border hover:bg-accent transition-colors flex items-center gap-3"
+              onClick={() => navigate('/reportes')}
+            >
               <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
                 <TrendingUp className="h-5 w-5 text-warning" />
               </div>

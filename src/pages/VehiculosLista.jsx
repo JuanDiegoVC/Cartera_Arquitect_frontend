@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { Download, Search, Filter, RefreshCw, Car } from "lucide-react";
 import {
   Card,
@@ -27,6 +28,7 @@ import { useAuth } from "../hooks/useAuth";
  */
 export default function VehiculosLista() {
   const { isAdministrador } = useAuth();
+  const location = useLocation();
   const [vehiculos, setVehiculos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -51,12 +53,7 @@ export default function VehiculosLista() {
     search: "",
   });
 
-  // Cargar vehículos cuando cambian los filtros
-  useEffect(() => {
-    fetchVehiculos();
-  }, [filters]);
-
-  const fetchVehiculos = async () => {
+  const fetchVehiculos = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -68,7 +65,23 @@ export default function VehiculosLista() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  // Cargar vehículos cuando cambian los filtros
+  useEffect(() => {
+    fetchVehiculos();
+  }, [fetchVehiculos]);
+
+  // Abrir modal si viene del dashboard
+  useEffect(() => {
+    if (location.state?.openCreateModal) {
+      handleCreate();
+      // Limpiar el state para evitar que se abra al recargar (opcional, pero buena práctica)
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
+
+
 
   // Exportar a Excel
   const handleExportExcel = async () => {
@@ -393,8 +406,8 @@ export default function VehiculosLista() {
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${vehiculo.estado === "activo"
-                              ? "bg-success/10 text-success"
-                              : "bg-muted text-muted-foreground"
+                            ? "bg-success/10 text-success"
+                            : "bg-muted text-muted-foreground"
                             }`}
                         >
                           {vehiculo.estado_display || vehiculo.estado}

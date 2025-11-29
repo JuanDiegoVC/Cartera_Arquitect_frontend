@@ -29,6 +29,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -429,7 +430,7 @@ const Auditoria = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
+          <Button
             onClick={() => setMostrarCierresTrabajadores(true)}
             className="bg-purple-600 hover:bg-purple-700"
           >
@@ -794,73 +795,73 @@ const Auditoria = () => {
               {/* Información de Vehículo - Cuando se inactiva/activa un vehículo */}
               {(logSeleccionado.accion === "VEHICULO_INACTIVADO" ||
                 logSeleccionado.accion === "VEHICULO_ACTIVADO") && (
-                <>
-                  {/* Intenta mostrar datos_nuevos, si no, intenta datos_anteriores, si no extrae de detalles */}
-                  {(() => {
-                    const datosVehiculo = logSeleccionado.datos_nuevos?.placa
-                      ? logSeleccionado.datos_nuevos
-                      : logSeleccionado.datos_anteriores?.placa
-                      ? logSeleccionado.datos_anteriores
-                      : extraerDatosVehiculoDeDetalles(
-                          logSeleccionado.detalles,
-                          logSeleccionado.datos_nuevos?.estado ||
+                  <>
+                    {/* Intenta mostrar datos_nuevos, si no, intenta datos_anteriores, si no extrae de detalles */}
+                    {(() => {
+                      const datosVehiculo = logSeleccionado.datos_nuevos?.placa
+                        ? logSeleccionado.datos_nuevos
+                        : logSeleccionado.datos_anteriores?.placa
+                          ? logSeleccionado.datos_anteriores
+                          : extraerDatosVehiculoDeDetalles(
+                            logSeleccionado.detalles,
+                            logSeleccionado.datos_nuevos?.estado ||
                             logSeleccionado.datos_anteriores?.estado
+                          );
+
+                      // Si tiene placa, mostrar info del vehículo
+                      if (datosVehiculo?.placa) {
+                        return (
+                          <RenderInfoVehiculo
+                            datos={datosVehiculo}
+                            titulo={
+                              logSeleccionado.accion === "VEHICULO_INACTIVADO"
+                                ? "Vehículo Inactivado"
+                                : "Vehículo Activado"
+                            }
+                          />
                         );
+                      }
 
-                    // Si tiene placa, mostrar info del vehículo
-                    if (datosVehiculo?.placa) {
+                      // Si no hay placa, mostrar mensaje informativo
                       return (
-                        <RenderInfoVehiculo
-                          datos={datosVehiculo}
-                          titulo={
-                            logSeleccionado.accion === "VEHICULO_INACTIVADO"
-                              ? "Vehículo Inactivado"
-                              : "Vehículo Activado"
-                          }
-                        />
-                      );
-                    }
-
-                    // Si no hay placa, mostrar mensaje informativo
-                    return (
-                      <div className="border border-yellow-200 dark:border-yellow-800 rounded-lg overflow-hidden">
-                        <div className="bg-yellow-50 dark:bg-yellow-950/30 px-4 py-2 border-b border-yellow-200 dark:border-yellow-800">
-                          <p className="text-sm font-medium text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
-                            <AlertCircle className="h-4 w-4" />
-                            {logSeleccionado.accion === "VEHICULO_INACTIVADO"
-                              ? "Vehículo Inactivado"
-                              : "Vehículo Activado"}
-                          </p>
-                        </div>
-                        <div className="p-4">
-                          <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                            Este registro fue creado antes de la actualización
-                            del sistema. Los datos detallados del vehículo no
-                            están disponibles.
-                          </p>
-                          {logSeleccionado.detalles && (
-                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                              <span className="font-medium">
-                                Descripción original:{" "}
-                              </span>
-                              {logSeleccionado.detalles}
+                        <div className="border border-yellow-200 dark:border-yellow-800 rounded-lg overflow-hidden">
+                          <div className="bg-yellow-50 dark:bg-yellow-950/30 px-4 py-2 border-b border-yellow-200 dark:border-yellow-800">
+                            <p className="text-sm font-medium text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
+                              <AlertCircle className="h-4 w-4" />
+                              {logSeleccionado.accion === "VEHICULO_INACTIVADO"
+                                ? "Vehículo Inactivado"
+                                : "Vehículo Activado"}
                             </p>
-                          )}
+                          </div>
+                          <div className="p-4">
+                            <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                              Este registro fue creado antes de la actualización
+                              del sistema. Los datos detallados del vehículo no
+                              están disponibles.
+                            </p>
+                            {logSeleccionado.detalles && (
+                              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                <span className="font-medium">
+                                  Descripción original:{" "}
+                                </span>
+                                {logSeleccionado.detalles}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })()}
+                      );
+                    })()}
 
-                  {/* Vista de Comparación: Antes vs Después */}
-                  {logSeleccionado.datos_anteriores &&
-                    logSeleccionado.datos_nuevos && (
-                      <RenderComparacion
-                        datosAnteriores={logSeleccionado.datos_anteriores}
-                        datosNuevos={logSeleccionado.datos_nuevos}
-                      />
-                    )}
-                </>
-              )}
+                    {/* Vista de Comparación: Antes vs Después */}
+                    {logSeleccionado.datos_anteriores &&
+                      logSeleccionado.datos_nuevos && (
+                        <RenderComparacion
+                          datosAnteriores={logSeleccionado.datos_anteriores}
+                          datosNuevos={logSeleccionado.datos_nuevos}
+                        />
+                      )}
+                  </>
+                )}
 
               {/* Datos Registrados - Formateados (para otras acciones) */}
               {logSeleccionado.datos_nuevos &&
@@ -908,6 +909,9 @@ const Auditoria = () => {
                 )}
             </div>
           ) : null}
+          <DialogFooter>
+            <Button onClick={() => setMostrarDetalle(false)}>Cerrar</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -970,7 +974,7 @@ const RenderComparacion = ({ datosAnteriores, datosNuevos }) => {
 
   // Obtener todas las claves únicas de ambos objetos
   const todasLasClaves = [...new Set([...Object.keys(datosAnteriores), ...Object.keys(datosNuevos)])];
-  
+
   // Filtrar solo las claves que han cambiado
   const clavesCambiadas = todasLasClaves.filter(clave => {
     const valorAnterior = JSON.stringify(datosAnteriores[clave]);
@@ -1079,11 +1083,10 @@ const RenderDatosFormateados = ({ datos }) => {
                     Saldo Restante
                   </p>
                   <p
-                    className={`text-sm ${
-                      parseFloat(detalle.saldo_restante) > 0
-                        ? "text-orange-600"
-                        : "text-green-600"
-                    }`}
+                    className={`text-sm ${parseFloat(detalle.saldo_restante) > 0
+                      ? "text-orange-600"
+                      : "text-green-600"
+                      }`}
                   >
                     {formatearValor("saldo_restante", detalle.saldo_restante)}
                   </p>

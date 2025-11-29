@@ -318,7 +318,7 @@ export default function GestionEgresos() {
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {vehiculoSeleccionado.tipo_vehiculo} -{" "}
-                            {vehiculoSeleccionado.conductor?.nombre_completo ||
+                            {vehiculoSeleccionado.conductor_actual_nombre ||
                               "Sin conductor"}
                           </p>
                         </div>
@@ -360,7 +360,7 @@ export default function GestionEgresos() {
                                 </p>
                                 <p className="text-xs text-muted-foreground">
                                   {veh.tipo_vehiculo} -{" "}
-                                  {veh.conductor?.nombre_completo ||
+                                  {veh.conductor_actual_nombre ||
                                     "Sin conductor"}
                                 </p>
                               </button>
@@ -500,11 +500,10 @@ export default function GestionEgresos() {
                           </TableCell>
                           <TableCell>
                             <span
-                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                                egreso.medio_pago === "efectivo"
+                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${egreso.medio_pago === "efectivo"
                                   ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                                   : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                              }`}
+                                }`}
                             >
                               {egreso.medio_pago_display ||
                                 egreso.medio_pago ||

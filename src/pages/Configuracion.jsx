@@ -22,7 +22,7 @@ export default function Configuracion() {
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Carga Masiva - Nueva tarjeta */}
-        <Card 
+        <Card
           className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
           onClick={() => setCargaMasivaOpen(true)}
         >
@@ -39,7 +39,10 @@ export default function Configuracion() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Card
+          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
+          onClick={() => navigate('/configuracion/usuarios')}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
@@ -54,7 +57,7 @@ export default function Configuracion() {
         </Card>
 
         <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer"
+          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
           onClick={() => navigate('/configuracion/cobros')}
         >
           <CardHeader>
@@ -70,7 +73,7 @@ export default function Configuracion() {
           </CardContent>
         </Card>
 
-        <Card 
+        <Card
           className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary relative"
           onClick={() => navigate('/configuracion/notificaciones')}
         >
@@ -106,7 +109,7 @@ export default function Configuracion() {
           </CardContent>
         </Card>
 
-        <Card 
+        <Card
           className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
           onClick={() => navigate('/configuracion/general')}
         >
@@ -125,9 +128,9 @@ export default function Configuracion() {
       </div>
 
       {/* Modal de Carga Masiva */}
-      <CargaMasivaModal 
-        open={cargaMasivaOpen} 
-        onOpenChange={setCargaMasivaOpen} 
+      <CargaMasivaModal
+        open={cargaMasivaOpen}
+        onOpenChange={setCargaMasivaOpen}
       />
     </div>
   );

@@ -13,9 +13,11 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 import ReporteCarteraModal from "../components/Reportes/ReporteCarteraModal";
+import ReporteMensualModal from "../components/Reportes/ReporteMensualModal";
 
 export default function Reportes() {
   const [modalCarteraOpen, setModalCarteraOpen] = useState(false);
+  const [modalMensualOpen, setModalMensualOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
@@ -45,7 +47,10 @@ export default function Reportes() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Card
+          className="hover:shadow-lg transition-all cursor-pointer hover:scale-105 border-2 hover:border-success"
+          onClick={() => setModalMensualOpen(true)}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <TrendingUp className="h-5 w-5 text-success" />
@@ -60,7 +65,7 @@ export default function Reportes() {
         </Card>
 
         <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer"
+          className="hover:shadow-lg transition-all cursor-pointer hover:scale-105 border-2 hover:border-warning"
           onClick={() => navigate("/reportes/morosos")}
         >
           <CardHeader>
@@ -77,7 +82,7 @@ export default function Reportes() {
         </Card>
 
         <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200 hover:border-blue-400"
+          className="hover:shadow-lg transition-all cursor-pointer hover:scale-105 border-2 border-blue-200 hover:border-blue-600"
           onClick={() => setModalCarteraOpen(true)}
         >
           <CardHeader>
@@ -98,6 +103,12 @@ export default function Reportes() {
       <ReporteCarteraModal
         open={modalCarteraOpen}
         onOpenChange={setModalCarteraOpen}
+      />
+
+      {/* Modal de Reporte Mensual */}
+      <ReporteMensualModal
+        open={modalMensualOpen}
+        onOpenChange={setModalMensualOpen}
       />
     </div>
   );
