@@ -48,7 +48,7 @@ export default function Reportes() {
         </Card>
 
         <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-success/50"
+          className="hover:shadow-lg transition-all cursor-pointer hover:scale-105 border-2 hover:border-success"
           onClick={() => setModalMensualOpen(true)}
         >
           <CardHeader>
@@ -65,7 +65,7 @@ export default function Reportes() {
         </Card>
 
         <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer"
+          className="hover:shadow-lg transition-all cursor-pointer hover:scale-105 border-2 hover:border-warning"
           onClick={() => navigate("/reportes/morosos")}
         >
           <CardHeader>
@@ -82,7 +82,7 @@ export default function Reportes() {
         </Card>
 
         <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200 hover:border-blue-400"
+          className="hover:shadow-lg transition-all cursor-pointer hover:scale-105 border-2 border-blue-200 hover:border-blue-600"
           onClick={() => setModalCarteraOpen(true)}
         >
           <CardHeader>

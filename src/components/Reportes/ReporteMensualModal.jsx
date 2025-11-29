@@ -15,12 +15,14 @@ import {
     PieChart,
     Calendar,
     Loader2,
+    Download,
 } from "lucide-react";
 
 export default function ReporteMensualModal({ open, onOpenChange }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
+    const [downloading, setDownloading] = useState(false);
 
     // Default to current month
     const [selectedMonth, setSelectedMonth] = useState(
@@ -56,6 +58,28 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
         }
     }, [open, selectedMonth, fetchReporte]);
 
+    const handleDownloadExcel = async () => {
+        setDownloading(true);
+        try {
+            // Calculate start and end of month
+            const [year, month] = selectedMonth.split("-");
+            const startDate = `${year}-${month}-01`;
+            const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
+
+            const response = await reportesService.descargarReporteMensual({
+                periodo_inicio: startDate,
+                periodo_fin: endDate,
+            });
+
+            reportesService.descargarArchivo(response, "Reporte_Mensual");
+        } catch (err) {
+            console.error("Error downloading report:", err);
+            // Optional: Show toast error
+        } finally {
+            setDownloading(false);
+        }
+    };
+
     const formatCurrency = (val) => {
         return new Intl.NumberFormat("es-CO", {
             style: "currency",
@@ -88,15 +112,31 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
                             onChange={(e) => setSelectedMonth(e.target.value)}
                             className="w-48"
                         />
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={fetchReporte}
-                            disabled={loading}
-                            className="ml-auto"
-                        >
-                            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Actualizar"}
-                        </Button>
+                        <div className="ml-auto flex gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={fetchReporte}
+                                disabled={loading}
+                            >
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Actualizar"}
+                            </Button>
+
+                            <Button
+                                variant="default"
+                                size="sm"
+                                onClick={handleDownloadExcel}
+                                disabled={downloading || !data}
+                                className="gap-2"
+                            >
+                                {downloading ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <Download className="h-4 w-4" />
+                                )}
+                                Exportar Excel
+                            </Button>
+                        </div>
                     </div>
 
                     {error && (
@@ -238,7 +278,7 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
                                             const hEgreso = (dia.egresos / maxVal) * 100;
 
                                             return (
-                                                <div key={index} className="flex flex-col items-center gap-1 min-w-[40px] group relative">
+                                                <div key={index} className="flex flex-col items-center gap-1 min-w-[40px] group relative h-full justify-end">
                                                     {/* Tooltip */}
                                                     <div className="absolute bottom-full mb-2 hidden group-hover:block bg-popover text-popover-foreground text-xs p-2 rounded shadow-lg z-10 whitespace-nowrap border">
                                                         <p className="font-bold">{dia.dia}</p>

@@ -162,4 +162,21 @@ export const reportesService = {
       throw error.response?.data || error;
     }
   },
+
+  /**
+   * Descargar reporte mensual en Excel
+   * @param {Object} filtros - Filtros de fecha
+   * @returns {Promise<Response>} Response con el blob del archivo
+   */
+  descargarReporteMensual: async (filtros = {}) => {
+    try {
+      const response = await apiClient.get("/v1/cobros/reportes/mensual/excel/", {
+        params: filtros,
+        responseType: "blob",
+      });
+      return response;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
 };
