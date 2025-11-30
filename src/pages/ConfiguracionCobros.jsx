@@ -18,6 +18,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "../components/ui/select";
+import { Checkbox } from "../components/ui/checkbox";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { cobrosService } from "../services/cobrosService";
 import { vehiculosService } from "../services/vehiculosService";
@@ -129,7 +130,7 @@ export default function ConfiguracionCobros() {
             // Valores iniciales
             setFormData(
                 activeTab === "rubros"
-                    ? { nombre: "", descripcion: "" }
+                    ? { nombre: "", descripcion: "", es_ocasional: false }
                     : { rubro: "", tipo_vehiculo: "taxi_blanco", valor: "", fecha_inicio_vigencia: new Date().toISOString().split('T')[0] }
             );
         }
@@ -338,6 +339,7 @@ export default function ConfiguracionCobros() {
                                             <>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold">Nombre</th>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold">Descripción</th>
+                                                <th className="px-4 py-3 text-left text-sm font-semibold">Ocasional</th>
                                             </>
                                         ) : activeTab === "tarifas" ? (
                                             <>
@@ -384,6 +386,15 @@ export default function ConfiguracionCobros() {
                                                     <>
                                                         <td className="px-4 py-3 font-medium">{item.nombre}</td>
                                                         <td className="px-4 py-3 text-muted-foreground">{item.descripcion}</td>
+                                                        <td className="px-4 py-3">
+                                                            {item.es_ocasional ? (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                                                                    Sí
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-muted-foreground text-xs">No</span>
+                                                            )}
+                                                        </td>
                                                     </>
                                                 ) : (
                                                     <>
@@ -447,12 +458,29 @@ export default function ConfiguracionCobros() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Descripción</Label>
                                     <Input
                                         value={formData.descripcion || ""}
                                         onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                                         placeholder="Descripción opcional"
                                     />
+                                </div>
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <Checkbox
+                                        id="es_ocasional"
+                                        checked={formData.es_ocasional || false}
+                                        onCheckedChange={(checked) => setFormData({ ...formData, es_ocasional: checked })}
+                                    />
+                                    <div className="grid gap-1.5 leading-none">
+                                        <Label
+                                            htmlFor="es_ocasional"
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            Es Rubro Ocasional
+                                        </Label>
+                                        <p className="text-xs text-muted-foreground">
+                                            Marque si este rubro se cobra esporádicamente (ej: multas, daños).
+                                        </p>
+                                    </div>
                                 </div>
                             </>
                         ) : (

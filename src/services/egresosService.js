@@ -10,6 +10,24 @@ export const obtenerCategorias = async () => {
   return response.data;
 };
 
+// Crear categoría
+export const crearCategoria = async (data) => {
+  const response = await api.post("/v1/contabilidad/categorias/", data);
+  return response.data;
+};
+
+// Actualizar categoría
+export const actualizarCategoria = async (id, data) => {
+  const response = await api.put(`/v1/contabilidad/categorias/${id}/`, data);
+  return response.data;
+};
+
+// Eliminar categoría
+export const eliminarCategoria = async (id) => {
+  const response = await api.delete(`/v1/contabilidad/categorias/${id}/`);
+  return response.data;
+};
+
 // Crear un nuevo egreso
 export const crearEgreso = async (egresoData) => {
   const response = await api.post(
@@ -36,4 +54,7 @@ export default {
   crearEgreso,
   obtenerEgresosHoy,
   obtenerEgresos,
+  crearCategoria,
+  actualizarCategoria,
+  eliminarCategoria,
 };

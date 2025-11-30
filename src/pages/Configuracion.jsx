@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
-import { Settings, Users, Database, Bell, Upload } from "lucide-react";
+import { Settings, Users, Database, Bell, Upload, DollarSign } from "lucide-react";
 import { CargaMasivaModal } from "../components/CargaMasiva";
 import { useNotificaciones } from "../context/NotificacionesContext";
 
@@ -69,6 +69,23 @@ export default function Configuracion() {
           <CardContent>
             <p className="text-muted-foreground text-sm">
               Configure los rubros y tarifas de cobro
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card
+          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
+          onClick={() => navigate('/configuracion/egresos')}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-destructive" />
+              Categorías de Egresos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-sm">
+              Gestione las categorías de gastos y egresos
             </p>
           </CardContent>
         </Card>

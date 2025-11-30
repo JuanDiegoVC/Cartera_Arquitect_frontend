@@ -66,6 +66,7 @@ export default function GenerarFacturacion() {
   const [rubrosOcasionalesList, setRubrosList] = useState([]);
   const [rubrosOcasionalesAgregados, setRubrosOcasionalesAgregados] = useState([]);
   const [newOcasional, setNewOcasional] = useState({ placa: "", rubro_id: "", valor: "" });
+  const [ocasionalSearch, setOcasionalSearch] = useState(""); // Search term for occasional rubros
 
   // Estado para generación de pólizas
   const [generatingPolizas, setGeneratingPolizas] = useState(false);
@@ -148,7 +149,8 @@ export default function GenerarFacturacion() {
       ...rubrosOcasionalesAgregados,
       { ...newOcasional, rubro_nombre: rubroObj?.nombre }
     ]);
-    setNewOcasional(prev => ({ ...prev, rubro_id: "", valor: "" }));
+    setNewOcasional(prev => ({ ...prev, rubro_id: "", valor: "", placa: "" }));
+    setOcasionalSearch(""); // Reset search
   };
 
   const handleRemoveOcasional = (index) => {
@@ -497,18 +499,50 @@ export default function GenerarFacturacion() {
 
               <div className="bg-muted/30 p-4 rounded-lg border">
                 <div className="flex flex-col md:flex-row gap-4 items-end">
-                  <div className="w-full md:w-1/3 space-y-1.5">
+                  <div className="w-full md:w-1/3 space-y-1.5 relative">
                     <Label className="text-xs font-medium">Vehículo</Label>
-                    <select
-                      className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      value={newOcasional.placa}
-                      onChange={e => setNewOcasional({ ...newOcasional, placa: e.target.value })}
-                    >
-                      <option value="">Seleccione placa...</option>
-                      {vehiculos.map(v => (
-                        <option key={v.placa} value={v.placa}>{v.placa}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Buscar placa..."
+                        className="pl-8 h-9"
+                        value={ocasionalSearch}
+                        onChange={(e) => {
+                          setOcasionalSearch(e.target.value);
+                          // Si borra, limpiar selección
+                          if (!e.target.value) setNewOcasional(prev => ({ ...prev, placa: "" }));
+                        }}
+                      />
+                    </div>
+                    {/* Dropdown de resultados */}
+                    {ocasionalSearch && !newOcasional.placa && (
+                      <div className="absolute z-50 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md max-h-40 overflow-y-auto">
+                        {vehiculos
+                          .filter(v => v.placa.includes(ocasionalSearch.toUpperCase()))
+                          .map(v => (
+                            <div
+                              key={v.placa}
+                              className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                              onClick={() => {
+                                setNewOcasional(prev => ({ ...prev, placa: v.placa }));
+                                setOcasionalSearch(v.placa);
+                              }}
+                            >
+                              <span className="font-medium">{v.placa}</span>
+                              {v.propietario_nombre && (
+                                <span className="text-xs text-muted-foreground ml-2">
+                                  - {v.propietario_nombre}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        {vehiculos.filter(v => v.placa.includes(ocasionalSearch.toUpperCase())).length === 0 && (
+                          <div className="px-3 py-2 text-sm text-muted-foreground">
+                            No se encontraron vehículos
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="w-full md:w-1/3 space-y-1.5">
                     <Label className="text-xs font-medium">Rubro</Label>
