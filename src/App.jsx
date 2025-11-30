@@ -22,6 +22,7 @@ import ConfiguracionGeneral from "./pages/ConfiguracionGeneral";
 import NotificacionesConfig from "./pages/NotificacionesConfig";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
+import ConfiguracionEgresos from "./pages/ConfiguracionEgresos";
 import CierreDeTurno from "./pages/CierreDeTurno";
 import Auditoria from "./pages/Auditoria";
 import HistorialPagos from "./pages/HistorialPagos";
@@ -218,6 +219,17 @@ function App() {
                 <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
                   <AppLayout>
                     <ConfiguracionCobros />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/configuracion/egresos"
+              element={
+                <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                  <AppLayout>
+                    <ConfiguracionEgresos />
                   </AppLayout>
                 </ProtectedRoute>
               }

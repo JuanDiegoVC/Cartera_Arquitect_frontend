@@ -29,6 +29,7 @@ import {
   Loader2,
   CheckCircle2,
   Filter,
+  AlertCircle,
 } from "lucide-react";
 import { Separator } from "../components/ui/separator";
 import { vehiculosService } from "../services/vehiculosService";
@@ -48,6 +49,7 @@ export default function Taquilla() {
   const [error, setError] = useState(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(null);
+  const [validationError, setValidationError] = useState(null);
 
 
   // Estado para el formulario de pago
@@ -365,7 +367,7 @@ export default function Taquilla() {
 
     if (selectedItems.length === 0) {
       console.warn("⚠️ [Taquilla] No hay items seleccionados");
-      setError("Por favor seleccione al menos un rubro para pagar");
+      setValidationError("Por favor seleccione al menos un rubro para pagar");
       return;
     }
 
@@ -377,11 +379,11 @@ export default function Taquilla() {
     for (const item of deudasSeleccionadas) {
       const amountToPay = getAmountToPay(item);
       if (amountToPay <= 0) {
-        setError(`El monto para ${item.concept} debe ser mayor a $0`);
+        setValidationError(`El monto para ${item.concept} debe ser mayor a $0`);
         return;
       }
       if (amountToPay > item.saldoPendiente) {
-        setError(
+        setValidationError(
           `El monto para ${item.concept
           } no puede ser mayor al saldo pendiente ($${item.saldoPendiente.toLocaleString(
             "es-CO"
@@ -656,6 +658,30 @@ export default function Taquilla() {
                     </div>
                   </div>
                 )}
+              </DialogContent>
+            </Dialog>
+
+            {/* Validation Error Modal */}
+            <Dialog open={!!validationError} onOpenChange={(open) => !open && setValidationError(null)}>
+              <DialogContent className="sm:max-w-md border-destructive/50">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-destructive">
+                    <AlertCircle className="h-6 w-6" />
+                    Error de Validación
+                  </DialogTitle>
+                  <DialogDescription className="text-base pt-2">
+                    {validationError}
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button
+                    variant="default"
+                    onClick={() => setValidationError(null)}
+                    className="w-full sm:w-auto"
+                  >
+                    Entendido
+                  </Button>
+                </DialogFooter>
               </DialogContent>
             </Dialog>
           </form>
@@ -992,26 +1018,26 @@ export default function Taquilla() {
                                       </span>
                                       {paymentModes[item.id]?.mode ===
                                         "personalizado" && (
-                                        <div className="relative mt-1">
-                                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                                          <Input
-                                            type="text"
-                                            inputMode="numeric"
-                                            placeholder="Ej: 50.000"
-                                            value={formatCurrency(
-                                              paymentModes[item.id]?.customAmount || ""
-                                            )}
-                                            onChange={(e) =>
-                                              handleCustomAmountChange(
-                                                item.id,
-                                                e.target.value
-                                              )
-                                            }
-                                            disabled={processingPayment}
-                                            className="pl-7"
-                                          />
-                                        </div>
-                                      )}
+                                          <div className="relative mt-1">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                                            <Input
+                                              type="text"
+                                              inputMode="numeric"
+                                              placeholder="Ej: 50.000"
+                                              value={formatCurrency(
+                                                paymentModes[item.id]?.customAmount || ""
+                                              )}
+                                              onChange={(e) =>
+                                                handleCustomAmountChange(
+                                                  item.id,
+                                                  e.target.value
+                                                )
+                                              }
+                                              disabled={processingPayment}
+                                              className="pl-7"
+                                            />
+                                          </div>
+                                        )}
                                     </div>
                                   </label>
                                 </div>

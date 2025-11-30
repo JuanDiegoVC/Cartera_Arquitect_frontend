@@ -20,15 +20,15 @@ export const formatCurrency = (amount) => {
  */
 export const formatDate = (date, format = 'short') => {
   if (!date) return '';
-  
+
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   const options = {
     short: { year: 'numeric', month: '2-digit', day: '2-digit' },
     long: { year: 'numeric', month: 'long', day: 'numeric' },
-    datetime: { 
-      year: 'numeric', 
-      month: '2-digit', 
+    datetime: {
+      year: 'numeric',
+      month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
@@ -58,19 +58,27 @@ export const isValidEmail = (email) => {
   return regex.test(email);
 };
 
+export const VEHICLE_TYPES = [
+  { value: "automovil_intermunicipal", label: "Automóvil Intermunicipal" },
+  { value: "automovil_municipal", label: "Automóvil Municipal" },
+  { value: "bus_buseta_intermunicipal", label: "Bus-Buseta Intermunicipal" },
+  { value: "camioneta_intermunicipal", label: "Camioneta Intermunicipal" },
+  { value: "campero_municipal", label: "Campero Municipal" },
+  { value: "escalera", label: "Escalera" },
+  { value: "microbus_municipal", label: "Microbus Municipal" },
+  { value: "microbus_intermunicipal", label: "Microbus Intermunicipal" },
+  { value: "bus_municipal", label: "Bus Municipal" },
+  { value: "otro", label: "Otro" },
+];
+
 /**
  * Obtiene el nombre del tipo de vehículo
  * @param {string} tipo - Código del tipo de vehículo
  * @returns {string} Nombre descriptivo
  */
 export const getTipoVehiculoLabel = (tipo) => {
-  const tipos = {
-    taxi_blanco: 'Taxi Blanco',
-    taxi_amarillo: 'Taxi Amarillo',
-    escalera: 'Escalera',
-    otro: 'Otro',
-  };
-  return tipos[tipo] || tipo;
+  const found = VEHICLE_TYPES.find(t => t.value === tipo);
+  return found ? found.label : tipo;
 };
 
 /**

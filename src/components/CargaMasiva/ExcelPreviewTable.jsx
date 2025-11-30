@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { AlertCircle, CheckCircle2, AlertTriangle } from "lucide-react";
+import { VEHICLE_TYPES } from "../../utils/formatters";
 
 /**
  * Configuración de columnas por tipo de pestaña
@@ -36,15 +37,7 @@ const COLUMN_CONFIGS = {
       type: "select",
       required: true,
       width: "w-36",
-      options: [
-        { value: "taxi_blanco", label: "Taxi Blanco" },
-        { value: "taxi_amarillo", label: "Taxi Amarillo" },
-        { value: "escalera", label: "Escalera" },
-        { value: "campero", label: "Campero" },
-        { value: "bus", label: "Bus" },
-        { value: "microbus", label: "Microbus" },
-        { value: "otro", label: "Otro" },
-      ]
+      options: VEHICLE_TYPES
     },
     { key: "propietario_nombre", label: "Propietario", type: "text", required: false, width: "flex-1" },
     { key: "conductor_actual_nombre", label: "Conductor", type: "text", required: false, width: "flex-1" },

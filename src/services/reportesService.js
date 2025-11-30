@@ -69,9 +69,25 @@ export const reportesService = {
       const link = document.createElement("a");
       link.href = url;
 
-      // Generar nombre del archivo con fecha actual
-      const fechaActual = new Date().toISOString().split("T")[0];
-      link.setAttribute("download", `${nombreBase}_${fechaActual}.xlsx`);
+      // Intentar obtener el nombre del archivo desde el header Content-Disposition
+      let nombreArchivo = "";
+      const disposition = response.headers["content-disposition"];
+      if (disposition && disposition.indexOf("attachment") !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+          nombreArchivo = matches[1].replace(/['"]/g, "");
+        }
+      }
+
+      // Si no se pudo obtener del header, generar uno con fecha local (Colombia/System)
+      if (!nombreArchivo) {
+        // Usar sv-SE para formato YYYY-MM-DD que es sortable
+        const fechaActual = new Date().toLocaleDateString("sv-SE");
+        nombreArchivo = `${nombreBase}_${fechaActual}.xlsx`;
+      }
+
+      link.setAttribute("download", nombreArchivo);
 
       // Agregar al DOM, hacer clic y remover
       document.body.appendChild(link);

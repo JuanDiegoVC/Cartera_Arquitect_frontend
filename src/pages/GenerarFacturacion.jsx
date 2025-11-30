@@ -9,6 +9,7 @@ import {
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import {
+
   Calendar,
   CheckCircle2,
   AlertCircle,
@@ -16,6 +17,8 @@ import {
   FileSpreadsheet,
   Shield,
   Search,
+  Plus,
+  Trash2
 } from "lucide-react";
 import {
   Dialog,
@@ -29,6 +32,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Checkbox } from "../components/ui/checkbox";
 import { facturacionService } from "../services/facturacionService";
+import { cobrosService } from "../services/cobrosService";
 import apiClient from "../services/api"; // Importar apiClient para fetchVehiculos
 
 /**
@@ -58,6 +62,16 @@ export default function GenerarFacturacion() {
   const [loadingVehiculos, setLoadingVehiculos] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Estados para Rubros Ocasionales
+  const [rubrosOcasionalesList, setRubrosList] = useState([]);
+  const [rubrosOcasionalesAgregados, setRubrosOcasionalesAgregados] = useState([]);
+  const [newOcasional, setNewOcasional] = useState({ placa: "", rubro_id: "", valor: "" });
+  const [ocasionalSearch, setOcasionalSearch] = useState(""); // Search term for occasional rubros
+
+  // Estado para generación de pólizas
+  const [generatingPolizas, setGeneratingPolizas] = useState(false);
+
+
   const fetchVehiculos = async () => {
     setLoadingVehiculos(true);
     try {
@@ -82,6 +96,19 @@ export default function GenerarFacturacion() {
     }
   };
 
+  const fetchRubrosOcasionales = async () => {
+    try {
+      const rubros = await cobrosService.getAllRubros();
+      // Ensure we are filtering correctly based on the API response structure
+      // The API might return a list directly or a paginated object
+      const list = Array.isArray(rubros) ? rubros : (rubros.results || []);
+      const ocasionales = list.filter(r => r.es_ocasional);
+      setRubrosList(ocasionales);
+    } catch (err) {
+      console.error("Error cargando rubros:", err);
+    }
+  };
+
   const handleIniciarGeneracion = async () => {
     if (!selectedMonth) {
       setError("Por favor seleccione un mes");
@@ -90,8 +117,8 @@ export default function GenerarFacturacion() {
     setError(null);
     setResultado(null);
 
-    // 1. Cargar vehículos y mostrar modal de pre-facturación
-    await fetchVehiculos();
+    // 1. Cargar vehículos y rubros, y mostrar modal de pre-facturación
+    await Promise.all([fetchVehiculos(), fetchRubrosOcasionales()]);
     setShowPreFacturacion(true);
   };
 
@@ -112,6 +139,26 @@ export default function GenerarFacturacion() {
     }));
   };
 
+  const handleAddOcasional = () => {
+    if (!newOcasional.placa || !newOcasional.rubro_id || !newOcasional.valor) return;
+
+    // Encontrar nombre del rubro para mostrar
+    const rubroObj = rubrosOcasionalesList.find(r => r.rubro_id === parseInt(newOcasional.rubro_id));
+
+    setRubrosOcasionalesAgregados([
+      ...rubrosOcasionalesAgregados,
+      { ...newOcasional, rubro_nombre: rubroObj?.nombre }
+    ]);
+    setNewOcasional(prev => ({ ...prev, rubro_id: "", valor: "", placa: "" }));
+    setOcasionalSearch(""); // Reset search
+  };
+
+  const handleRemoveOcasional = (index) => {
+    const newList = [...rubrosOcasionalesAgregados];
+    newList.splice(index, 1);
+    setRubrosOcasionalesAgregados(newList);
+  };
+
   const handleConfirmarGeneracion = async () => {
     setLoading(true);
     setError(null);
@@ -129,7 +176,7 @@ export default function GenerarFacturacion() {
           valor: Number(valor)
         }));
 
-      const response = await facturacionService.generarCargos(periodo, seguridadPayload);
+      const response = await facturacionService.generarCargos(periodo, seguridadPayload, rubrosOcasionalesAgregados);
       setResultado(response.detalles);
     } catch (err) {
       console.error("Error generando cargos:", err);
@@ -142,6 +189,24 @@ export default function GenerarFacturacion() {
       // Por ahora lo dejamos cerrado para ver el error.
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerarPolizas = async () => {
+    if (!window.confirm("¿Está seguro de generar las pólizas anuales? Esto creará una deuda para todos los vehículos según su tipo.")) {
+      return;
+    }
+
+    setGeneratingPolizas(true);
+    try {
+      const response = await facturacionService.generarPolizas();
+      alert(response.mensaje + "\n" + (response.detalle || ""));
+      // Opcional: cerrar modal o refrescar algo
+    } catch (err) {
+      console.error("Error generando pólizas:", err);
+      alert("Error al generar pólizas: " + (err.error || "Error desconocido"));
+    } finally {
+      setGeneratingPolizas(false);
     }
   };
 
@@ -167,7 +232,7 @@ export default function GenerarFacturacion() {
           Generar Facturación Mensual
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Genera automáticamente los cargos fijos (Administración y Pólizas)
+          Genera automáticamente los cargos fijos (Administración)
           y variables (Seguridad) para todos los vehículos activos.
         </p>
       </div>
@@ -207,37 +272,37 @@ export default function GenerarFacturacion() {
                 </span>
               </p>
             )}
+
+            <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+              <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <AlertDescription className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
+                <strong>Importante:</strong> Esta acción generará cargos de <strong>Administración</strong> y <strong>Seguridad</strong> (opcional).
+                <br />
+                <span className="text-xs mt-1 block">
+                  Nota: Las <strong>Pólizas</strong> se generan anualmente mediante el botón en el siguiente paso.
+                </span>
+              </AlertDescription>
+            </Alert>
+
+            {/* Botón de Acción */}
+            <Button
+              onClick={handleIniciarGeneracion}
+              disabled={loading || !selectedMonth}
+              className="w-full sm:w-auto sm:min-w-[200px] gap-2 text-sm sm:text-base py-2.5 sm:py-3"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                  Procesando...
+                </>
+              ) : (
+                <>
+                  <FileSpreadsheet className="h-4 w-4 sm:h-5 sm:w-5" />
+                  Configurar y Generar
+                </>
+              )}
+            </Button>
           </div>
-
-          {/* Información */}
-          <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
-            <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <AlertDescription className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
-              <strong>Importante:</strong> Esta acción generará cargos de{" "}
-              <strong>Administración</strong>, <strong>Pólizas</strong> y <strong>Seguridad</strong> (opcional) para
-              todos los vehículos con estado activo.
-            </AlertDescription>
-          </Alert>
-
-          {/* Botón de Acción */}
-          <Button
-            onClick={handleIniciarGeneracion}
-            disabled={loading || !selectedMonth}
-            className="w-full sm:w-auto sm:min-w-[200px] gap-2 text-sm sm:text-base py-2.5 sm:py-3"
-            size="lg"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                Procesando...
-              </>
-            ) : (
-              <>
-                <FileSpreadsheet className="h-4 w-4 sm:h-5 sm:w-5" />
-                Configurar y Generar
-              </>
-            )}
-          </Button>
         </CardContent>
       </Card>
 
@@ -309,7 +374,7 @@ export default function GenerarFacturacion() {
               <p className="text-xs sm:text-sm text-muted-foreground">
                 ✓ Se procesaron{" "}
                 <strong>{resultado.rubros_procesados} rubros</strong>{" "}
-                (Administración, Pólizas y Seguridad)
+                (Administración, Seguridad y Ocasionales)
               </p>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 ✓ Total de registros en base de datos:{" "}
@@ -322,104 +387,255 @@ export default function GenerarFacturacion() {
         </Card>
       )}
 
-      {/* Modal de Pre-Facturación (Seguridad) */}
+      {/* Modal de Pre-Facturación (Seguridad y Pólizas) */}
       <Dialog open={showPreFacturacion} onOpenChange={setShowPreFacturacion}>
-        <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+        <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col p-0 gap-0">
+          <DialogHeader className="px-6 py-4 border-b">
+            <DialogTitle className="flex items-center gap-2 text-xl">
               <Shield className="h-5 w-5 text-primary" />
-              Configurar Rubro de Seguridad (Variable)
+              Configurar Rubros Variables y Pólizas
             </DialogTitle>
             <DialogDescription>
-              Ingrese el valor de seguridad para este mes. Puede aplicar un valor global o editar individualmente.
-              Deje en 0 o vacío para no cobrar seguridad a un vehículo.
+              Configure los valores de seguridad y rubros ocasionales para este mes. También puede generar las pólizas anuales.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-hidden flex flex-col gap-4 py-4">
-            {/* Controles Globales */}
-            <div className="flex flex-col sm:flex-row gap-4 items-end bg-muted/30 p-4 rounded-lg">
-              <div className="w-full sm:w-1/3 space-y-2">
-                <Label>Valor Global de Seguridad</Label>
-                <Input
-                  type="number"
-                  placeholder="Ej: 50000"
-                  value={globalSecurityValue}
-                  onChange={(e) => setGlobalSecurityValue(e.target.value)}
-                />
-              </div>
-              <Button
-                variant="secondary"
-                onClick={handleApplyGlobalValue}
-                disabled={!globalSecurityValue}
-              >
-                Aplicar a Todos
-              </Button>
-              <div className="flex-1 relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar placa..."
-                  className="pl-8"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
+          <div className="flex-1 overflow-y-auto p-6 space-y-8">
 
-            {/* Lista de Vehículos */}
-            <div className="flex-1 overflow-y-auto border rounded-md">
-              {loadingVehiculos ? (
-                <div className="flex justify-center items-center h-40">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            {/* 1. Seguridad Variable */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  Seguridad (Variable)
+                </h3>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-64">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Buscar placa..."
+                      className="pl-8 h-9"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
                 </div>
-              ) : (
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs text-muted-foreground uppercase bg-muted sticky top-0">
-                    <tr>
-                      <th className="px-4 py-3">Placa</th>
-                      <th className="px-4 py-3">Propietario</th>
-                      <th className="px-4 py-3">Valor Seguridad</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredVehiculos.length > 0 ? (
-                      filteredVehiculos.map((vehiculo) => (
-                        <tr key={vehiculo.placa} className="border-b hover:bg-muted/50">
-                          <td className="px-4 py-3 font-medium">{vehiculo.placa}</td>
-                          <td className="px-4 py-3 text-muted-foreground truncate max-w-[200px]">
-                            {vehiculo.propietario_nombre || "N/A"}
-                          </td>
-                          <td className="px-4 py-2">
-                            <Input
-                              type="number"
-                              className="h-8 w-32"
-                              placeholder="0"
-                              value={seguridadValues[vehiculo.placa] || ""}
-                              onChange={(e) => handleSecurityValueChange(vehiculo.placa, e.target.value)}
-                            />
+              </div>
+
+              <div className="bg-muted/30 p-4 rounded-lg flex flex-col sm:flex-row gap-4 items-end border">
+                <div className="w-full sm:w-1/3 space-y-1.5">
+                  <Label className="text-xs font-medium">Valor Global de Seguridad</Label>
+                  <Input
+                    type="number"
+                    placeholder="Ej: 50000"
+                    value={globalSecurityValue}
+                    onChange={(e) => setGlobalSecurityValue(e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+                <Button
+                  variant="secondary"
+                  onClick={handleApplyGlobalValue}
+                  disabled={!globalSecurityValue}
+                  size="sm"
+                  className="h-9"
+                >
+                  Aplicar a Todos
+                </Button>
+              </div>
+
+              <div className="border rounded-md overflow-hidden max-h-[300px] overflow-y-auto">
+                {loadingVehiculos ? (
+                  <div className="flex justify-center items-center h-40">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <table className="w-full text-sm text-left">
+                    <thead className="text-xs text-muted-foreground uppercase bg-muted sticky top-0 z-10">
+                      <tr>
+                        <th className="px-4 py-3 font-medium">Placa</th>
+                        <th className="px-4 py-3 font-medium">Propietario</th>
+                        <th className="px-4 py-3 font-medium w-40">Valor Seguridad</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredVehiculos.length > 0 ? (
+                        filteredVehiculos.map((vehiculo) => (
+                          <tr key={vehiculo.placa} className="border-b hover:bg-muted/50 last:border-0">
+                            <td className="px-4 py-2 font-medium">{vehiculo.placa}</td>
+                            <td className="px-4 py-2 text-muted-foreground truncate max-w-[200px]">
+                              {vehiculo.propietario_nombre || "N/A"}
+                            </td>
+                            <td className="px-4 py-1.5">
+                              <Input
+                                type="number"
+                                className="h-8 w-full"
+                                placeholder="0"
+                                value={seguridadValues[vehiculo.placa] || ""}
+                                onChange={(e) => handleSecurityValueChange(vehiculo.placa, e.target.value)}
+                              />
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="3" className="px-4 py-8 text-center text-muted-foreground">
+                            No se encontraron vehículos activos.
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="3" className="px-4 py-8 text-center text-muted-foreground">
-                          No se encontraron vehículos activos.
-                        </td>
-                      </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </section>
+
+            {/* 2. Rubros Ocasionales */}
+            <section className="space-y-4 pt-4 border-t">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground" />
+                Rubros Ocasionales (Multas, Cobros Extra)
+              </h3>
+
+              <div className="bg-muted/30 p-4 rounded-lg border">
+                <div className="flex flex-col md:flex-row gap-4 items-end">
+                  <div className="w-full md:w-1/3 space-y-1.5 relative">
+                    <Label className="text-xs font-medium">Vehículo</Label>
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Buscar placa..."
+                        className="pl-8 h-9"
+                        value={ocasionalSearch}
+                        onChange={(e) => {
+                          setOcasionalSearch(e.target.value);
+                          // Si borra, limpiar selección
+                          if (!e.target.value) setNewOcasional(prev => ({ ...prev, placa: "" }));
+                        }}
+                      />
+                    </div>
+                    {/* Dropdown de resultados */}
+                    {ocasionalSearch && !newOcasional.placa && (
+                      <div className="absolute z-50 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md max-h-40 overflow-y-auto">
+                        {vehiculos
+                          .filter(v => v.placa.includes(ocasionalSearch.toUpperCase()))
+                          .map(v => (
+                            <div
+                              key={v.placa}
+                              className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                              onClick={() => {
+                                setNewOcasional(prev => ({ ...prev, placa: v.placa }));
+                                setOcasionalSearch(v.placa);
+                              }}
+                            >
+                              <span className="font-medium">{v.placa}</span>
+                              {v.propietario_nombre && (
+                                <span className="text-xs text-muted-foreground ml-2">
+                                  - {v.propietario_nombre}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        {vehiculos.filter(v => v.placa.includes(ocasionalSearch.toUpperCase())).length === 0 && (
+                          <div className="px-3 py-2 text-sm text-muted-foreground">
+                            No se encontraron vehículos
+                          </div>
+                        )}
+                      </div>
                     )}
-                  </tbody>
-                </table>
-              )}
-            </div>
+                  </div>
+                  <div className="w-full md:w-1/3 space-y-1.5">
+                    <Label className="text-xs font-medium">Rubro</Label>
+                    <select
+                      className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      value={newOcasional.rubro_id}
+                      onChange={e => setNewOcasional({ ...newOcasional, rubro_id: e.target.value })}
+                    >
+                      <option value="">Seleccione rubro...</option>
+                      {rubrosOcasionalesList.map(r => (
+                        <option key={r.rubro_id} value={r.rubro_id}>{r.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="w-full md:w-1/4 space-y-1.5">
+                    <Label className="text-xs font-medium">Valor</Label>
+                    <Input
+                      type="number"
+                      className="h-9"
+                      placeholder="0"
+                      value={newOcasional.valor}
+                      onChange={e => setNewOcasional({ ...newOcasional, valor: e.target.value })}
+                    />
+                  </div>
+                  <Button size="sm" onClick={handleAddOcasional} disabled={!newOcasional.placa || !newOcasional.rubro_id || !newOcasional.valor} className="h-9 px-4">
+                    <Plus className="h-4 w-4 mr-2" /> Agregar
+                  </Button>
+                </div>
+
+                {/* Lista de agregados */}
+                {rubrosOcasionalesAgregados.length > 0 && (
+                  <div className="mt-4 bg-background border rounded-md overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                        <tr>
+                          <th className="px-4 py-2 text-left font-medium">Placa</th>
+                          <th className="px-4 py-2 text-left font-medium">Rubro</th>
+                          <th className="px-4 py-2 text-left font-medium">Valor</th>
+                          <th className="px-4 py-2 w-10"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rubrosOcasionalesAgregados.map((item, idx) => (
+                          <tr key={idx} className="border-b last:border-0 hover:bg-muted/20">
+                            <td className="px-4 py-2 font-medium">{item.placa}</td>
+                            <td className="px-4 py-2">{item.rubro_nombre}</td>
+                            <td className="px-4 py-2">${item.valor}</td>
+                            <td className="px-4 py-2 text-right">
+                              <button onClick={() => handleRemoveOcasional(idx)} className="text-destructive hover:text-destructive/80 transition-colors">
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setShowPreFacturacion(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleConfirmarGeneracion}>
-              Confirmar y Generar Facturas
-            </Button>
+          <DialogFooter className="px-6 py-4 border-t bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                className="border-orange-200 text-orange-700 hover:bg-orange-50 hover:text-orange-800 w-full sm:w-auto"
+                onClick={handleGenerarPolizas}
+                disabled={generatingPolizas}
+              >
+                {generatingPolizas ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generando...
+                  </>
+                ) : (
+                  <>
+                    <Shield className="h-4 w-4 mr-2" />
+                    Generar Pólizas Anuales
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button variant="ghost" onClick={() => setShowPreFacturacion(false)} className="w-full sm:w-auto">
+                Cancelar
+              </Button>
+              <Button onClick={handleConfirmarGeneracion} className="w-full sm:w-auto min-w-[200px]">
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Confirmar y Generar Facturas
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
