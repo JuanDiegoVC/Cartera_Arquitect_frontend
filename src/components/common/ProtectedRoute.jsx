@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 /**
@@ -15,6 +15,7 @@ import { useAuth } from '../../hooks/useAuth';
  */
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   // Mostrar loading mientras se verifica la autenticación
   if (loading) {
@@ -35,6 +36,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   // Si se especifican roles permitidos, verificar
   if (allowedRoles && !allowedRoles.includes(user.rol)) {
+    // Si es taquilla intentando acceder al Dashboard (ruta raíz), redirigir a /taquilla
+    if (user.rol === 'taquilla' && location.pathname === '/') {
+      return <Navigate to="/taquilla" replace />;
+    }
+    
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
         <div className="text-center w-full max-w-md mx-auto p-6 sm:p-8 bg-white rounded-lg shadow-lg">

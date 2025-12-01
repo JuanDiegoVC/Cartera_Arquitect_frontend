@@ -25,4 +25,16 @@ export const usuariosService = {
         const response = await api.post(`/usuarios/${id}/toggle_active/`);
         return response.data;
     },
+
+    // Obtener preferencia de tema del usuario actual
+    getTheme: async () => {
+        const response = await api.get("/usuarios/theme/");
+        return response.data;
+    },
+
+    // Actualizar preferencia de tema del usuario actual
+    updateTheme: async (tema) => {
+        const response = await api.post("/usuarios/theme/", { tema_preferido: tema });
+        return response.data;
+    },
 };

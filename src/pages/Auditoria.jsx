@@ -128,6 +128,7 @@ const ETIQUETAS_CAMPOS = {
   tipo: "Tipo de Vehículo",
   propietario: "Propietario",
   vehiculo: "Vehículo",
+  vehiculo_placa: "Placa del Vehículo",
   // Pago
   ingreso_id: "N° de Recibo",
   medio_pago: "Medio de Pago",
@@ -140,6 +141,11 @@ const ETIQUETAS_CAMPOS = {
   deuda_id: "ID de Deuda",
   monto_abonado: "Monto Abonado",
   saldo_restante: "Saldo Restante",
+  // Egreso
+  egreso_id: "N° de Egreso",
+  categoria: "Categoría",
+  tipo_despachador: "Tipo de Despachador",
+  descripcion: "Descripción",
   // Tarifa
   tarifa_id: "ID de Tarifa",
   monto: "Monto",
@@ -1131,6 +1137,33 @@ const RenderDatosFormateados = ({ datos }) => {
     );
   };
 
+  // Renderizar tipo de despachador con estilo especial
+  const renderTipoDespachador = () => {
+    if (!datos.tipo_despachador) return null;
+    
+    const esBlancos = datos.tipo_despachador === "Blancos";
+    
+    return (
+      <div className={`p-3 rounded-lg border ${
+        esBlancos 
+          ? "bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600" 
+          : "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-300 dark:border-yellow-700"
+      }`}>
+        <p className="text-xs text-muted-foreground mb-1">Tipo de Despachador</p>
+        <p className={`text-sm font-bold flex items-center gap-2 ${
+          esBlancos 
+            ? "text-gray-700 dark:text-gray-300" 
+            : "text-yellow-700 dark:text-yellow-400"
+        }`}>
+          <span className={`w-3 h-3 rounded-full ${
+            esBlancos ? "bg-gray-400" : "bg-yellow-500"
+          }`}></span>
+          {datos.tipo_despachador}
+        </p>
+      </div>
+    );
+  };
+
   // Renderizar otros campos no procesados
   const renderOtrosCampos = () => {
     const camposExcluidos = [
@@ -1142,6 +1175,7 @@ const RenderDatosFormateados = ({ datos }) => {
       "observacion",
       "ip_address",
       "user_agent",
+      "tipo_despachador", // Se renderiza por separado
     ];
     const otrosCampos = Object.entries(datos).filter(
       ([clave]) => !camposExcluidos.includes(clave)
@@ -1231,6 +1265,7 @@ const RenderDatosFormateados = ({ datos }) => {
     <div className="space-y-4">
       {renderVehiculo(datos.vehiculo)}
       {renderInfoPago()}
+      {renderTipoDespachador()}
       {renderDetallesPago(datos.detalles)}
       {renderInfoLogin()}
       {datos.observacion && (

@@ -42,6 +42,7 @@ export default function GestionEgresos() {
   const [busquedaVehiculo, setBusquedaVehiculo] = useState("");
   const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null);
   const [buscandoVehiculos, setBuscandoVehiculos] = useState(false);
+  const [tipoDespachador, setTipoDespachador] = useState(""); // "blancos" o "amarillos"
 
   // Hook para formato de moneda
   const currencyInput = useCurrencyInput("");
@@ -102,16 +103,23 @@ export default function GestionEgresos() {
     );
   };
 
+  // Helper para verificar si la categoría es Despachadores
+  const categoriaEsDespachadores = (nombreCategoria) => {
+    if (!nombreCategoria) return false;
+    return nombreCategoria.toLowerCase().includes("despachador");
+  };
+
   const handleInputChange = (field, value) => {
     if (field === "valor") {
       // Usar el hook para formatear moneda
       const formatted = currencyInput.handleChange(value);
       setFormData((prev) => ({ ...prev, [field]: formatted }));
     } else if (field === "categoria") {
-      // Limpiar vehículo al cambiar categoría
+      // Limpiar vehículo y tipo de despachador al cambiar categoría
       setFormData((prev) => ({ ...prev, [field]: value, vehiculo: null }));
       setVehiculoSeleccionado(null);
       setBusquedaVehiculo("");
+      setTipoDespachador("");
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -171,6 +179,12 @@ export default function GestionEgresos() {
       return;
     }
 
+    // Validar que categoría Despachadores tenga tipo seleccionado
+    if (categoriaEsDespachadores(catSeleccionada?.nombre) && !tipoDespachador) {
+      setError("Debe seleccionar el tipo de despachador (Blancos o Amarillos)");
+      return;
+    }
+
     // Convertir el valor formateado (1.000,50) a número (1000.50)
     const valorNumerico = parseFloat(
       formData.valor.replace(/\./g, "").replace(",", ".")
@@ -185,13 +199,22 @@ export default function GestionEgresos() {
     setError(null);
 
     try {
+      // Construir descripción con tipo de despachador si aplica
+      let descripcionFinal = formData.descripcion;
+      if (categoriaEsDespachadores(catSeleccionada?.nombre) && tipoDespachador) {
+        const tipoLabel = tipoDespachador === "blancos" ? "Blancos" : "Amarillos";
+        descripcionFinal = descripcionFinal 
+          ? `[${tipoLabel}] ${descripcionFinal}`
+          : `Despachadores ${tipoLabel}`;
+      }
+
       const egresoData = {
         categoria: parseInt(formData.categoria),
         fecha_egreso: formData.fecha_egreso,
         medio_pago: formData.medio_pago,
         valor: valorNumerico,
         descripcion:
-          formData.descripcion || `Egreso categoría ${catSeleccionada?.nombre}`,
+          descripcionFinal || `Egreso categoría ${catSeleccionada?.nombre}`,
       };
 
       // Agregar vehículo si está disponible
@@ -213,6 +236,7 @@ export default function GestionEgresos() {
         descripcion: "",
       });
       setVehiculoSeleccionado(null);
+      setTipoDespachador("");
       currencyInput.setValue("");
 
       // Recargar lista
@@ -300,6 +324,30 @@ export default function GestionEgresos() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Tipo de Despachador - Solo para categoría Despachadores */}
+              {formData.categoria &&
+                categoriaEsDespachadores(
+                  categorias.find(
+                    (c) => c.categoria_id === parseInt(formData.categoria)
+                  )?.nombre
+                ) && (
+                  <div className="space-y-2">
+                    <Label htmlFor="tipo_despachador">Tipo de Despachador *</Label>
+                    <Select
+                      value={tipoDespachador}
+                      onValueChange={(value) => setTipoDespachador(value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="blancos">Blancos</SelectItem>
+                        <SelectItem value="amarillos">Amarillos</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
               {/* Vehículo - Para categorías que lo requieren (Parqueadero, Seguros, Poliza) */}
               {formData.categoria &&

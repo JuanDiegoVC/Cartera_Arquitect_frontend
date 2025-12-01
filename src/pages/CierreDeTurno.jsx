@@ -42,6 +42,8 @@ import {
 import { reportesService } from "@/services/reportesService";
 import { toast } from "sonner";
 import BotonDescargarCierreTurno from "@/components/Reportes/BotonDescargarCierreTurno";
+import CierreTurnoDocument from "@/components/Reportes/CierreTurnoDocument";
+import { pdf } from "@react-pdf/renderer";
 import { useAuth } from "@/hooks/useAuth";
 
 /**
@@ -57,7 +59,7 @@ import { useAuth } from "@/hooks/useAuth";
  */
 
 // Constantes para horarios de cierre
-const HORA_HABILITAR_BOTON = { hora: 18, minuto: 10 }; // 6:10 PM
+const HORA_HABILITAR_BOTON = { hora: 19, minuto: 0 }; // 7:00 PM
 const HORA_CIERRE_AUTOMATICO = { hora: 23, minuto: 59 }; // 11:59 PM
 
 const CierreDeTurno = () => {
@@ -105,7 +107,7 @@ const CierreDeTurno = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vistaActual]);
 
-  // Verificar si el botón debe estar habilitado (después de las 6:10 PM)
+  // Verificar si el botón debe estar habilitado (después de las 7:00 PM)
   const verificarHorarioBoton = () => {
     const ahora = new Date();
     const horaActualMinutos = ahora.getHours() * 60 + ahora.getMinutes();
@@ -145,7 +147,7 @@ const CierreDeTurno = () => {
   // Efecto para manejar el cierre de sesión y guardar automáticamente
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      // Solo intentar guardar si estamos después de las 6:10 PM y no se ha guardado
+      // Solo intentar guardar si estamos después de las 7:00 PM y no se ha guardado
       if (verificarHorarioBoton() && !cierreGuardadoHoy && datos) {
         // Usar sendBeacon para enviar datos antes de cerrar
         const fechaLocal = new Date();
@@ -309,8 +311,52 @@ const CierreDeTurno = () => {
     }
   };
 
-  const handleImprimir = () => {
-    window.print();
+  const [imprimiendo, setImprimiendo] = useState(false);
+
+  const handleImprimir = async () => {
+    const datosPDFActual = prepararDatosPDF();
+    if (!datosPDFActual) {
+      toast.error("No hay datos para imprimir");
+      return;
+    }
+
+    setImprimiendo(true);
+    try {
+      // Generar el PDF con el mismo formato que el botón de descargar
+      const blob = await pdf(
+        <CierreTurnoDocument datosCierre={datosPDFActual} />
+      ).toBlob();
+
+      // Crear URL del blob
+      const url = URL.createObjectURL(blob);
+
+      // Abrir en una nueva ventana e imprimir
+      const printWindow = window.open(url, "_blank");
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      } else {
+        // Si el popup está bloqueado, descargar el archivo
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `CierreTurno_${new Date().toISOString().slice(0, 10)}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.info("El archivo PDF se ha descargado. Ábrelo para imprimir.");
+      }
+
+      // Limpiar después de un tiempo
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 60000);
+    } catch (error) {
+      console.error("Error al generar PDF para imprimir:", error);
+      toast.error("Error al generar el documento para imprimir");
+    } finally {
+      setImprimiendo(false);
+    }
   };
 
   const prepararDatosPDF = () => {
@@ -638,9 +684,18 @@ const CierreDeTurno = () => {
               variant="default"
               className="w-full md:w-auto"
             />
-            <Button onClick={handleImprimir} className="w-full md:w-auto">
-              <Printer className="h-4 w-4 mr-2" />
-              Imprimir
+            <Button onClick={handleImprimir} disabled={imprimiendo} className="w-full md:w-auto">
+              {imprimiendo ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generando...
+                </>
+              ) : (
+                <>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Imprimir
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -908,9 +963,18 @@ const CierreDeTurno = () => {
               className="flex-1 md:flex-none"
             />
           )}
-          <Button onClick={handleImprimir} className="flex-1 md:flex-none">
-            <Printer className="h-4 w-4 mr-2" />
-            Imprimir
+          <Button onClick={handleImprimir} disabled={imprimiendo} className="flex-1 md:flex-none">
+            {imprimiendo ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Generando...
+              </>
+            ) : (
+              <>
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimir
+              </>
+            )}
           </Button>
         </div>
       </div>

@@ -40,10 +40,11 @@ function App() {
             <Route path="/login" element={<Login />} />
 
             {/* Rutas protegidas con layout */}
+            {/* Dashboard - Solo administrador y gerente */}
             <Route
               path="/"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
                   <AppLayout>
                     <Dashboard />
                   </AppLayout>
@@ -190,11 +191,11 @@ function App() {
 
 
 
-            {/* Configuración - Administrador y gerente */}
+            {/* Configuración - Todos (taquilla solo ve General) */}
             <Route
               path="/configuracion"
               element={
-                <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                <ProtectedRoute allowedRoles={["taquilla", "administrador", "gerente"]}>
                   <AppLayout>
                     <Configuracion />
                   </AppLayout>
@@ -238,7 +239,7 @@ function App() {
             <Route
               path="/configuracion/general"
               element={
-                <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                <ProtectedRoute allowedRoles={["taquilla", "administrador", "gerente"]}>
                   <AppLayout>
                     <ConfiguracionGeneral />
                   </AppLayout>
