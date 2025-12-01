@@ -5,11 +5,16 @@ import { Badge } from "../components/ui/badge";
 import { Settings, Users, Database, Bell, Upload, DollarSign } from "lucide-react";
 import { CargaMasivaModal } from "../components/CargaMasiva";
 import { useNotificaciones } from "../context/NotificacionesContext";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Configuracion() {
   const navigate = useNavigate();
   const [cargaMasivaOpen, setCargaMasivaOpen] = useState(false);
   const { contador, tieneNotificaciones } = useNotificaciones();
+  const { user } = useAuth();
+  
+  // Taquilla solo puede ver configuraciones generales
+  const esTaquilla = user?.rol === "taquilla";
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -21,111 +26,126 @@ export default function Configuracion() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Carga Masiva - Nueva tarjeta */}
-        <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
-          onClick={() => setCargaMasivaOpen(true)}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5 text-primary" />
-              Carga Masiva
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">
-              Importe rubros, vehículos y cartera desde un archivo Excel
-            </p>
-          </CardContent>
-        </Card>
+        {/* Carga Masiva - Solo para admin y gerente */}
+        {!esTaquilla && (
+          <Card
+            className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
+            onClick={() => setCargaMasivaOpen(true)}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5 text-primary" />
+                Carga Masiva
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Importe rubros, vehículos y cartera desde un archivo Excel
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
-          onClick={() => navigate('/configuracion/usuarios')}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              Usuarios
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">
-              Gestione usuarios y permisos del sistema
-            </p>
-          </CardContent>
-        </Card>
+        {/* Usuarios - Solo para admin y gerente */}
+        {!esTaquilla && (
+          <Card
+            className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
+            onClick={() => navigate('/configuracion/usuarios')}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                Usuarios
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Gestione usuarios y permisos del sistema
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
-          onClick={() => navigate('/configuracion/cobros')}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5 text-success" />
-              Conceptos de Cobro
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">
-              Configure los rubros y tarifas de cobro
-            </p>
-          </CardContent>
-        </Card>
+        {/* Conceptos de Cobro - Solo para admin y gerente */}
+        {!esTaquilla && (
+          <Card
+            className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
+            onClick={() => navigate('/configuracion/cobros')}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="h-5 w-5 text-success" />
+                Conceptos de Cobro
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Configure los rubros y tarifas de cobro
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
-          onClick={() => navigate('/configuracion/egresos')}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-destructive" />
-              Categorías de Egresos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">
-              Gestione las categorías de gastos y egresos
-            </p>
-          </CardContent>
-        </Card>
+        {/* Categorías de Egresos - Solo para admin y gerente */}
+        {!esTaquilla && (
+          <Card
+            className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
+            onClick={() => navigate('/configuracion/egresos')}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-destructive" />
+                Categorías de Egresos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Gestione las categorías de gastos y egresos
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary relative"
-          onClick={() => navigate('/configuracion/notificaciones')}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-warning" />
-              Notificaciones
+        {/* Notificaciones - Solo para admin y gerente */}
+        {!esTaquilla && (
+          <Card
+            className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary relative"
+            onClick={() => navigate('/configuracion/notificaciones')}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="h-5 w-5 text-warning" />
+                Notificaciones
+                {tieneNotificaciones && (
+                  <Badge variant="destructive" className="ml-auto text-xs">
+                    {contador.total_no_leidas}
+                  </Badge>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm">
+                Configure alertas y notificaciones automáticas
+              </p>
               {tieneNotificaciones && (
-                <Badge variant="destructive" className="ml-auto text-xs">
-                  {contador.total_no_leidas}
-                </Badge>
+                <div className="flex gap-2 mt-2">
+                  {contador.criticas > 0 && (
+                    <Badge variant="destructive" className="text-xs">
+                      {contador.criticas} crítica{contador.criticas > 1 ? "s" : ""}
+                    </Badge>
+                  )}
+                  {contador.advertencias > 0 && (
+                    <Badge className="bg-yellow-500 hover:bg-yellow-600 text-xs">
+                      {contador.advertencias} alerta{contador.advertencias > 1 ? "s" : ""}
+                    </Badge>
+                  )}
+                </div>
               )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">
-              Configure alertas y notificaciones automáticas
-            </p>
-            {tieneNotificaciones && (
-              <div className="flex gap-2 mt-2">
-                {contador.criticas > 0 && (
-                  <Badge variant="destructive" className="text-xs">
-                    {contador.criticas} crítica{contador.criticas > 1 ? "s" : ""}
-                  </Badge>
-                )}
-                {contador.advertencias > 0 && (
-                  <Badge className="bg-yellow-500 hover:bg-yellow-600 text-xs">
-                    {contador.advertencias} alerta{contador.advertencias > 1 ? "s" : ""}
-                  </Badge>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
+        {/* Generales - Disponible para todos */}
         <Card
           className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
           onClick={() => navigate('/configuracion/general')}

@@ -47,7 +47,7 @@ const menuItems = [
     title: "Dashboard",
     url: "/",
     icon: LayoutDashboard,
-    roles: ["taquilla", "administrador", "gerente"], // Todos
+    roles: ["administrador", "gerente"], // Solo admin y gerente
   },
   {
     title: "Taquilla",
@@ -102,7 +102,7 @@ const menuItems = [
     title: "Configuración",
     url: "/configuracion",
     icon: Settings,
-    roles: ["administrador", "gerente"], // Admin y gerente
+    roles: ["taquilla", "administrador", "gerente"], // Todos (taquilla solo ve Generales)
   },
   {
     title: "Auditoría",

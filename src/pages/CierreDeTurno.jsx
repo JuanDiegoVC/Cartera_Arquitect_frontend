@@ -57,7 +57,7 @@ import { useAuth } from "@/hooks/useAuth";
  */
 
 // Constantes para horarios de cierre
-const HORA_HABILITAR_BOTON = { hora: 18, minuto: 10 }; // 6:10 PM
+const HORA_HABILITAR_BOTON = { hora: 19, minuto: 0 }; // 7:00 PM
 const HORA_CIERRE_AUTOMATICO = { hora: 23, minuto: 59 }; // 11:59 PM
 
 const CierreDeTurno = () => {
@@ -105,7 +105,7 @@ const CierreDeTurno = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vistaActual]);
 
-  // Verificar si el botón debe estar habilitado (después de las 6:10 PM)
+  // Verificar si el botón debe estar habilitado (después de las 7:00 PM)
   const verificarHorarioBoton = () => {
     const ahora = new Date();
     const horaActualMinutos = ahora.getHours() * 60 + ahora.getMinutes();
@@ -145,7 +145,7 @@ const CierreDeTurno = () => {
   // Efecto para manejar el cierre de sesión y guardar automáticamente
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      // Solo intentar guardar si estamos después de las 6:10 PM y no se ha guardado
+      // Solo intentar guardar si estamos después de las 7:00 PM y no se ha guardado
       if (verificarHorarioBoton() && !cierreGuardadoHoy && datos) {
         // Usar sendBeacon para enviar datos antes de cerrar
         const fechaLocal = new Date();
