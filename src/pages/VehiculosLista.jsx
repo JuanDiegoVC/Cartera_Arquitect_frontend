@@ -28,7 +28,7 @@ import { useAuth } from "../hooks/useAuth";
  * Implementa RF-004 y RF-008: Exportación a Excel con filtros
  */
 export default function VehiculosLista() {
-  const { isAdministrador } = useAuth();
+  const { isAdministrador, isGerente } = useAuth();
   const location = useLocation();
   const [vehiculos, setVehiculos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -238,10 +238,12 @@ export default function VehiculosLista() {
             Gestione y exporte el registro completo de vehículos afiliados
           </p>
         </div>
-        <Button onClick={handleCreate}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Vehículo
-        </Button>
+        {(isAdministrador() || isGerente()) && (
+          <Button onClick={handleCreate}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Vehículo
+          </Button>
+        )}
       </div>
 
       {/* Filtros y Exportación */}
