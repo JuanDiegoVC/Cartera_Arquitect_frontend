@@ -27,6 +27,7 @@ import CierreDeTurno from "./pages/CierreDeTurno";
 import Auditoria from "./pages/Auditoria";
 import HistorialPagos from "./pages/HistorialPagos";
 import Usuarios from "./pages/Usuarios";
+import Rendimiento from "./pages/Rendimiento";
 import { Toaster } from "sonner";
 import "./App.css";
 
@@ -265,6 +266,18 @@ function App() {
                 <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
                   <AppLayout>
                     <Auditoria />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rendimiento (Analytics) - Solo administrador y gerente */}
+            <Route
+              path="/rendimiento"
+              element={
+                <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                  <AppLayout>
+                    <Rendimiento />
                   </AppLayout>
                 </ProtectedRoute>
               }
