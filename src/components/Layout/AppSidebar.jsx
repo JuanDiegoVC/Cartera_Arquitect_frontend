@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   History,
   ChevronRight,
+  BarChart3,
 } from "lucide-react";
 import "./AppSidebar.css";
 import logo2 from "../../assets/Logo2.png";
@@ -47,6 +48,12 @@ const menuItems = [
     title: "Dashboard",
     url: "/",
     icon: LayoutDashboard,
+    roles: ["administrador", "gerente"], // Solo admin y gerente
+  },
+  {
+    title: "Rendimiento",
+    url: "/rendimiento",
+    icon: BarChart3,
     roles: ["administrador", "gerente"], // Solo admin y gerente
   },
   {
