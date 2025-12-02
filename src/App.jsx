@@ -23,6 +23,7 @@ import NotificacionesConfig from "./pages/NotificacionesConfig";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
 import ConfiguracionEgresos from "./pages/ConfiguracionEgresos";
+import HistorialEgresos from "./pages/HistorialEgresos";
 import CierreDeTurno from "./pages/CierreDeTurno";
 import Auditoria from "./pages/Auditoria";
 import HistorialPagos from "./pages/HistorialPagos";
@@ -76,6 +77,18 @@ function App() {
                 >
                   <AppLayout>
                     <GestionEgresos />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Historial de Egresos - Solo gerente y administrador */}
+            <Route
+              path="/egresos/historial"
+              element={
+                <ProtectedRoute allowedRoles={["gerente", "administrador"]}>
+                  <AppLayout>
+                    <HistorialEgresos />
                   </AppLayout>
                 </ProtectedRoute>
               }
@@ -190,13 +203,13 @@ function App() {
               }
             />
 
-
-
             {/* Configuración - Todos (taquilla solo ve General) */}
             <Route
               path="/configuracion"
               element={
-                <ProtectedRoute allowedRoles={["taquilla", "administrador", "gerente"]}>
+                <ProtectedRoute
+                  allowedRoles={["taquilla", "administrador", "gerente"]}
+                >
                   <AppLayout>
                     <Configuracion />
                   </AppLayout>
@@ -240,7 +253,9 @@ function App() {
             <Route
               path="/configuracion/general"
               element={
-                <ProtectedRoute allowedRoles={["taquilla", "administrador", "gerente"]}>
+                <ProtectedRoute
+                  allowedRoles={["taquilla", "administrador", "gerente"]}
+                >
                   <AppLayout>
                     <ConfiguracionGeneral />
                   </AppLayout>
