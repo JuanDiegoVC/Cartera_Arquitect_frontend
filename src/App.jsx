@@ -203,13 +203,13 @@ function App() {
               }
             />
 
-
-
             {/* Configuración - Todos (taquilla solo ve General) */}
             <Route
               path="/configuracion"
               element={
-                <ProtectedRoute allowedRoles={["taquilla", "administrador", "gerente"]}>
+                <ProtectedRoute
+                  allowedRoles={["taquilla", "administrador", "gerente"]}
+                >
                   <AppLayout>
                     <Configuracion />
                   </AppLayout>
@@ -253,7 +253,9 @@ function App() {
             <Route
               path="/configuracion/general"
               element={
-                <ProtectedRoute allowedRoles={["taquilla", "administrador", "gerente"]}>
+                <ProtectedRoute
+                  allowedRoles={["taquilla", "administrador", "gerente"]}
+                >
                   <AppLayout>
                     <ConfiguracionGeneral />
                   </AppLayout>
