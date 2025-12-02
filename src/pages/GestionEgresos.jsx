@@ -20,7 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, DollarSign, Save, X } from "lucide-react";
+import { Loader2, DollarSign, Save, X, History } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   obtenerCategorias,
   crearEgreso,
@@ -29,6 +30,7 @@ import {
 import { vehiculosService } from "@/services/vehiculosService";
 import { formatCurrency } from "@/utils/formatters";
 import { useCurrencyInput } from "@/hooks/useCurrencyInput";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function GestionEgresos() {
   const [categorias, setCategorias] = useState([]);
@@ -43,6 +45,8 @@ export default function GestionEgresos() {
   const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null);
   const [buscandoVehiculos, setBuscandoVehiculos] = useState(false);
   const [tipoDespachador, setTipoDespachador] = useState(""); // "blancos" o "amarillos"
+  const navigate = useNavigate();
+  const { isAdministrador, isGerente } = useAuth();
 
   // Hook para formato de moneda
   const currencyInput = useCurrencyInput("");
@@ -254,7 +258,7 @@ export default function GestionEgresos() {
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             Gestión de Egresos
@@ -263,11 +267,24 @@ export default function GestionEgresos() {
             Registro y control de gastos operativos
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2">
-          <DollarSign className="h-5 w-5 text-primary" />
-          <span className="text-sm font-medium">
-            Total Hoy: {formatCurrency(totalEgresos)}
-          </span>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Botón de Historial - Solo para Admin y Gerente */}
+          {(isAdministrador() || isGerente()) && (
+            <Button
+              variant="outline"
+              onClick={() => navigate("/egresos/historial")}
+              className="flex items-center gap-2"
+            >
+              <History className="h-4 w-4" />
+              <span className="hidden sm:inline">Historial</span>
+            </Button>
+          )}
+          <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2">
+            <DollarSign className="h-5 w-5 text-primary" />
+            <span className="text-sm font-medium">
+              Total Hoy: {formatCurrency(totalEgresos)}
+            </span>
+          </div>
         </div>
       </div>
 

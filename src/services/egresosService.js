@@ -49,11 +49,30 @@ export const obtenerEgresos = async () => {
   return response.data;
 };
 
+/**
+ * Obtener historial de egresos con filtros y paginación
+ * Solo disponible para administradores y gerentes
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {string} [params.fecha_inicio] - Fecha inicio (YYYY-MM-DD)
+ * @param {string} [params.fecha_fin] - Fecha fin (YYYY-MM-DD)
+ * @param {string} [params.categoria] - ID de categoría
+ * @param {string} [params.medio_pago] - efectivo|transferencia
+ * @param {number} [params.page] - Número de página
+ * @param {number} [params.page_size] - Resultados por página
+ */
+export const obtenerHistorialEgresos = async (params = {}) => {
+  const response = await api.get("/v1/contabilidad/egresos/historial/", {
+    params,
+  });
+  return response.data;
+};
+
 export default {
   obtenerCategorias,
   crearEgreso,
   obtenerEgresosHoy,
   obtenerEgresos,
+  obtenerHistorialEgresos,
   crearCategoria,
   actualizarCategoria,
   eliminarCategoria,
