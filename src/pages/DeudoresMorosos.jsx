@@ -55,70 +55,123 @@ export default function DeudoresMorosos() {
     const generateCobroJuridicoPDF = (item) => {
         import('jspdf').then(({ jsPDF }) => {
             const doc = new jsPDF();
-            const margin = 20;
-            let y = 20;
-            const lineHeight = 7;
+            const margin = 25;
+            let y = 30;
+            const lineHeight = 5;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const textWidth = pageWidth - (margin * 2);
 
-            // Header
-            doc.setFontSize(16);
-            doc.setFont("helvetica", "bold");
-            doc.text("SOTRAPEÑOL", 105, y, { align: "center" });
-            y += 10;
+            // Configurar fuente Arial (helvetica es el equivalente en jsPDF)
+            doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
-            doc.text("NIT: 800.123.456-7", 105, y, { align: "center" });
-            y += 20;
 
-            // Date
-            const date = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
-            doc.setFont("helvetica", "normal");
-            doc.text(`Medellín, ${date}`, margin, y);
-            y += 15;
+            // Fecha en formato largo (ej: "3 de diciembre de 2025")
+            const fecha = new Date();
+            const dia = fecha.getDate();
+            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            const mes = meses[fecha.getMonth()];
+            const año = fecha.getFullYear();
+            const fechaFormateada = `${dia} de ${mes} de ${año}`;
 
-            // Recipient
+            // Fecha
+            doc.text(`Medellín, ${fechaFormateada}`, margin, y);
+            y += 12;
+
+            // Destinatario
+            doc.text("Señor(a)", margin, y);
+            y += 5;
             doc.setFont("helvetica", "bold");
-            doc.text(`Señor(a):`, margin, y);
-            y += 5;
-            doc.text(`${item.conductor}`, margin, y);
-            y += 5;
-            doc.text(`Conductor Vehículo Placa: ${item.placa}`, margin, y);
-            y += 15;
+            doc.text(item.conductor.toUpperCase(), margin, y);
+            y += 10;
 
-            // Subject
-            doc.setFontSize(11);
-            doc.text("ASUNTO: NOTIFICACIÓN DE COBRO PRE-JURÍDICO", margin, y);
-            y += 15;
-
-            // Body
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(11);
-
-            const deuda = parseFloat(item.total_deuda).toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
-
-            const text = `Respetado(a) señor(a),
-
-Por medio de la presente comunicación, nos permitimos informarle que a la fecha de corte, el vehículo de placas ${item.placa} presenta un saldo en mora pendiente de pago por valor de ${deuda} por concepto de obligaciones con la empresa SOTRAPEÑOL.
-
-El objetivo de esta comunicación es invitarle formalmente a cancelar la totalidad de la deuda o acercarse a nuestras oficinas administrativas en un plazo no mayor a tres (3) días hábiles contados a partir de la recepción de esta misiva, con el fin de llegar a un acuerdo de pago y normalizar su estado de cuenta.
-
-Hacemos un llamado a su responsabilidad y cumplimiento para evitar el traslado de esta obligación a nuestra área jurídica. Le recordamos que el inicio de un proceso de cobro jurídico implicará para usted la asunción de costos adicionales por concepto de honorarios de abogado, intereses moratorios de ley y gastos procesales, además del posible reporte negativo en centrales de riesgo.
-
-Agradecemos su atención y esperamos su pronta gestión para evitar inconvenientes futuros.
-
-Cordialmente,`;
-
-            const splitText = doc.splitTextToSize(text, 170);
-            doc.text(splitText, margin, y);
-
-            y += (splitText.length * lineHeight) + 20;
-
-            // Signature
+            // Referencia
             doc.setFont("helvetica", "bold");
-            doc.text("DEPARTAMENTO DE COBROS Y CARTERA", margin, y);
-            y += 5;
-            doc.text("SOTRAPEÑOL", margin, y);
+            doc.text("Referencia: ", margin, y);
+            doc.setFont("helvetica", "normal");
+            doc.text("Cobro prejudicial por obligaciones pendientes.", margin + 22, y);
+            y += 12;
 
-            // Save
-            doc.save(`Cobro_Juridico_${item.placa}.pdf`);
+            // Formatear valores
+            const deudaFormateada = parseFloat(item.total_deuda).toLocaleString('es-CO', { 
+                style: 'currency', 
+                currency: 'COP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+
+            // Obtener concepto de rubros si existe, sino usar genérico
+            const conceptoDeuda = item.rubros_pendientes 
+                ? item.rubros_pendientes 
+                : "obligaciones de afiliación y administración";
+
+            // Cuerpo del documento - Párrafo 1
+            const parrafo1 = `Por medio de la presente, SOTRAPEÑOL LTDA le informa que, debido al incumplimiento de las obligaciones a su cargo como afiliado a esta empresa, por concepto de ${conceptoDeuda}, que a la fecha se encuentran en mora, por un valor de ${deudaFormateada}, obligación derivada del contrato de vinculación y/o administración celebrado entre usted y la empresa; por lo que, le hacemos este requerimiento con el fin de que se ponga al día en sus obligaciones, de lo contrario, nos faculta para iniciar en su contra, sin necesidad de nuevos avisos, el proceso judicial ante un juez de la república, para que la obligación preste mérito ejecutivo y se puedan pedir medidas cautelares (embargo y secuestro) de bienes que se encuentren a su nombre, con el fin de obtener el pago forzoso de las obligaciones pendientes.`;
+            
+            const splitParrafo1 = doc.splitTextToSize(parrafo1, textWidth);
+            doc.text(splitParrafo1, margin, y);
+            y += (splitParrafo1.length * lineHeight) + 8;
+
+            // Párrafo 2
+            const parrafo2 = `Una vez iniciado el proceso, la deuda continuará incrementándose por concepto de intereses moratorios, costas procesales y honorarios profesionales, los cuales deberán ser asumidos integralmente por usted.`;
+            
+            const splitParrafo2 = doc.splitTextToSize(parrafo2, textWidth);
+            doc.text(splitParrafo2, margin, y);
+            y += (splitParrafo2.length * lineHeight) + 8;
+
+            // Párrafo 3
+            const parrafo3 = `Adicionalmente, el incumplimiento de estas obligaciones, podrá generar afectaciones negativas en su historial crediticio, así como en el de cualquier codeudor o garante vinculado a la obligación.`;
+            
+            const splitParrafo3 = doc.splitTextToSize(parrafo3, textWidth);
+            doc.text(splitParrafo3, margin, y);
+            y += (splitParrafo3.length * lineHeight) + 8;
+
+            // Párrafo 4 - Plazo (5 días hábiles)
+            const parrafo4 = `Para evitar mayores perjuicios económicos, evitar un proceso jurídico y la práctica de medidas judiciales, cuenta con un plazo improrrogable de cinco (5) días hábiles siguientes a la recepción de esta comunicación, para que se ponga al día con todas las obligaciones pendientes con SOTRAPEÑOL LTDA.`;
+            
+            const splitParrafo4 = doc.splitTextToSize(parrafo4, textWidth);
+            doc.text(splitParrafo4, margin, y);
+            y += (splitParrafo4.length * lineHeight) + 8;
+
+            // Párrafo 5
+            const parrafo5 = `Transcurrido dicho término sin recibir respuesta, se entenderá que no existe interés de su parte, en cumplir voluntariamente y se procederá a iniciar la actuación judicial correspondiente.`;
+            
+            const splitParrafo5 = doc.splitTextToSize(parrafo5, textWidth);
+            doc.text(splitParrafo5, margin, y);
+            y += (splitParrafo5.length * lineHeight) + 8;
+
+            // Párrafo 6
+            const parrafo6 = `Se le informa que, solamente el pago de las obligaciones pendientes, es el único mecanismo para detener el inicio del proceso judicial.`;
+            
+            const splitParrafo6 = doc.splitTextToSize(parrafo6, textWidth);
+            doc.text(splitParrafo6, margin, y);
+            y += (splitParrafo6.length * lineHeight) + 8;
+
+            // Nota de adjuntos
+            doc.text("Se adjuntan las facturas y soportes objeto de cobro.", margin, y);
+
+            // ========== PÁGINA 2 ==========
+            doc.addPage();
+            y = 30;
+
+            // Despedida
+            doc.text("Atentamente,", margin, y);
+            y += 15;
+
+            // Firma
+            doc.setFont("helvetica", "bold");
+            doc.text("JHON JAIRO RAMÍREZ ATEHORTÚA", margin, y);
+            y += 5;
+            doc.setFont("helvetica", "normal");
+            doc.text("C.C. 71.773.489", margin, y);
+            y += 5;
+            doc.text("Representante Legal", margin, y);
+            y += 5;
+            doc.setFont("helvetica", "bold");
+            doc.text("SOTRAPEÑOL LTDA", margin, y);
+
+            // Guardar PDF
+            doc.save(`Carta_Cobro_Prejudicial_${item.placa}_${fecha.toISOString().split('T')[0]}.pdf`);
         });
     };
 
