@@ -1,7 +1,7 @@
 # =============================================================================
 # SOTRAPEÑOL - Deploy Frontend to Firebase Hosting (Production)
 # =============================================================================
-# Este workflow se ejecuta cuando hay un merge/push a la rama main
+# Este workflow se ejecuta cuando hay un merge/push a la rama main o devOps
 # Despliega automáticamente a Firebase Hosting en el canal LIVE (producción)
 # =============================================================================
 
@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - main
+      - devOps
   workflow_dispatch:  # Permite ejecutar manualmente desde GitHub
 
 env:

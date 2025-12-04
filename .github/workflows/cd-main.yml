@@ -2,7 +2,7 @@ name: Frontend CD - Production
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, devOps ]
   workflow_dispatch:
 
 env:

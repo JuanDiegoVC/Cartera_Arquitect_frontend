@@ -2,7 +2,7 @@ name: Frontend CD - Development
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, devOps ]
 
 env:
   REGISTRY: ghcr.io
