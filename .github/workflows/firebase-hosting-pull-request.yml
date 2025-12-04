@@ -47,7 +47,7 @@ jobs:
       - name: 🏗️ Build application
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL_DEV || secrets.VITE_API_URL_PROD }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL}}
           CI: true
 
       - name: ✅ Verify build output

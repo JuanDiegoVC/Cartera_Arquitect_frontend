@@ -1,10 +1,11 @@
 name: Frontend CI
 
 on:
+  # CI se ejecuta en push a develop/devOps y en PRs hacia main
   push:
-    branches: [ develop, main ]
+    branches: [ develop, devOps ]
   pull_request:
-    branches: [ develop, main ]
+    branches: [ main ]
 
 jobs:
   lint-and-build:
