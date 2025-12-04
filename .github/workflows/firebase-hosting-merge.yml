@@ -1,17 +1,17 @@
 # =============================================================================
 # SOTRAPEÑOL - Deploy Frontend to Firebase Hosting (Production)
 # =============================================================================
-# Este workflow se ejecuta cuando hay un merge/push a la rama main o devOps
+# Este workflow se ejecuta SOLO cuando hay merge a main (después de PR aprobado)
 # Despliega automáticamente a Firebase Hosting en el canal LIVE (producción)
 # =============================================================================
 
 name: 🚀 Deploy to Firebase Hosting (Production)
 
 on:
+  # Deploy solo cuando hay merge a main
   push:
     branches:
       - main
-      - devOps
   workflow_dispatch:  # Permite ejecutar manualmente desde GitHub
 
 env:
@@ -42,7 +42,7 @@ jobs:
       - name: 🏗️ Build application
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL_PROD }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
           CI: true
 
       - name: ✅ Verify build output
