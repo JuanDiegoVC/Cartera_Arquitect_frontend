@@ -40,7 +40,7 @@ export default function VehiculosLista() {
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [formData, setFormData] = useState({
     placa: "",
-    tipo_vehiculo: "automovil_intermunicipal",
+    tipo_vehiculo: "automovil",
     propietario_nombre: "",
     conductor_actual_nombre: "",
     estado: "activo",
@@ -181,7 +181,7 @@ export default function VehiculosLista() {
     setEditingVehicle(null);
     setFormData({
       placa: "",
-      tipo_vehiculo: "automovil_intermunicipal",
+      tipo_vehiculo: "automovil",
       propietario_nombre: "",
       conductor_actual_nombre: "",
       estado: "activo",

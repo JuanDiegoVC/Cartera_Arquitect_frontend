@@ -26,7 +26,7 @@ export default function EjemploReciboPDF() {
     },
     cliente: {
       placa: "ABC123",
-      tipo_vehiculo: "Taxi Blanco",
+      tipo_vehiculo: "Automóvil Municipal",
       propietario: "Juan Pérez García",
       conductor: "María López Rodríguez",
     },
@@ -69,7 +69,7 @@ export default function EjemploReciboPDF() {
     },
     cliente: {
       placa: "DEF456",
-      tipo_vehiculo: "Taxi Amarillo",
+      tipo_vehiculo: "Bus Intermunicipal",
       propietario: "Carlos Ramírez",
       conductor: null, // Sin conductor
     },
