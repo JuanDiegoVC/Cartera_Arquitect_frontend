@@ -414,7 +414,14 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
           El archivo Excel debe contener tres pestañas:
           <ul className="list-disc list-inside mt-2 space-y-1">
             <li><strong>Rubros:</strong> nombre, descripcion</li>
-            <li><strong>Vehiculos:</strong> placa, tipo_vehiculo, propietario_nombre, conductor_actual_nombre, estado</li>
+            <li>
+              <strong>Vehiculos:</strong> placa, tipo_vehiculo, propietario_nombre, conductor_actual_nombre, estado
+              <br />
+              <span className="text-xs text-muted-foreground ml-4">
+                Tipos válidos: automovil, bus, buseta, camioneta, campero, escalera, micro, microbus 
+                (con variantes _municipal o _intermunicipal)
+              </span>
+            </li>
             <li><strong>Cartera_Pendiente:</strong> placa_vehiculo, nombre_rubro, periodo, valor_cargado, saldo_pendiente, estado_deuda</li>
           </ul>
         </AlertDescription>
