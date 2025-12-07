@@ -181,9 +181,18 @@ export default function ConfiguracionCobros() {
         }
     };
 
+    // Helper para formatear moneda/números
+    const formatCurrency = (value) => {
+        if (value === undefined || value === null || value === "") return "";
+        const num = parseFloat(value);
+        if (isNaN(num)) return value;
+        return new Intl.NumberFormat('es-CO').format(num);
+    };
+
     const handleUpdatePoliza = async (item, nuevoValor) => {
         try {
-            const valor = parseFloat(nuevoValor);
+            const valorClean = String(nuevoValor).replace(/\./g, "");
+            const valor = parseFloat(valorClean);
             if (isNaN(valor)) return;
 
             const payload = {
@@ -354,9 +363,9 @@ export default function ConfiguracionCobros() {
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-muted-foreground">$</span>
                                                         <Input
-                                                            type="number"
+                                                            type="text"
                                                             className="h-8 w-32"
-                                                            defaultValue={item.valor}
+                                                            defaultValue={formatCurrency(item.valor)}
                                                             onBlur={(e) => handleUpdatePoliza(item, e.target.value)}
                                                         />
                                                     </div>
@@ -394,7 +403,7 @@ export default function ConfiguracionCobros() {
                                                                 {item.tipo_vehiculo}
                                                             </span>
                                                         </td>
-                                                        <td className="px-4 py-3 font-mono">${item.valor}</td>
+                                                        <td className="px-4 py-3 font-mono">${formatCurrency(item.valor)}</td>
                                                         <td className="px-4 py-3">{item.fecha_inicio_vigencia}</td>
                                                     </>
                                                 )}
