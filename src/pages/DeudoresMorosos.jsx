@@ -149,23 +149,23 @@ export default function DeudoresMorosos() {
             doc.text("Cobro prejudicial por obligaciones pendientes.", margin + 22, y);
             y += 12;
 
-            // Formatear valores
-            const deudaFormateada = parseFloat(item.total_deuda).toLocaleString('es-CO', { 
+            // Formatear valores - Usar MORA (deuda vencida), no deuda total
+            const moraFormateada = parseFloat(item.total_mora || 0).toLocaleString('es-CO', { 
                 style: 'currency', 
                 currency: 'COP',
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             });
 
-            // Obtener concepto de rubros si existe, sino usar genérico
-            const conceptoDeuda = item.rubros_pendientes 
-                ? item.rubros_pendientes 
+            // Obtener rubros en MORA (solo deudas vencidas)
+            const conceptoDeuda = item.rubros_mora 
+                ? item.rubros_mora 
                 : "obligaciones de afiliación y administración";
 
             const lineHeight = 6;
 
             // Cuerpo del documento - Párrafo 1
-            const parrafo1 = `Por medio de la presente, SOTRAPEÑOL LTDA le informa que, debido al incumplimiento de las obligaciones a su cargo como afiliado a esta empresa, por concepto de ${conceptoDeuda}, que a la fecha se encuentran en mora, por un valor de ${deudaFormateada}, obligación derivada del contrato de vinculación y/o administración celebrado entre usted y la empresa; por lo que, le hacemos este requerimiento con el fin de que se ponga al día en sus obligaciones, de lo contrario, nos faculta para iniciar en su contra, sin necesidad de nuevos avisos, el proceso judicial ante un juez de la república, para que la obligación preste mérito ejecutivo y se puedan pedir medidas cautelares (embargo y secuestro) de bienes que se encuentren a su nombre, con el fin de obtener el pago forzoso de las obligaciones pendientes.`;
+            const parrafo1 = `Por medio de la presente, SOTRAPEÑOL LTDA le informa que, debido al incumplimiento de las obligaciones a su cargo como afiliado a esta empresa, por concepto de ${conceptoDeuda}, que a la fecha se encuentran en mora, por un valor de ${moraFormateada}, obligación derivada del contrato de vinculación y/o administración celebrado entre usted y la empresa; por lo que, le hacemos este requerimiento con el fin de que se ponga al día en sus obligaciones, de lo contrario, nos faculta para iniciar en su contra, sin necesidad de nuevos avisos, el proceso judicial ante un juez de la república, para que la obligación preste mérito ejecutivo y se puedan pedir medidas cautelares (embargo y secuestro) de bienes que se encuentren a su nombre, con el fin de obtener el pago forzoso de las obligaciones pendientes.`;
             
             y = drawJustifiedText(parrafo1, margin, y, textWidth, lineHeight, 11);
             y += 4;
@@ -318,6 +318,7 @@ export default function DeudoresMorosos() {
                                         <th className="px-4 py-3 text-left text-sm font-semibold">Placa</th>
                                         <th className="px-4 py-3 text-left text-sm font-semibold">Conductor</th>
                                         <th className="px-4 py-3 text-right text-sm font-semibold">Deuda Total</th>
+                                        <th className="px-4 py-3 text-right text-sm font-semibold">Total Mora</th>
                                         <th className="px-4 py-3 text-right text-sm font-semibold">Límite</th>
                                         <th className="px-4 py-3 text-center text-sm font-semibold">Uso Cupo</th>
                                         <th className="px-4 py-3 text-center text-sm font-semibold">Estado</th>
@@ -329,14 +330,14 @@ export default function DeudoresMorosos() {
                                         <tr key={item.placa} className="border-b hover:bg-muted/30 transition-colors">
                                             <td className="px-4 py-3 font-medium">{item.placa}</td>
                                             <td className="px-4 py-3 text-muted-foreground">{item.conductor}</td>
-                                            <td className={`px-4 py-3 text-right font-mono font-medium ${item.estado_semaforo === 'rojo' ? 'text-red-600' :
-                                                item.estado_semaforo === 'amarillo' ? 'text-yellow-600' :
-                                                    'text-green-600'
-                                                }`}>
-                                                ${parseFloat(item.total_deuda).toLocaleString('es-CO', { minimumFractionDigits: 2 })}
+                                            <td className="px-4 py-3 text-right font-mono text-muted-foreground">
+                                                ${parseFloat(item.total_deuda).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
+                                            </td>
+                                            <td className={`px-4 py-3 text-right font-mono font-medium ${parseFloat(item.total_mora) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                                ${parseFloat(item.total_mora || 0).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
                                             </td>
                                             <td className="px-4 py-3 text-right font-mono text-muted-foreground">
-                                                ${parseFloat(item.limite_deuda).toLocaleString('es-CO', { minimumFractionDigits: 2 })}
+                                                ${parseFloat(item.limite_deuda).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
                                             </td>
                                             <td className="px-4 py-3 text-center">
                                                 <span className="font-bold">{item.porcentaje_deuda}%</span>
@@ -352,8 +353,9 @@ export default function DeudoresMorosos() {
                                                     onClick={() => generateCobroJuridicoPDF(item)}
                                                     className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
                                                     title="Generar Carta de Cobro Jurídico"
+                                                    disabled={parseFloat(item.total_mora || 0) === 0}
                                                 >
-                                                    <FileText className="h-4 w-4" />
+                                                    <FileText className={`h-4 w-4 ${parseFloat(item.total_mora || 0) === 0 ? 'opacity-30' : ''}`} />
                                                 </button>
                                             </td>
                                         </tr>
