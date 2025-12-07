@@ -53,7 +53,7 @@ export default function Taquilla() {
 
 
   // Estado para el formulario de pago
-  const [medioPago, setMedioPago] = useState("efectivo");
+  const [medioPago, setMedioPago] = useState("transferencia");
   const [observacion, setObservacion] = useState("");
 
   // Estados para el filtro de fecha
