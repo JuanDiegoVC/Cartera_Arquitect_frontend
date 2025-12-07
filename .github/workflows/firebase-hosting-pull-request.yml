@@ -1,0 +1,84 @@
+# =============================================================================
+# SOTRAPEÑOL - Deploy Preview to Firebase Hosting (Pull Requests)
+# =============================================================================
+# Este workflow se ejecuta en cada Pull Request
+# Crea una URL de preview temporal para revisar los cambios antes del merge
+# La URL de preview se comenta automáticamente en el PR
+# =============================================================================
+
+name: 🔍 Deploy Preview to Firebase Hosting
+
+on: 
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  build_and_preview:
+    name: 📦 Build & Deploy Preview
+    # Solo ejecutar si el PR viene del mismo repositorio (seguridad)
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run linter
+        run: npm run lint
+        continue-on-error: true
+
+      - name: 🏗️ Build application
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL}}
+          CI: true
+
+      - name: ✅ Verify build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed - dist folder not found"
+            exit 1
+          fi
+          echo "✅ Build successful"
+          echo "📊 Build size:"
+          du -sh dist/
+
+      - name: 🔥 Deploy Preview to Firebase Hosting
+        id: firebase_deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SOTRAPENOL_CARTERA }}
+          projectId: sotrapenol-cartera
+          # Sin channelId = crea preview automático con URL temporal
+
+      - name: 📢 Preview Summary
+        if: success()
+        run: |
+          echo "=========================================="
+          echo "🔍 PREVIEW DEPLOYMENT SUCCESSFUL!"
+          echo "=========================================="
+          echo "📅 Deployed at: $(date)"
+          echo "🔖 PR: #${{ github.event.pull_request.number }}"
+          echo "📝 Title: ${{ github.event.pull_request.title }}"
+          echo "👤 Author: ${{ github.event.pull_request.user.login }}"
+          echo "=========================================="
+          echo "ℹ️  La URL de preview se publicará como comentario en el PR"
+          echo "=========================================="
