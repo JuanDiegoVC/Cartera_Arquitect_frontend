@@ -83,13 +83,11 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
     vehiculos: [],
     cartera_pendiente: [],
   });
-  const [resumen, setResumen] = useState({});
   const [validacion, setValidacion] = useState({ errores: [], advertencias: [] });
   const [resultado, setResultado] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   // Loading states
-  const [isUploading, setIsUploading] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isRevalidating, setIsRevalidating] = useState(false);
 
@@ -100,7 +98,6 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
     setStep(STEPS.UPLOAD);
     setActiveTab("rubros");
     setPreviewData({ rubros: [], vehiculos: [], cartera_pendiente: [] });
-    setResumen({});
     setValidacion({ errores: [], advertencias: [] });
     setResultado(null);
     setErrorMessage("");
@@ -135,7 +132,6 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
     }
 
     setFileName(file.name);
-    setIsUploading(true);
     setStep(STEPS.LOADING);
     setUploadProgress(0);
 
@@ -152,7 +148,6 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
 
       if (response.success) {
         setPreviewData(response.data);
-        setResumen(response.resumen);
         setValidacion(response.validacion);
         setStep(STEPS.PREVIEW);
         
@@ -180,8 +175,6 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       toast.error("Error al procesar", {
         description: "Verifique el formato del archivo",
       });
-    } finally {
-      setIsUploading(false);
     }
   }, []);
 
@@ -295,7 +288,6 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       if (response.success) {
         // Actualizar datos con los flags actualizados
         setPreviewData(response.data);
-        setResumen(response.resumen);
         setValidacion(response.validacion);
 
         if (response.validacion.errores.length === 0) {
@@ -414,7 +406,14 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
           El archivo Excel debe contener tres pestañas:
           <ul className="list-disc list-inside mt-2 space-y-1">
             <li><strong>Rubros:</strong> nombre, descripcion</li>
-            <li><strong>Vehiculos:</strong> placa, tipo_vehiculo, propietario_nombre, conductor_actual_nombre, estado</li>
+            <li>
+              <strong>Vehiculos:</strong> placa, tipo_vehiculo, propietario_nombre, conductor_actual_nombre, estado
+              <br />
+              <span className="text-xs text-muted-foreground ml-4">
+                Tipos válidos: automovil, bus, buseta, camioneta, campero, escalera, micro, microbus 
+                (con variantes _municipal o _intermunicipal)
+              </span>
+            </li>
             <li><strong>Cartera_Pendiente:</strong> placa_vehiculo, nombre_rubro, periodo, valor_cargado, saldo_pendiente, estado_deuda</li>
           </ul>
         </AlertDescription>

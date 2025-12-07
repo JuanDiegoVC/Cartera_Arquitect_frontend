@@ -59,16 +59,30 @@ export const isValidEmail = (email) => {
 };
 
 export const VEHICLE_TYPES = [
-  { value: "automovil_intermunicipal", label: "Automóvil Intermunicipal" },
+  { value: "automovil", label: "Automóvil" },
   { value: "automovil_municipal", label: "Automóvil Municipal" },
-  { value: "bus_buseta_intermunicipal", label: "Bus-Buseta Intermunicipal" },
-  { value: "camioneta_intermunicipal", label: "Camioneta Intermunicipal" },
-  { value: "campero_municipal", label: "Campero Municipal" },
-  { value: "escalera", label: "Escalera" },
-  { value: "microbus_municipal", label: "Microbus Municipal" },
-  { value: "microbus_intermunicipal", label: "Microbus Intermunicipal" },
+  { value: "automovil_intermunicipal", label: "Automóvil Intermunicipal" },
+  { value: "bus", label: "Bus" },
   { value: "bus_municipal", label: "Bus Municipal" },
-  { value: "otro", label: "Otro" },
+  { value: "bus_intermunicipal", label: "Bus Intermunicipal" },
+  { value: "buseta", label: "Buseta" },
+  { value: "buseta_municipal", label: "Buseta Municipal" },
+  { value: "buseta_intermunicipal", label: "Buseta Intermunicipal" },
+  { value: "camioneta", label: "Camioneta" },
+  { value: "camioneta_municipal", label: "Camioneta Municipal" },
+  { value: "camioneta_intermunicipal", label: "Camioneta Intermunicipal" },
+  { value: "campero", label: "Campero" },
+  { value: "campero_municipal", label: "Campero Municipal" },
+  { value: "campero_intermunicipal", label: "Campero Intermunicipal" },
+  { value: "escalera", label: "Escalera" },
+  { value: "escalera_municipal", label: "Escalera Municipal" },
+  { value: "escalera_intermunicipal", label: "Escalera Intermunicipal" },
+  { value: "micro", label: "Micro" },
+  { value: "micro_municipal", label: "Micro Municipal" },
+  { value: "micro_intermunicipal", label: "Micro Intermunicipal" },
+  { value: "microbus", label: "Microbús" },
+  { value: "microbus_municipal", label: "Microbús Municipal" },
+  { value: "microbus_intermunicipal", label: "Microbús Intermunicipal" },
 ];
 
 /**

@@ -34,7 +34,7 @@ Name: VITE_API_URL_DEV
 Value: http://localhost:8000/api
 (O tu URL de desarrollo)
 
-Name: VITE_API_URL_PROD
+Name: VITE_API_URL
 Value: https://api.example.com/api
 (Tu URL de producción)
 ```
@@ -79,7 +79,7 @@ Deberías ver:
 - DEPLOY_USER_DEV
 - DEPLOY_USER_PROD
 - VITE_API_URL_DEV
-- VITE_API_URL_PROD
+- VITE_API_URL
 
 ## ✅ Probar CI
 
@@ -182,7 +182,7 @@ Opcional: Repite para rama `develop` si lo deseas.
 ### Checklist de Configuración
 
 - [ ] VITE_API_URL_DEV configurado
-- [ ] VITE_API_URL_PROD configurado
+- [ ] VITE_API_URL configurado
 - [ ] DEPLOY_KEY_DEV configurado
 - [ ] DEPLOY_HOST_DEV configurado
 - [ ] DEPLOY_USER_DEV configurado

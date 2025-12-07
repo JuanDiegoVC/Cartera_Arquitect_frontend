@@ -1,10 +1,11 @@
 name: Frontend CI
 
 on:
+  # CI se ejecuta en push a develop/devOps y en PRs hacia main
   push:
-    branches: [ develop, main ]
+    branches: [ develop, devOps ]
   pull_request:
-    branches: [ develop, main ]
+    branches: [ main ]
 
 jobs:
   lint-and-build:
@@ -40,9 +41,7 @@ jobs:
         fi
 
     - name: Build application
-      run: npm run build
-      env:
-        VITE_API_URL: ${{ secrets.VITE_API_URL_DEV || 'http://localhost:8000/api' }}
+      run: npm run build      
 
     - name: Check build output
       run: |
