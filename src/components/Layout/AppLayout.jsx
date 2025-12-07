@@ -1,6 +1,7 @@
 import { SidebarProvider } from "../ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
+import { FloatingHelpButton } from "./FloatingHelpButton";
 
 export function AppLayout({ children }) {
   return (
@@ -13,6 +14,8 @@ export function AppLayout({ children }) {
             <div className="max-w-full">{children}</div>
           </main>
         </div>
+        {/* Botón flotante de ayuda global */}
+        <FloatingHelpButton />
       </div>
     </SidebarProvider>
   );
