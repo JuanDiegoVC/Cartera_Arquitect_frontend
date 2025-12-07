@@ -225,7 +225,7 @@ firebase login:ci
 | Secreto | Descripción | Requerido |
 |---------|-------------|-----------|
 | `FIREBASE_SERVICE_ACCOUNT_SOTRAPENOL_CARTERA` | Service account de Firebase | ✅ Sí |
-| `VITE_API_URL_PROD` | URL del API de producción | ✅ Sí |
+| `VITE_API_URL` | URL del API de producción | ✅ Sí |
 | `VITE_API_URL_DEV` | URL del API de desarrollo | Opcional |
 
 #### Backend (`sotrap-backend`)
@@ -382,7 +382,7 @@ jobs:
       - name: Build with production API
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL_PROD }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
       
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

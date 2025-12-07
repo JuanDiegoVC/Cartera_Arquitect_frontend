@@ -22,18 +22,7 @@ import { Checkbox } from "../components/ui/checkbox";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { cobrosService } from "../services/cobrosService";
 import { vehiculosService } from "../services/vehiculosService";
-
-const VEHICLE_TYPES = [
-    { value: "automovil_intermunicipal", label: "Automóvil Intermunicipal" },
-    { value: "automovil_municipal", label: "Automóvil Municipal" },
-    { value: "bus_buseta_intermunicipal", label: "Bus-Buseta Intermunicipal" },
-    { value: "camioneta_intermunicipal", label: "Camioneta Intermunicipal" },
-    { value: "campero_municipal", label: "Campero Municipal" },
-    { value: "escalera", label: "Escalera" },
-    { value: "microbus_municipal", label: "Microbus Municipal" },
-    { value: "microbus_intermunicipal", label: "Microbus Intermunicipal" },
-    { value: "bus_municipal", label: "Bus Municipal" },
-];
+import { VEHICLE_TYPES } from "../utils/formatters";
 
 export default function ConfiguracionCobros() {
     const [activeTab, setActiveTab] = useState("rubros");
@@ -306,7 +295,6 @@ export default function ConfiguracionCobros() {
                                 {VEHICLE_TYPES.map(type => (
                                     <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                                 ))}
-                                <SelectItem value="otro">Otro</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

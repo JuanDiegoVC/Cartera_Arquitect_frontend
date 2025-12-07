@@ -90,7 +90,7 @@ firebase hosting:channel:list
 | Secreto | Descripción |
 |---------|-------------|
 | `FIREBASE_SERVICE_ACCOUNT_SOTRAPENOL_CARTERA` | ✅ Auto-configurado |
-| `VITE_API_URL_PROD` | URL del API de producción |
+| `VITE_API_URL` | URL del API de producción |
 
 ### Backend (`sotrap-backend`)
 | Secreto | Descripción |
