@@ -55,70 +55,176 @@ export default function DeudoresMorosos() {
     const generateCobroJuridicoPDF = (item) => {
         import('jspdf').then(({ jsPDF }) => {
             const doc = new jsPDF();
-            const margin = 20;
-            let y = 20;
-            const lineHeight = 7;
+            const margin = 25;
+            let y = 30;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const textWidth = pageWidth - (margin * 2);
 
-            // Header
-            doc.setFontSize(16);
+            // Configurar fuente Arial 11 (helvetica es el equivalente en jsPDF)
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(11);
+
+            // Función para justificar texto
+            const justifyText = (text, maxWidth, fontSize) => {
+                doc.setFontSize(fontSize);
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = '';
+
+                words.forEach(word => {
+                    const testLine = currentLine ? currentLine + ' ' + word : word;
+                    const testWidth = doc.getTextWidth(testLine);
+                    if (testWidth > maxWidth && currentLine) {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = testLine;
+                    }
+                });
+                if (currentLine) {
+                    lines.push(currentLine);
+                }
+                return lines;
+            };
+
+            const drawJustifiedText = (text, x, startY, maxWidth, lineHeight, fontSize) => {
+                const lines = justifyText(text, maxWidth, fontSize);
+                let currentY = startY;
+
+                lines.forEach((line, index) => {
+                    const isLastLine = index === lines.length - 1;
+                    
+                    if (isLastLine) {
+                        // Última línea: alineación normal a la izquierda
+                        doc.text(line, x, currentY);
+                    } else {
+                        // Líneas intermedias: justificadas
+                        const words = line.split(' ');
+                        if (words.length === 1) {
+                            doc.text(line, x, currentY);
+                        } else {
+                            const lineWidth = doc.getTextWidth(line);
+                            const totalSpaceWidth = maxWidth - lineWidth + (doc.getTextWidth(' ') * (words.length - 1));
+                            const spaceWidth = totalSpaceWidth / (words.length - 1);
+                            
+                            let currentX = x;
+                            words.forEach((word, wordIndex) => {
+                                doc.text(word, currentX, currentY);
+                                if (wordIndex < words.length - 1) {
+                                    currentX += doc.getTextWidth(word) + spaceWidth;
+                                }
+                            });
+                        }
+                    }
+                    currentY += lineHeight;
+                });
+
+                return currentY;
+            };
+
+            // Fecha en formato largo (ej: "3 de diciembre de 2025")
+            const fecha = new Date();
+            const dia = fecha.getDate();
+            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            const mes = meses[fecha.getMonth()];
+            const año = fecha.getFullYear();
+            const fechaFormateada = `${dia} de ${mes} de ${año}`;
+
+            // Fecha
+            doc.text(`Medellín, ${fechaFormateada}`, margin, y);
+            y += 12;
+
+            // Destinatario
+            doc.text("Señor(a)", margin, y);
+            y += 6;
             doc.setFont("helvetica", "bold");
-            doc.text("SOTRAPEÑOL", 105, y, { align: "center" });
+            doc.text(item.conductor.toUpperCase(), margin, y);
             y += 10;
-            doc.setFontSize(10);
-            doc.text("NIT: 800.123.456-7", 105, y, { align: "center" });
-            y += 20;
 
-            // Date
-            const date = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
-            doc.setFont("helvetica", "normal");
-            doc.text(`Medellín, ${date}`, margin, y);
-            y += 15;
-
-            // Recipient
+            // Referencia
             doc.setFont("helvetica", "bold");
-            doc.text(`Señor(a):`, margin, y);
-            y += 5;
-            doc.text(`${item.conductor}`, margin, y);
-            y += 5;
-            doc.text(`Conductor Vehículo Placa: ${item.placa}`, margin, y);
-            y += 15;
-
-            // Subject
-            doc.setFontSize(11);
-            doc.text("ASUNTO: NOTIFICACIÓN DE COBRO PRE-JURÍDICO", margin, y);
-            y += 15;
-
-            // Body
+            doc.text("Referencia: ", margin, y);
             doc.setFont("helvetica", "normal");
-            doc.setFontSize(11);
+            doc.text("Cobro prejudicial por obligaciones pendientes.", margin + 22, y);
+            y += 12;
 
-            const deuda = parseFloat(item.total_deuda).toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+            // Formatear valores
+            const deudaFormateada = parseFloat(item.total_deuda).toLocaleString('es-CO', { 
+                style: 'currency', 
+                currency: 'COP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
 
-            const text = `Respetado(a) señor(a),
+            // Obtener concepto de rubros si existe, sino usar genérico
+            const conceptoDeuda = item.rubros_pendientes 
+                ? item.rubros_pendientes 
+                : "obligaciones de afiliación y administración";
 
-Por medio de la presente comunicación, nos permitimos informarle que a la fecha de corte, el vehículo de placas ${item.placa} presenta un saldo en mora pendiente de pago por valor de ${deuda} por concepto de obligaciones con la empresa SOTRAPEÑOL.
+            const lineHeight = 6;
 
-El objetivo de esta comunicación es invitarle formalmente a cancelar la totalidad de la deuda o acercarse a nuestras oficinas administrativas en un plazo no mayor a tres (3) días hábiles contados a partir de la recepción de esta misiva, con el fin de llegar a un acuerdo de pago y normalizar su estado de cuenta.
+            // Cuerpo del documento - Párrafo 1
+            const parrafo1 = `Por medio de la presente, SOTRAPEÑOL LTDA le informa que, debido al incumplimiento de las obligaciones a su cargo como afiliado a esta empresa, por concepto de ${conceptoDeuda}, que a la fecha se encuentran en mora, por un valor de ${deudaFormateada}, obligación derivada del contrato de vinculación y/o administración celebrado entre usted y la empresa; por lo que, le hacemos este requerimiento con el fin de que se ponga al día en sus obligaciones, de lo contrario, nos faculta para iniciar en su contra, sin necesidad de nuevos avisos, el proceso judicial ante un juez de la república, para que la obligación preste mérito ejecutivo y se puedan pedir medidas cautelares (embargo y secuestro) de bienes que se encuentren a su nombre, con el fin de obtener el pago forzoso de las obligaciones pendientes.`;
+            
+            y = drawJustifiedText(parrafo1, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
-Hacemos un llamado a su responsabilidad y cumplimiento para evitar el traslado de esta obligación a nuestra área jurídica. Le recordamos que el inicio de un proceso de cobro jurídico implicará para usted la asunción de costos adicionales por concepto de honorarios de abogado, intereses moratorios de ley y gastos procesales, además del posible reporte negativo en centrales de riesgo.
+            // Párrafo 2
+            const parrafo2 = `Una vez iniciado el proceso, la deuda continuará incrementándose por concepto de intereses moratorios, costas procesales y honorarios profesionales, los cuales deberán ser asumidos integralmente por usted.`;
+            
+            y = drawJustifiedText(parrafo2, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
-Agradecemos su atención y esperamos su pronta gestión para evitar inconvenientes futuros.
+            // Párrafo 3
+            const parrafo3 = `Adicionalmente, el incumplimiento de estas obligaciones, podrá generar afectaciones negativas en su historial crediticio, así como en el de cualquier codeudor o garante vinculado a la obligación.`;
+            
+            y = drawJustifiedText(parrafo3, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
-Cordialmente,`;
+            // Párrafo 4 - Plazo (5 días hábiles)
+            const parrafo4 = `Para evitar mayores perjuicios económicos, evitar un proceso jurídico y la práctica de medidas judiciales, cuenta con un plazo improrrogable de cinco (5) días hábiles siguientes a la recepción de esta comunicación, para que se ponga al día con todas las obligaciones pendientes con SOTRAPEÑOL LTDA.`;
+            
+            y = drawJustifiedText(parrafo4, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
-            const splitText = doc.splitTextToSize(text, 170);
-            doc.text(splitText, margin, y);
+            // Párrafo 5
+            const parrafo5 = `Transcurrido dicho término sin recibir respuesta, se entenderá que no existe interés de su parte, en cumplir voluntariamente y se procederá a iniciar la actuación judicial correspondiente.`;
+            
+            y = drawJustifiedText(parrafo5, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
-            y += (splitText.length * lineHeight) + 20;
+            // Párrafo 6
+            const parrafo6 = `Se le informa que, solamente el pago de las obligaciones pendientes, es el único mecanismo para detener el inicio del proceso judicial.`;
+            
+            y = drawJustifiedText(parrafo6, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
-            // Signature
+            // Nota de adjuntos
+            doc.text("Se adjuntan las facturas y soportes objeto de cobro.", margin, y);
+
+            // ========== PÁGINA 2 ==========
+            doc.addPage();
+            y = 30;
+
+            // Despedida
+            doc.text("Atentamente,", margin, y);
+            y += 15;
+
+            // Firma
             doc.setFont("helvetica", "bold");
-            doc.text("DEPARTAMENTO DE COBROS Y CARTERA", margin, y);
-            y += 5;
-            doc.text("SOTRAPEÑOL", margin, y);
+            doc.text("JHON JAIRO RAMÍREZ ATEHORTÚA", margin, y);
+            y += 6;
+            doc.setFont("helvetica", "normal");
+            doc.text("C.C. 71.773.489", margin, y);
+            y += 6;
+            doc.text("Representante Legal", margin, y);
+            y += 6;
+            doc.setFont("helvetica", "bold");
+            doc.text("SOTRAPEÑOL LTDA", margin, y);
 
-            // Save
-            doc.save(`Cobro_Juridico_${item.placa}.pdf`);
+            // Guardar PDF
+            doc.save(`Carta_Cobro_Prejudicial_${item.placa}_${fecha.toISOString().split('T')[0]}.pdf`);
         });
     };
 

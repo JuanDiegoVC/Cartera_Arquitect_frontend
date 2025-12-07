@@ -1,37 +1,98 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { usuariosService } from "../services/usuariosService";
+import { authService } from "../services/authService";
 
 const ThemeContext = createContext(undefined);
 
 export function ThemeProvider({ children }) {
-  // Inicializar desde localStorage o usar 'light' por defecto
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem("sotrap-theme");
-    return savedTheme || "light";
-  });
+  // Inicializar con 'light' por defecto (el tema real se cargará de la BD)
+  const [theme, setThemeState] = useState("light");
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Aplicar el tema al documento cuando cambie
-  useEffect(() => {
+  // Cargar el tema del usuario desde la API cuando el usuario esté autenticado
+  const loadUserTheme = useCallback(async () => {
+    const token = authService.getAccessToken();
+    if (token) {
+      try {
+        const response = await usuariosService.getTheme();
+        const userTheme = response.tema_preferido || "light";
+        setThemeState(userTheme);
+        applyTheme(userTheme);
+      } catch (error) {
+        console.error("Error al cargar tema del usuario:", error);
+        // Si falla, usar el tema del localStorage como fallback
+        const savedTheme = localStorage.getItem("sotrap-theme") || "light";
+        setThemeState(savedTheme);
+        applyTheme(savedTheme);
+      }
+    } else {
+      // Usuario no autenticado: usar localStorage o 'light' por defecto
+      const savedTheme = localStorage.getItem("sotrap-theme") || "light";
+      setThemeState(savedTheme);
+      applyTheme(savedTheme);
+    }
+    setIsLoading(false);
+  }, []);
+
+  // Aplicar el tema al documento
+  const applyTheme = (newTheme) => {
     const root = window.document.documentElement;
-    
-    // Remover clases anteriores
     root.classList.remove("light", "dark");
+    root.classList.add(newTheme);
+    // Mantener localStorage como cache local
+    localStorage.setItem("sotrap-theme", newTheme);
+  };
+
+  // Cargar tema inicial
+  useEffect(() => {
+    loadUserTheme();
+  }, [loadUserTheme]);
+
+  // Escuchar cambios de autenticación para recargar el tema
+  useEffect(() => {
+    // Escuchar evento de login para recargar el tema del nuevo usuario
+    const handleStorageChange = (e) => {
+      if (e.key === "sotrap_access_token") {
+        loadUserTheme();
+      }
+    };
     
-    // Agregar la clase del tema actual
-    root.classList.add(theme);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [loadUserTheme]);
+
+  // Función para cambiar el tema (guarda en BD si está autenticado)
+  const setTheme = async (newTheme) => {
+    setThemeState(newTheme);
+    applyTheme(newTheme);
     
-    // Guardar en localStorage
-    localStorage.setItem("sotrap-theme", theme);
-  }, [theme]);
+    const token = authService.getAccessToken();
+    if (token) {
+      try {
+        await usuariosService.updateTheme(newTheme);
+      } catch (error) {
+        console.error("Error al guardar tema en servidor:", error);
+      }
+    }
+  };
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+  };
+
+  // Función para recargar el tema (llamar después del login)
+  const refreshTheme = () => {
+    loadUserTheme();
   };
 
   const value = {
     theme,
     setTheme,
     toggleTheme,
+    refreshTheme,
     isDark: theme === "dark",
+    isLoading,
   };
 
   return (

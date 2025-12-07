@@ -28,7 +28,7 @@ import { useAuth } from "../hooks/useAuth";
  * Implementa RF-004 y RF-008: Exportación a Excel con filtros
  */
 export default function VehiculosLista() {
-  const { isAdministrador } = useAuth();
+  const { isAdministrador, isGerente } = useAuth();
   const location = useLocation();
   const [vehiculos, setVehiculos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -218,8 +218,8 @@ export default function VehiculosLista() {
       console.error("Error al guardar:", err);
       alert(
         err.mensaje ||
-        err.detail ||
-        "Error al guardar el vehículo. Verifique los datos."
+          err.detail ||
+          "Error al guardar el vehículo. Verifique los datos."
       );
     } finally {
       setSaving(false);
@@ -238,10 +238,12 @@ export default function VehiculosLista() {
             Gestione y exporte el registro completo de vehículos afiliados
           </p>
         </div>
-        <Button onClick={handleCreate}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Vehículo
-        </Button>
+        {(isAdministrador() || isGerente()) && (
+          <Button onClick={handleCreate}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Vehículo
+          </Button>
+        )}
       </div>
 
       {/* Filtros y Exportación */}
@@ -475,7 +477,10 @@ export default function VehiculosLista() {
                   id="placa"
                   value={formData.placa}
                   onChange={(e) =>
-                    setFormData({ ...formData, placa: e.target.value.toUpperCase() })
+                    setFormData({
+                      ...formData,
+                      placa: e.target.value.toUpperCase(),
+                    })
                   }
                   placeholder="ABC123"
                   disabled={!!editingVehicle} // No editar placa una vez creado
@@ -505,7 +510,10 @@ export default function VehiculosLista() {
                   id="propietario"
                   value={formData.propietario_nombre}
                   onChange={(e) =>
-                    setFormData({ ...formData, propietario_nombre: e.target.value })
+                    setFormData({
+                      ...formData,
+                      propietario_nombre: e.target.value,
+                    })
                   }
                   placeholder="Nombre completo"
                 />

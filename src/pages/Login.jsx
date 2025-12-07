@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../context/ThemeContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
@@ -18,6 +19,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
+  const { refreshTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -27,6 +29,8 @@ const Login = () => {
 
     try {
       await login(email, password);
+      // Cargar el tema del usuario después del login exitoso
+      await refreshTheme();
       navigate('/');
     } catch (err) {
       setError(err.detail || 'Error al iniciar sesión. Verifica tus credenciales.');

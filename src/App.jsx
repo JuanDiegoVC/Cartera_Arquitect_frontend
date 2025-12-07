@@ -23,10 +23,12 @@ import NotificacionesConfig from "./pages/NotificacionesConfig";
 import GenerarFacturacion from "./pages/GenerarFacturacion";
 import GestionEgresos from "./pages/GestionEgresos";
 import ConfiguracionEgresos from "./pages/ConfiguracionEgresos";
+import HistorialEgresos from "./pages/HistorialEgresos";
 import CierreDeTurno from "./pages/CierreDeTurno";
 import Auditoria from "./pages/Auditoria";
 import HistorialPagos from "./pages/HistorialPagos";
 import Usuarios from "./pages/Usuarios";
+import Rendimiento from "./pages/Rendimiento";
 import { Toaster } from "sonner";
 import "./App.css";
 
@@ -40,10 +42,11 @@ function App() {
             <Route path="/login" element={<Login />} />
 
             {/* Rutas protegidas con layout */}
+            {/* Dashboard - Solo administrador y gerente */}
             <Route
               path="/"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
                   <AppLayout>
                     <Dashboard />
                   </AppLayout>
@@ -74,6 +77,18 @@ function App() {
                 >
                   <AppLayout>
                     <GestionEgresos />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Historial de Egresos - Solo gerente y administrador */}
+            <Route
+              path="/egresos/historial"
+              element={
+                <ProtectedRoute allowedRoles={["gerente", "administrador"]}>
+                  <AppLayout>
+                    <HistorialEgresos />
                   </AppLayout>
                 </ProtectedRoute>
               }
@@ -188,13 +203,13 @@ function App() {
               }
             />
 
-
-
-            {/* Configuración - Administrador y gerente */}
+            {/* Configuración - Todos (taquilla solo ve General) */}
             <Route
               path="/configuracion"
               element={
-                <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                <ProtectedRoute
+                  allowedRoles={["taquilla", "administrador", "gerente"]}
+                >
                   <AppLayout>
                     <Configuracion />
                   </AppLayout>
@@ -238,7 +253,9 @@ function App() {
             <Route
               path="/configuracion/general"
               element={
-                <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                <ProtectedRoute
+                  allowedRoles={["taquilla", "administrador", "gerente"]}
+                >
                   <AppLayout>
                     <ConfiguracionGeneral />
                   </AppLayout>
@@ -264,6 +281,18 @@ function App() {
                 <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
                   <AppLayout>
                     <Auditoria />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rendimiento (Analytics) - Solo administrador y gerente */}
+            <Route
+              path="/rendimiento"
+              element={
+                <ProtectedRoute allowedRoles={["administrador", "gerente"]}>
+                  <AppLayout>
+                    <Rendimiento />
                   </AppLayout>
                 </ProtectedRoute>
               }

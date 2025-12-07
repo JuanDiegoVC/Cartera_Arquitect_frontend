@@ -42,6 +42,8 @@ import {
 import { reportesService } from "@/services/reportesService";
 import { toast } from "sonner";
 import BotonDescargarCierreTurno from "@/components/Reportes/BotonDescargarCierreTurno";
+import CierreTurnoDocument from "@/components/Reportes/CierreTurnoDocument";
+import { pdf } from "@react-pdf/renderer";
 import { useAuth } from "@/hooks/useAuth";
 
 /**
@@ -57,7 +59,7 @@ import { useAuth } from "@/hooks/useAuth";
  */
 
 // Constantes para horarios de cierre
-const HORA_HABILITAR_BOTON = { hora: 18, minuto: 10 }; // 6:10 PM
+const HORA_HABILITAR_BOTON = { hora: 19, minuto: 0 }; // 7:00 PM
 const HORA_CIERRE_AUTOMATICO = { hora: 23, minuto: 59 }; // 11:59 PM
 
 const CierreDeTurno = () => {
@@ -69,11 +71,10 @@ const CierreDeTurno = () => {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
-  
+
   // Estados para control de horario de cierre
   const [botonHabilitado, setBotonHabilitado] = useState(false);
   const [cierreGuardadoHoy, setCierreGuardadoHoy] = useState(false);
-  const [horaActual, setHoraActual] = useState(new Date());
 
   // Estados para filtros
   const [filtroPlaca, setFiltroPlaca] = useState("");
@@ -105,30 +106,35 @@ const CierreDeTurno = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vistaActual]);
 
-  // Verificar si el botón debe estar habilitado (después de las 6:10 PM)
+  // Verificar si el botón debe estar habilitado (después de las 7:00 PM)
   const verificarHorarioBoton = () => {
     const ahora = new Date();
     const horaActualMinutos = ahora.getHours() * 60 + ahora.getMinutes();
-    const horaHabilitarMinutos = HORA_HABILITAR_BOTON.hora * 60 + HORA_HABILITAR_BOTON.minuto;
+    const horaHabilitarMinutos =
+      HORA_HABILITAR_BOTON.hora * 60 + HORA_HABILITAR_BOTON.minuto;
     return horaActualMinutos >= horaHabilitarMinutos;
   };
 
   // Efecto para actualizar la hora y verificar horarios cada minuto
   useEffect(() => {
     const verificarHorarios = () => {
-      const ahora = new Date();
-      setHoraActual(ahora);
-      
       // Verificar si debe habilitarse el botón
       const debeHabilitar = verificarHorarioBoton();
       setBotonHabilitado(debeHabilitar);
-      
+
       // Verificar si es hora de cierre automático (11:59 PM)
+      const ahora = new Date();
       const horaActualMinutos = ahora.getHours() * 60 + ahora.getMinutes();
-      const horaCierreMinutos = HORA_CIERRE_AUTOMATICO.hora * 60 + HORA_CIERRE_AUTOMATICO.minuto;
-      
-      if (horaActualMinutos === horaCierreMinutos && !cierreGuardadoHoy && datos) {
+      const horaCierreMinutos =
+        HORA_CIERRE_AUTOMATICO.hora * 60 + HORA_CIERRE_AUTOMATICO.minuto;
+
+      if (
+        horaActualMinutos === horaCierreMinutos &&
+        !cierreGuardadoHoy &&
+        datos
+      ) {
         console.log("Ejecutando cierre automático a las 11:59 PM");
+        // Llamar al guardado automático - no agregamos a deps porque solo se ejecuta en la condición específica
         guardarCierreAutomatico("Cierre automático programado (11:59 PM)");
       }
     };
@@ -140,12 +146,13 @@ const CierreDeTurno = () => {
     const intervalo = setInterval(verificarHorarios, 60000);
 
     return () => clearInterval(intervalo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datos, cierreGuardadoHoy]);
 
   // Efecto para manejar el cierre de sesión y guardar automáticamente
   useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      // Solo intentar guardar si estamos después de las 6:10 PM y no se ha guardado
+    const handleBeforeUnload = () => {
+      // Solo intentar guardar si estamos después de las 7:00 PM y no se ha guardado
       if (verificarHorarioBoton() && !cierreGuardadoHoy && datos) {
         // Usar sendBeacon para enviar datos antes de cerrar
         const fechaLocal = new Date();
@@ -166,20 +173,24 @@ const CierreDeTurno = () => {
         };
 
         // Intentar usar sendBeacon para mayor confiabilidad al cerrar
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-        const token = localStorage.getItem('access_token');
-        
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
         if (navigator.sendBeacon) {
-          const blob = new Blob([JSON.stringify(cierreData)], { type: 'application/json' });
-          navigator.sendBeacon(`${apiUrl}/api/reportes/cierre-turno/guardar/`, blob);
+          const blob = new Blob([JSON.stringify(cierreData)], {
+            type: "application/json",
+          });
+          navigator.sendBeacon(
+            `${apiUrl}/api/reportes/cierre-turno/guardar/`,
+            blob
+          );
         }
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [datos, cierreGuardadoHoy]);
 
@@ -197,6 +208,7 @@ const CierreDeTurno = () => {
     return () => {
       unregister();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datos, cierreGuardadoHoy, registerPreLogoutCallback]);
 
   // Función para guardar cierre automáticamente
@@ -226,12 +238,17 @@ const CierreDeTurno = () => {
       const response = await reportesService.guardarCierreTurno(cierreData);
       setCierreGuardadoHoy(true);
       toast.success("Cierre de turno guardado automáticamente", {
-        description: `${motivo}. Balance: ${formatearMoneda(response.cierre.balance_caja_fisica)}`,
+        description: `${motivo}. Balance: ${formatearMoneda(
+          response.cierre.balance_caja_fisica
+        )}`,
       });
     } catch (err) {
       console.error("Error al guardar cierre automático:", err);
       // Si es error de duplicado, marcar como ya guardado
-      if (err.detalle?.includes("ya existe") || err.error?.includes("ya existe")) {
+      if (
+        err.detalle?.includes("ya existe") ||
+        err.error?.includes("ya existe")
+      ) {
         setCierreGuardadoHoy(true);
       } else {
         toast.error("Error al guardar el cierre automático", {
@@ -278,7 +295,10 @@ const CierreDeTurno = () => {
     } catch (err) {
       console.error("Error al guardar cierre:", err);
       // Si es error de duplicado, marcar como ya guardado
-      if (err.detalle?.includes("ya existe") || err.error?.includes("ya existe")) {
+      if (
+        err.detalle?.includes("ya existe") ||
+        err.error?.includes("ya existe")
+      ) {
         setCierreGuardadoHoy(true);
         toast.info("El cierre de hoy ya fue guardado previamente");
       } else {
@@ -309,8 +329,54 @@ const CierreDeTurno = () => {
     }
   };
 
-  const handleImprimir = () => {
-    window.print();
+  const [imprimiendo, setImprimiendo] = useState(false);
+
+  const handleImprimir = async () => {
+    const datosPDFActual = prepararDatosPDF();
+    if (!datosPDFActual) {
+      toast.error("No hay datos para imprimir");
+      return;
+    }
+
+    setImprimiendo(true);
+    try {
+      // Generar el PDF con el mismo formato que el botón de descargar
+      const blob = await pdf(
+        <CierreTurnoDocument datosCierre={datosPDFActual} />
+      ).toBlob();
+
+      // Crear URL del blob
+      const url = URL.createObjectURL(blob);
+
+      // Abrir en una nueva ventana e imprimir
+      const printWindow = window.open(url, "_blank");
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      } else {
+        // Si el popup está bloqueado, descargar el archivo
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `CierreTurno_${new Date()
+          .toISOString()
+          .slice(0, 10)}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.info("El archivo PDF se ha descargado. Ábrelo para imprimir.");
+      }
+
+      // Limpiar después de un tiempo
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 60000);
+    } catch (error) {
+      console.error("Error al generar PDF para imprimir:", error);
+      toast.error("Error al generar el documento para imprimir");
+    } finally {
+      setImprimiendo(false);
+    }
   };
 
   const prepararDatosPDF = () => {
@@ -638,9 +704,22 @@ const CierreDeTurno = () => {
               variant="default"
               className="w-full md:w-auto"
             />
-            <Button onClick={handleImprimir} className="w-full md:w-auto">
-              <Printer className="h-4 w-4 mr-2" />
-              Imprimir
+            <Button
+              onClick={handleImprimir}
+              disabled={imprimiendo}
+              className="w-full md:w-auto"
+            >
+              {imprimiendo ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generando...
+                </>
+              ) : (
+                <>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Imprimir
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -839,14 +918,19 @@ const CierreDeTurno = () => {
   const calcularTiempoRestante = () => {
     const ahora = new Date();
     const horaHabilitar = new Date();
-    horaHabilitar.setHours(HORA_HABILITAR_BOTON.hora, HORA_HABILITAR_BOTON.minuto, 0, 0);
-    
+    horaHabilitar.setHours(
+      HORA_HABILITAR_BOTON.hora,
+      HORA_HABILITAR_BOTON.minuto,
+      0,
+      0
+    );
+
     if (ahora >= horaHabilitar) return null;
-    
+
     const diferencia = horaHabilitar - ahora;
     const horas = Math.floor(diferencia / (1000 * 60 * 60));
     const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (horas > 0) {
       return `${horas}h ${minutos}m`;
     }
@@ -885,11 +969,13 @@ const CierreDeTurno = () => {
             variant="default"
             className="flex-1 md:flex-none"
             title={
-              cierreGuardadoHoy 
-                ? "El cierre de hoy ya fue guardado" 
-                : !botonHabilitado 
-                  ? `Disponible a partir de las ${HORA_HABILITAR_BOTON.hora}:${String(HORA_HABILITAR_BOTON.minuto).padStart(2, '0')}` 
-                  : "Guardar cierre de turno"
+              cierreGuardadoHoy
+                ? "El cierre de hoy ya fue guardado"
+                : !botonHabilitado
+                ? `Disponible a partir de las ${
+                    HORA_HABILITAR_BOTON.hora
+                  }:${String(HORA_HABILITAR_BOTON.minuto).padStart(2, "0")}`
+                : "Guardar cierre de turno"
             }
           >
             {guardando ? (
@@ -908,9 +994,22 @@ const CierreDeTurno = () => {
               className="flex-1 md:flex-none"
             />
           )}
-          <Button onClick={handleImprimir} className="flex-1 md:flex-none">
-            <Printer className="h-4 w-4 mr-2" />
-            Imprimir
+          <Button
+            onClick={handleImprimir}
+            disabled={imprimiendo}
+            className="flex-1 md:flex-none"
+          >
+            {imprimiendo ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Generando...
+              </>
+            ) : (
+              <>
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimir
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -931,19 +1030,38 @@ const CierreDeTurno = () => {
 
       {/* Alerta informativa sobre el estado del cierre */}
       {!cierreGuardadoHoy && (
-        <Alert className={`print:hidden ${botonHabilitado ? 'border-green-200 bg-green-50 dark:bg-green-950/20' : 'border-amber-200 bg-amber-50 dark:bg-amber-950/20'}`}>
-          <Clock className={`h-4 w-4 ${botonHabilitado ? 'text-green-600' : 'text-amber-600'}`} />
-          <AlertDescription className={botonHabilitado ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'}>
+        <Alert
+          className={`print:hidden ${
+            botonHabilitado
+              ? "border-green-200 bg-green-50 dark:bg-green-950/20"
+              : "border-amber-200 bg-amber-50 dark:bg-amber-950/20"
+          }`}
+        >
+          <Clock
+            className={`h-4 w-4 ${
+              botonHabilitado ? "text-green-600" : "text-amber-600"
+            }`}
+          />
+          <AlertDescription
+            className={
+              botonHabilitado
+                ? "text-green-700 dark:text-green-400"
+                : "text-amber-700 dark:text-amber-400"
+            }
+          >
             {botonHabilitado ? (
               <>
-                <strong>El turno ha finalizado.</strong> Puede guardar el cierre ahora. 
-                Si no lo guarda manualmente, se guardará automáticamente a las 11:59 PM o al cerrar sesión.
+                <strong>El turno ha finalizado.</strong> Puede guardar el cierre
+                ahora. Si no lo guarda manualmente, se guardará automáticamente
+                a las 11:59 PM o al cerrar sesión.
               </>
             ) : (
               <>
-                <strong>Turno en curso.</strong> El botón "Guardar Cierre" se habilitará a las {HORA_HABILITAR_BOTON.hora}:{String(HORA_HABILITAR_BOTON.minuto).padStart(2, '0')} 
-                {tiempoRestante && ` (en ${tiempoRestante})`}. 
-                El cierre se guardará automáticamente si no se realiza manualmente.
+                <strong>Turno en curso.</strong> El botón "Guardar Cierre" se
+                habilitará a las {HORA_HABILITAR_BOTON.hora}:
+                {String(HORA_HABILITAR_BOTON.minuto).padStart(2, "0")}
+                {tiempoRestante && ` (en ${tiempoRestante})`}. El cierre se
+                guardará automáticamente si no se realiza manualmente.
               </>
             )}
           </AlertDescription>
@@ -954,7 +1072,8 @@ const CierreDeTurno = () => {
         <Alert className="print:hidden border-blue-200 bg-blue-50 dark:bg-blue-950/20">
           <Save className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-700 dark:text-blue-400">
-            <strong>Cierre guardado.</strong> El cierre de turno de hoy ya ha sido registrado exitosamente.
+            <strong>Cierre guardado.</strong> El cierre de turno de hoy ya ha
+            sido registrado exitosamente.
           </AlertDescription>
         </Alert>
       )}

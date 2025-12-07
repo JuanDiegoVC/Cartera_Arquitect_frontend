@@ -20,15 +20,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, DollarSign, Save, X } from "lucide-react";
+import { Loader2, DollarSign, Save, X, History } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   obtenerCategorias,
   crearEgreso,
   obtenerEgresosHoy,
 } from "@/services/egresosService";
-import { vehiculosService } from "@/services/vehiculosService";
 import { formatCurrency } from "@/utils/formatters";
 import { useCurrencyInput } from "@/hooks/useCurrencyInput";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function GestionEgresos() {
   const [categorias, setCategorias] = useState([]);
@@ -38,10 +39,9 @@ export default function GestionEgresos() {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [vehiculos, setVehiculos] = useState([]);
-  const [busquedaVehiculo, setBusquedaVehiculo] = useState("");
-  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null);
-  const [buscandoVehiculos, setBuscandoVehiculos] = useState(false);
+  const [tipoDespachador, setTipoDespachador] = useState(""); // "blancos" o "amarillos"
+  const navigate = useNavigate();
+  const { isAdministrador, isGerente } = useAuth();
 
   // Hook para formato de moneda
   const currencyInput = useCurrencyInput("");
@@ -49,7 +49,6 @@ export default function GestionEgresos() {
   // Estado del formulario
   const [formData, setFormData] = useState({
     categoria: "",
-    vehiculo: null,
     fecha_egreso: new Date().toISOString().split("T")[0],
     medio_pago: "efectivo",
     valor: "",
@@ -91,15 +90,10 @@ export default function GestionEgresos() {
     }
   };
 
-  // Categorías que requieren selección de vehículo
-  const categoriasConVehiculo = ["Parqueadero", "Seguros", "Seguro", "Poliza", "Póliza"];
-
-  // Helper para verificar si una categoría requiere vehículo
-  const categoriaRequiereVehiculo = (nombreCategoria) => {
+  // Helper para verificar si la categoría es Despachadores
+  const categoriaEsDespachadores = (nombreCategoria) => {
     if (!nombreCategoria) return false;
-    return categoriasConVehiculo.some(
-      (cat) => nombreCategoria.toLowerCase().includes(cat.toLowerCase())
-    );
+    return nombreCategoria.toLowerCase().includes("despachador");
   };
 
   const handleInputChange = (field, value) => {
@@ -108,49 +102,14 @@ export default function GestionEgresos() {
       const formatted = currencyInput.handleChange(value);
       setFormData((prev) => ({ ...prev, [field]: formatted }));
     } else if (field === "categoria") {
-      // Limpiar vehículo al cambiar categoría
-      setFormData((prev) => ({ ...prev, [field]: value, vehiculo: null }));
-      setVehiculoSeleccionado(null);
-      setBusquedaVehiculo("");
+      // Limpiar tipo de despachador al cambiar categoría
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      setTipoDespachador("");
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
     setError(null);
     setSuccess(false);
-  };
-
-  const buscarVehiculos = async (query) => {
-    if (!query || query.length < 2) {
-      setVehiculos([]);
-      return;
-    }
-
-    setBuscandoVehiculos(true);
-    try {
-      const resultado = await vehiculosService.getAll({ search: query });
-      const listaVehiculos =
-        resultado.results || (Array.isArray(resultado) ? resultado : []);
-      setVehiculos(listaVehiculos.slice(0, 5)); // Limitar a 5 resultados
-    } catch (err) {
-      console.error("Error al buscar vehículos:", err);
-      setVehiculos([]);
-    } finally {
-      setBuscandoVehiculos(false);
-    }
-  };
-
-  const seleccionarVehiculo = (vehiculo) => {
-    setVehiculoSeleccionado(vehiculo);
-    setFormData((prev) => ({ ...prev, vehiculo: vehiculo.vehiculo_id }));
-    setBusquedaVehiculo("");
-    setVehiculos([]);
-  };
-
-  const limpiarVehiculo = () => {
-    setVehiculoSeleccionado(null);
-    setFormData((prev) => ({ ...prev, vehiculo: null }));
-    setBusquedaVehiculo("");
-    setVehiculos([]);
   };
 
   const handleSubmit = async (e) => {
@@ -162,12 +121,13 @@ export default function GestionEgresos() {
       return;
     }
 
-    // Validar que categorías que requieren vehículo lo tengan seleccionado
     const catSeleccionada = categorias.find(
       (c) => c.categoria_id === parseInt(formData.categoria)
     );
-    if (categoriaRequiereVehiculo(catSeleccionada?.nombre) && !formData.vehiculo) {
-      setError(`Debe seleccionar un vehículo para ${catSeleccionada?.nombre}`);
+
+    // Validar que categoría Despachadores tenga tipo seleccionado
+    if (categoriaEsDespachadores(catSeleccionada?.nombre) && !tipoDespachador) {
+      setError("Debe seleccionar el tipo de despachador (Blancos o Amarillos)");
       return;
     }
 
@@ -185,19 +145,27 @@ export default function GestionEgresos() {
     setError(null);
 
     try {
+      // Construir descripción con tipo de despachador si aplica
+      let descripcionFinal = formData.descripcion;
+      if (
+        categoriaEsDespachadores(catSeleccionada?.nombre) &&
+        tipoDespachador
+      ) {
+        const tipoLabel =
+          tipoDespachador === "blancos" ? "Blancos" : "Amarillos";
+        descripcionFinal = descripcionFinal
+          ? `[${tipoLabel}] ${descripcionFinal}`
+          : `Despachadores ${tipoLabel}`;
+      }
+
       const egresoData = {
         categoria: parseInt(formData.categoria),
         fecha_egreso: formData.fecha_egreso,
         medio_pago: formData.medio_pago,
         valor: valorNumerico,
         descripcion:
-          formData.descripcion || `Egreso categoría ${catSeleccionada?.nombre}`,
+          descripcionFinal || `Egreso categoría ${catSeleccionada?.nombre}`,
       };
-
-      // Agregar vehículo si está disponible
-      if (formData.vehiculo) {
-        egresoData.vehiculo = formData.vehiculo;
-      }
 
       await crearEgreso(egresoData);
 
@@ -206,13 +174,12 @@ export default function GestionEgresos() {
       // Limpiar formulario
       setFormData({
         categoria: "",
-        vehiculo: null,
         fecha_egreso: new Date().toISOString().split("T")[0],
         medio_pago: "efectivo",
         valor: "",
         descripcion: "",
       });
-      setVehiculoSeleccionado(null);
+      setTipoDespachador("");
       currencyInput.setValue("");
 
       // Recargar lista
@@ -230,7 +197,7 @@ export default function GestionEgresos() {
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             Gestión de Egresos
@@ -239,11 +206,24 @@ export default function GestionEgresos() {
             Registro y control de gastos operativos
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2">
-          <DollarSign className="h-5 w-5 text-primary" />
-          <span className="text-sm font-medium">
-            Total Hoy: {formatCurrency(totalEgresos)}
-          </span>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Botón de Historial - Solo para Admin y Gerente */}
+          {(isAdministrador() || isGerente()) && (
+            <Button
+              variant="outline"
+              onClick={() => navigate("/egresos/historial")}
+              className="flex items-center gap-2"
+            >
+              <History className="h-4 w-4" />
+              <span className="hidden sm:inline">Historial</span>
+            </Button>
+          )}
+          <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2">
+            <DollarSign className="h-5 w-5 text-primary" />
+            <span className="text-sm font-medium">
+              Total Hoy: {formatCurrency(totalEgresos)}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -301,74 +281,29 @@ export default function GestionEgresos() {
                 </Select>
               </div>
 
-              {/* Vehículo - Para categorías que lo requieren (Parqueadero, Seguros, Poliza) */}
+              {/* Tipo de Despachador - Solo para categoría Despachadores */}
               {formData.categoria &&
-                categoriaRequiereVehiculo(
+                categoriaEsDespachadores(
                   categorias.find(
                     (c) => c.categoria_id === parseInt(formData.categoria)
                   )?.nombre
                 ) && (
                   <div className="space-y-2">
-                    <Label htmlFor="vehiculo">Vehículo *</Label>
-                    {vehiculoSeleccionado ? (
-                      <div className="flex items-center justify-between bg-blue-50 p-3 rounded-md border border-blue-200">
-                        <div>
-                          <p className="font-semibold text-sm">
-                            {vehiculoSeleccionado.placa}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {vehiculoSeleccionado.tipo_vehiculo} -{" "}
-                            {vehiculoSeleccionado.conductor_actual_nombre ||
-                              "Sin conductor"}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={limpiarVehiculo}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <Input
-                          id="buscar-vehiculo"
-                          placeholder="Buscar por placa (ej: HUB204)"
-                          value={busquedaVehiculo}
-                          onChange={(e) => {
-                            setBusquedaVehiculo(e.target.value);
-                            buscarVehiculos(e.target.value);
-                          }}
-                        />
-                        {buscandoVehiculos && (
-                          <div className="flex items-center justify-center py-2">
-                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                          </div>
-                        )}
-                        {vehiculos.length > 0 && (
-                          <div className="border rounded-md max-h-40 overflow-y-auto">
-                            {vehiculos.map((veh) => (
-                              <button
-                                key={veh.vehiculo_id}
-                                type="button"
-                                onClick={() => seleccionarVehiculo(veh)}
-                                className="w-full text-left p-2 hover:bg-blue-50 border-b last:border-b-0 transition-colors"
-                              >
-                                <p className="font-semibold text-sm">
-                                  {veh.placa}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {veh.tipo_vehiculo} -{" "}
-                                  {veh.conductor_actual_nombre ||
-                                    "Sin conductor"}
-                                </p>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <Label htmlFor="tipo_despachador">
+                      Tipo de Despachador *
+                    </Label>
+                    <Select
+                      value={tipoDespachador}
+                      onValueChange={(value) => setTipoDespachador(value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="blancos">Blancos</SelectItem>
+                        <SelectItem value="amarillos">Amarillos</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
 
@@ -500,10 +435,11 @@ export default function GestionEgresos() {
                           </TableCell>
                           <TableCell>
                             <span
-                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${egreso.medio_pago === "efectivo"
+                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                                egreso.medio_pago === "efectivo"
                                   ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                                   : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                }`}
+                              }`}
                             >
                               {egreso.medio_pago_display ||
                                 egreso.medio_pago ||
