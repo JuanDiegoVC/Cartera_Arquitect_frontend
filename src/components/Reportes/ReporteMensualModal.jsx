@@ -101,23 +101,24 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
 
                 <div className="space-y-6 py-4">
                     {/* Controls */}
-                    <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-lg">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 bg-muted/30 p-3 sm:p-4 rounded-lg">
                         <div className="flex items-center gap-2">
-                            <Calendar className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-sm font-medium">Seleccionar Mes:</span>
+                            <Calendar className="h-5 w-5 text-muted-foreground shrink-0" />
+                            <span className="text-sm font-medium whitespace-nowrap">Seleccionar Mes:</span>
                         </div>
                         <Input
                             type="month"
                             value={selectedMonth}
                             onChange={(e) => setSelectedMonth(e.target.value)}
-                            className="w-48"
+                            className="w-full sm:w-40"
                         />
-                        <div className="ml-auto flex gap-2">
+                        <div className="flex gap-2 sm:ml-auto">
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={fetchReporte}
                                 disabled={loading}
+                                className="flex-1 sm:flex-none"
                             >
                                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Actualizar"}
                             </Button>
@@ -127,14 +128,14 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
                                 size="sm"
                                 onClick={handleDownloadExcel}
                                 disabled={downloading || !data}
-                                className="gap-2"
+                                className="gap-2 flex-1 sm:flex-none"
                             >
                                 {downloading ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
                                     <Download className="h-4 w-4" />
                                 )}
-                                Exportar Excel
+                                <span className="hidden sm:inline">Exportar</span> Excel
                             </Button>
                         </div>
                     </div>

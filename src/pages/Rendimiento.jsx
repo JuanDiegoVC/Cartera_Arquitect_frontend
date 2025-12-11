@@ -674,12 +674,13 @@ const Rendimiento = () => {
       {activeTab === "mensual" && dataMensual && (
         <div className="space-y-6">
           {/* Navegación de mes */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => navegarMes(-1)}
+                className="shrink-0"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -687,23 +688,24 @@ const Rendimiento = () => {
                 type="month"
                 value={mesSeleccionado}
                 onChange={(e) => setMesSeleccionado(e.target.value)}
-                className="w-auto"
+                className="w-full sm:w-auto min-w-[150px]"
               />
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => navegarMes(1)}
                 disabled={mesSeleccionado >= new Date().toISOString().slice(0, 7)}
+                className="shrink-0"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="text-xs sm:text-sm">
                 {dataMensual.periodo.mes_nombre} {dataMensual.periodo.año}
               </Badge>
-              <span className="text-muted-foreground">vs</span>
-              <Badge variant="secondary">
+              <span className="text-muted-foreground text-xs sm:text-sm">vs</span>
+              <Badge variant="secondary" className="text-xs sm:text-sm">
                 {dataMensual.periodo_anterior.mes_nombre} {dataMensual.periodo_anterior.año}
               </Badge>
             </div>

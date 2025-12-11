@@ -389,18 +389,18 @@ export default function GenerarFacturacion() {
 
       {/* Modal de Pre-Facturación (Seguridad y Pólizas) */}
       <Dialog open={showPreFacturacion} onOpenChange={setShowPreFacturacion}>
-        <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col p-0 gap-0">
-          <DialogHeader className="px-6 py-4 border-b">
-            <DialogTitle className="flex items-center gap-2 text-xl">
+        <DialogContent className="max-w-6xl h-[95vh] sm:h-auto sm:max-h-[95vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="px-4 sm:px-6 py-4 border-b shrink-0">
+            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <Shield className="h-5 w-5 text-primary" />
               Configurar Rubros Variables y Pólizas
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Configure los valores de seguridad y rubros ocasionales para este mes. También puede generar las pólizas anuales.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-8">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 sm:space-y-8 pb-24 sm:pb-6">
 
             {/* 1. Seguridad Variable */}
             <section className="space-y-4">
@@ -605,35 +605,33 @@ export default function GenerarFacturacion() {
             </section>
           </div>
 
-          <DialogFooter className="px-6 py-4 border-t bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Button
-                variant="outline"
-                className="border-orange-200 text-orange-700 hover:bg-orange-50 hover:text-orange-800 w-full sm:w-auto"
-                onClick={handleGenerarPolizas}
-                disabled={generatingPolizas}
-              >
-                {generatingPolizas ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generando...
-                  </>
-                ) : (
-                  <>
-                    <Shield className="h-4 w-4 mr-2" />
-                    Generar Pólizas Anuales
-                  </>
-                )}
-              </Button>
-            </div>
+          <DialogFooter className="px-4 sm:px-6 py-4 border-t bg-muted/10 flex flex-col gap-3 sticky bottom-0 z-50">
+            <Button
+              variant="outline"
+              className="border-orange-200 text-orange-700 hover:bg-orange-50 hover:text-orange-800 w-full"
+              onClick={handleGenerarPolizas}
+              disabled={generatingPolizas}
+            >
+              {generatingPolizas ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generando...
+                </>
+              ) : (
+                <>
+                  <Shield className="h-4 w-4 mr-2" />
+                  Generar Pólizas Anuales
+                </>
+              )}
+            </Button>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Button variant="ghost" onClick={() => setShowPreFacturacion(false)} className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full">
+              <Button variant="ghost" onClick={() => setShowPreFacturacion(false)} className="w-full sm:w-auto order-2 sm:order-1">
                 Cancelar
               </Button>
-              <Button onClick={handleConfirmarGeneracion} className="w-full sm:w-auto min-w-[200px]">
+              <Button onClick={handleConfirmarGeneracion} className="w-full sm:flex-1 order-1 sm:order-2">
                 <FileSpreadsheet className="h-4 w-4 mr-2" />
-                Confirmar y Generar Facturas
+                Confirmar y Generar
               </Button>
             </div>
           </DialogFooter>
