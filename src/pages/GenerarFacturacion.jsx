@@ -9,7 +9,6 @@ import {
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import {
-
   Calendar,
   CheckCircle2,
   AlertCircle,
@@ -18,7 +17,7 @@ import {
   Shield,
   Search,
   Plus,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import {
   Dialog,
@@ -64,33 +63,41 @@ export default function GenerarFacturacion() {
 
   // Estados para Rubros Ocasionales
   const [rubrosOcasionalesList, setRubrosList] = useState([]);
-  const [rubrosOcasionalesAgregados, setRubrosOcasionalesAgregados] = useState([]);
-  const [newOcasional, setNewOcasional] = useState({ placa: "", rubro_id: "", valor: "" });
+  const [rubrosOcasionalesAgregados, setRubrosOcasionalesAgregados] = useState(
+    []
+  );
+  const [newOcasional, setNewOcasional] = useState({
+    placa: "",
+    rubro_id: "",
+    valor: "",
+  });
   const [ocasionalSearch, setOcasionalSearch] = useState(""); // Search term for occasional rubros
 
   // Estado para generación de pólizas
   const [generatingPolizas, setGeneratingPolizas] = useState(false);
 
-
   const fetchVehiculos = async () => {
     setLoadingVehiculos(true);
     try {
       // Usar el endpoint de vehículos activos
-      const response = await apiClient.get("/v1/flota/vehiculos/?estado=activo&limit=1000"); // Asumiendo paginación, pedir muchos o manejar paginación
+      const response = await apiClient.get(
+        "/v1/flota/vehiculos/?estado=activo&limit=1000"
+      ); // Asumiendo paginación, pedir muchos o manejar paginación
       // Nota: Si la API pagina, habría que manejarlo. Por ahora asumimos que devuelve la lista o 'results'
       const data = response.data.results || response.data;
       setVehiculos(data);
 
       // Inicializar valores de seguridad en 0 o vacío
       const initialValues = {};
-      data.forEach(v => {
+      data.forEach((v) => {
         initialValues[v.placa] = "";
       });
       setSeguridadValues(initialValues);
-
     } catch (err) {
       console.error("Error cargando vehículos:", err);
-      setError("Error al cargar la lista de vehículos para configurar seguridad.");
+      setError(
+        "Error al cargar la lista de vehículos para configurar seguridad."
+      );
     } finally {
       setLoadingVehiculos(false);
     }
@@ -101,8 +108,8 @@ export default function GenerarFacturacion() {
       const rubros = await cobrosService.getAllRubros();
       // Ensure we are filtering correctly based on the API response structure
       // The API might return a list directly or a paginated object
-      const list = Array.isArray(rubros) ? rubros : (rubros.results || []);
-      const ocasionales = list.filter(r => r.es_ocasional);
+      const list = Array.isArray(rubros) ? rubros : rubros.results || [];
+      const ocasionales = list.filter((r) => r.es_ocasional);
       setRubrosList(ocasionales);
     } catch (err) {
       console.error("Error cargando rubros:", err);
@@ -124,7 +131,7 @@ export default function GenerarFacturacion() {
 
   const handleApplyGlobalValue = () => {
     const newValues = { ...seguridadValues };
-    vehiculos.forEach(v => {
+    vehiculos.forEach((v) => {
       // Solo aplicar a los visibles si hay filtro? O a todos?
       // Por simplicidad, aplicamos a todos los cargados
       newValues[v.placa] = globalSecurityValue;
@@ -133,23 +140,31 @@ export default function GenerarFacturacion() {
   };
 
   const handleSecurityValueChange = (placa, value) => {
-    setSeguridadValues(prev => ({
+    setSeguridadValues((prev) => ({
       ...prev,
-      [placa]: value
+      [placa]: value,
     }));
   };
 
   const handleAddOcasional = () => {
-    if (!newOcasional.placa || !newOcasional.rubro_id || !newOcasional.valor) return;
+    if (!newOcasional.placa || !newOcasional.rubro_id || !newOcasional.valor)
+      return;
 
     // Encontrar nombre del rubro para mostrar
-    const rubroObj = rubrosOcasionalesList.find(r => r.rubro_id === parseInt(newOcasional.rubro_id));
+    const rubroObj = rubrosOcasionalesList.find(
+      (r) => r.rubro_id === parseInt(newOcasional.rubro_id)
+    );
 
     setRubrosOcasionalesAgregados([
       ...rubrosOcasionalesAgregados,
-      { ...newOcasional, rubro_nombre: rubroObj?.nombre }
+      { ...newOcasional, rubro_nombre: rubroObj?.nombre },
     ]);
-    setNewOcasional(prev => ({ ...prev, rubro_id: "", valor: "", placa: "" }));
+    setNewOcasional((prev) => ({
+      ...prev,
+      rubro_id: "",
+      valor: "",
+      placa: "",
+    }));
     setOcasionalSearch(""); // Reset search
   };
 
@@ -173,19 +188,23 @@ export default function GenerarFacturacion() {
         .filter(([_, valor]) => valor && !isNaN(valor) && Number(valor) > 0)
         .map(([placa, valor]) => ({
           placa,
-          valor: Number(valor)
+          valor: Number(valor),
         }));
 
-      const response = await facturacionService.generarCargos(periodo, seguridadPayload, rubrosOcasionalesAgregados);
+      const response = await facturacionService.generarCargos(
+        periodo,
+        seguridadPayload,
+        rubrosOcasionalesAgregados
+      );
       setResultado(response.detalles);
     } catch (err) {
       console.error("Error generando cargos:", err);
       setError(
         err.detalle ||
-        err.error ||
-        "Error al generar los cargos. Por favor intente nuevamente."
+          err.error ||
+          "Error al generar los cargos. Por favor intente nuevamente."
       );
-      // Si falla, quizás queramos volver a mostrar el modal? 
+      // Si falla, quizás queramos volver a mostrar el modal?
       // Por ahora lo dejamos cerrado para ver el error.
     } finally {
       setLoading(false);
@@ -193,7 +212,11 @@ export default function GenerarFacturacion() {
   };
 
   const handleGenerarPolizas = async () => {
-    if (!window.confirm("¿Está seguro de generar las pólizas anuales? Esto creará una deuda para todos los vehículos según su tipo.")) {
+    if (
+      !window.confirm(
+        "¿Está seguro de generar las pólizas anuales? Esto creará una deuda para todos los vehículos según su tipo."
+      )
+    ) {
       return;
     }
 
@@ -219,9 +242,11 @@ export default function GenerarFacturacion() {
   };
 
   // Filtrar vehículos en el modal
-  const filteredVehiculos = vehiculos.filter(v =>
-    v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (v.propietario_nombre && v.propietario_nombre.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredVehiculos = vehiculos.filter(
+    (v) =>
+      v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (v.propietario_nombre &&
+        v.propietario_nombre.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -232,8 +257,8 @@ export default function GenerarFacturacion() {
           Generar Facturación Mensual
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Genera automáticamente los cargos fijos (Administración)
-          y variables (Seguridad) para todos los vehículos activos.
+          Genera automáticamente los cargos fijos (Administración) y variables
+          (Seguridad) para todos los vehículos activos.
         </p>
       </div>
 
@@ -276,10 +301,13 @@ export default function GenerarFacturacion() {
             <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
               <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               <AlertDescription className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
-                <strong>Importante:</strong> Esta acción generará cargos de <strong>Administración</strong> y <strong>Seguridad</strong> (opcional).
+                <strong>Importante:</strong> Esta acción generará cargos de{" "}
+                <strong>Administración</strong> y <strong>Seguridad</strong>{" "}
+                (opcional).
                 <br />
                 <span className="text-xs mt-1 block">
-                  Nota: Las <strong>Pólizas</strong> se generan anualmente mediante el botón en el siguiente paso.
+                  Nota: Las <strong>Pólizas</strong> se generan anualmente
+                  mediante el botón en el siguiente paso.
                 </span>
               </AlertDescription>
             </Alert>
@@ -389,19 +417,19 @@ export default function GenerarFacturacion() {
 
       {/* Modal de Pre-Facturación (Seguridad y Pólizas) */}
       <Dialog open={showPreFacturacion} onOpenChange={setShowPreFacturacion}>
-        <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col p-0 gap-0">
-          <DialogHeader className="px-6 py-4 border-b">
-            <DialogTitle className="flex items-center gap-2 text-xl">
+        <DialogContent className="max-w-6xl h-[95vh] sm:h-auto sm:max-h-[95vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="px-4 sm:px-6 py-4 border-b shrink-0">
+            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <Shield className="h-5 w-5 text-primary" />
               Configurar Rubros Variables y Pólizas
             </DialogTitle>
-            <DialogDescription>
-              Configure los valores de seguridad y rubros ocasionales para este mes. También puede generar las pólizas anuales.
+            <DialogDescription className="text-xs sm:text-sm">
+              Configure los valores de seguridad y rubros ocasionales para este
+              mes. También puede generar las pólizas anuales.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-8">
-
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 sm:space-y-8 pb-24 sm:pb-6">
             {/* 1. Seguridad Variable */}
             <section className="space-y-4">
               <div className="flex items-center justify-between">
@@ -424,7 +452,9 @@ export default function GenerarFacturacion() {
 
               <div className="bg-muted/30 p-4 rounded-lg flex flex-col sm:flex-row gap-4 items-end border">
                 <div className="w-full sm:w-1/3 space-y-1.5">
-                  <Label className="text-xs font-medium">Valor Global de Seguridad</Label>
+                  <Label className="text-xs font-medium">
+                    Valor Global de Seguridad
+                  </Label>
                   <Input
                     type="number"
                     placeholder="Ej: 50000"
@@ -455,14 +485,21 @@ export default function GenerarFacturacion() {
                       <tr>
                         <th className="px-4 py-3 font-medium">Placa</th>
                         <th className="px-4 py-3 font-medium">Propietario</th>
-                        <th className="px-4 py-3 font-medium w-40">Valor Seguridad</th>
+                        <th className="px-4 py-3 font-medium w-40">
+                          Valor Seguridad
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredVehiculos.length > 0 ? (
                         filteredVehiculos.map((vehiculo) => (
-                          <tr key={vehiculo.placa} className="border-b hover:bg-muted/50 last:border-0">
-                            <td className="px-4 py-2 font-medium">{vehiculo.placa}</td>
+                          <tr
+                            key={vehiculo.placa}
+                            className="border-b hover:bg-muted/50 last:border-0"
+                          >
+                            <td className="px-4 py-2 font-medium">
+                              {vehiculo.placa}
+                            </td>
                             <td className="px-4 py-2 text-muted-foreground truncate max-w-[200px]">
                               {vehiculo.propietario_nombre || "N/A"}
                             </td>
@@ -472,14 +509,22 @@ export default function GenerarFacturacion() {
                                 className="h-8 w-full"
                                 placeholder="0"
                                 value={seguridadValues[vehiculo.placa] || ""}
-                                onChange={(e) => handleSecurityValueChange(vehiculo.placa, e.target.value)}
+                                onChange={(e) =>
+                                  handleSecurityValueChange(
+                                    vehiculo.placa,
+                                    e.target.value
+                                  )
+                                }
                               />
                             </td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="3" className="px-4 py-8 text-center text-muted-foreground">
+                          <td
+                            colSpan="3"
+                            className="px-4 py-8 text-center text-muted-foreground"
+                          >
                             No se encontraron vehículos activos.
                           </td>
                         </tr>
@@ -510,7 +555,8 @@ export default function GenerarFacturacion() {
                         onChange={(e) => {
                           setOcasionalSearch(e.target.value);
                           // Si borra, limpiar selección
-                          if (!e.target.value) setNewOcasional(prev => ({ ...prev, placa: "" }));
+                          if (!e.target.value)
+                            setNewOcasional((prev) => ({ ...prev, placa: "" }));
                         }}
                       />
                     </div>
@@ -518,13 +564,18 @@ export default function GenerarFacturacion() {
                     {ocasionalSearch && !newOcasional.placa && (
                       <div className="absolute z-50 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md max-h-40 overflow-y-auto">
                         {vehiculos
-                          .filter(v => v.placa.includes(ocasionalSearch.toUpperCase()))
-                          .map(v => (
+                          .filter((v) =>
+                            v.placa.includes(ocasionalSearch.toUpperCase())
+                          )
+                          .map((v) => (
                             <div
                               key={v.placa}
                               className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
                               onClick={() => {
-                                setNewOcasional(prev => ({ ...prev, placa: v.placa }));
+                                setNewOcasional((prev) => ({
+                                  ...prev,
+                                  placa: v.placa,
+                                }));
                                 setOcasionalSearch(v.placa);
                               }}
                             >
@@ -536,7 +587,9 @@ export default function GenerarFacturacion() {
                               )}
                             </div>
                           ))}
-                        {vehiculos.filter(v => v.placa.includes(ocasionalSearch.toUpperCase())).length === 0 && (
+                        {vehiculos.filter((v) =>
+                          v.placa.includes(ocasionalSearch.toUpperCase())
+                        ).length === 0 && (
                           <div className="px-3 py-2 text-sm text-muted-foreground">
                             No se encontraron vehículos
                           </div>
@@ -549,11 +602,18 @@ export default function GenerarFacturacion() {
                     <select
                       className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       value={newOcasional.rubro_id}
-                      onChange={e => setNewOcasional({ ...newOcasional, rubro_id: e.target.value })}
+                      onChange={(e) =>
+                        setNewOcasional({
+                          ...newOcasional,
+                          rubro_id: e.target.value,
+                        })
+                      }
                     >
                       <option value="">Seleccione rubro...</option>
-                      {rubrosOcasionalesList.map(r => (
-                        <option key={r.rubro_id} value={r.rubro_id}>{r.nombre}</option>
+                      {rubrosOcasionalesList.map((r) => (
+                        <option key={r.rubro_id} value={r.rubro_id}>
+                          {r.nombre}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -564,10 +624,24 @@ export default function GenerarFacturacion() {
                       className="h-9"
                       placeholder="0"
                       value={newOcasional.valor}
-                      onChange={e => setNewOcasional({ ...newOcasional, valor: e.target.value })}
+                      onChange={(e) =>
+                        setNewOcasional({
+                          ...newOcasional,
+                          valor: e.target.value,
+                        })
+                      }
                     />
                   </div>
-                  <Button size="sm" onClick={handleAddOcasional} disabled={!newOcasional.placa || !newOcasional.rubro_id || !newOcasional.valor} className="h-9 px-4">
+                  <Button
+                    size="sm"
+                    onClick={handleAddOcasional}
+                    disabled={
+                      !newOcasional.placa ||
+                      !newOcasional.rubro_id ||
+                      !newOcasional.valor
+                    }
+                    className="h-9 px-4"
+                  >
                     <Plus className="h-4 w-4 mr-2" /> Agregar
                   </Button>
                 </div>
@@ -578,20 +652,34 @@ export default function GenerarFacturacion() {
                     <table className="w-full text-sm">
                       <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                         <tr>
-                          <th className="px-4 py-2 text-left font-medium">Placa</th>
-                          <th className="px-4 py-2 text-left font-medium">Rubro</th>
-                          <th className="px-4 py-2 text-left font-medium">Valor</th>
+                          <th className="px-4 py-2 text-left font-medium">
+                            Placa
+                          </th>
+                          <th className="px-4 py-2 text-left font-medium">
+                            Rubro
+                          </th>
+                          <th className="px-4 py-2 text-left font-medium">
+                            Valor
+                          </th>
                           <th className="px-4 py-2 w-10"></th>
                         </tr>
                       </thead>
                       <tbody>
                         {rubrosOcasionalesAgregados.map((item, idx) => (
-                          <tr key={idx} className="border-b last:border-0 hover:bg-muted/20">
-                            <td className="px-4 py-2 font-medium">{item.placa}</td>
+                          <tr
+                            key={idx}
+                            className="border-b last:border-0 hover:bg-muted/20"
+                          >
+                            <td className="px-4 py-2 font-medium">
+                              {item.placa}
+                            </td>
                             <td className="px-4 py-2">{item.rubro_nombre}</td>
                             <td className="px-4 py-2">${item.valor}</td>
                             <td className="px-4 py-2 text-right">
-                              <button onClick={() => handleRemoveOcasional(idx)} className="text-destructive hover:text-destructive/80 transition-colors">
+                              <button
+                                onClick={() => handleRemoveOcasional(idx)}
+                                className="text-destructive hover:text-destructive/80 transition-colors"
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             </td>
@@ -605,35 +693,40 @@ export default function GenerarFacturacion() {
             </section>
           </div>
 
-          <DialogFooter className="px-6 py-4 border-t bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Button
-                variant="outline"
-                className="border-orange-200 text-orange-700 hover:bg-orange-50 hover:text-orange-800 w-full sm:w-auto"
-                onClick={handleGenerarPolizas}
-                disabled={generatingPolizas}
-              >
-                {generatingPolizas ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generando...
-                  </>
-                ) : (
-                  <>
-                    <Shield className="h-4 w-4 mr-2" />
-                    Generar Pólizas Anuales
-                  </>
-                )}
-              </Button>
-            </div>
+          <DialogFooter className="px-4 sm:px-6 py-4 border-t bg-muted/10 flex flex-col gap-3 sticky bottom-0 z-50">
+            <Button
+              variant="outline"
+              className="border-orange-200 text-orange-700 hover:bg-orange-50 hover:text-orange-800 w-full"
+              onClick={handleGenerarPolizas}
+              disabled={generatingPolizas}
+            >
+              {generatingPolizas ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generando...
+                </>
+              ) : (
+                <>
+                  <Shield className="h-4 w-4 mr-2" />
+                  Generar Pólizas Anuales
+                </>
+              )}
+            </Button>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Button variant="ghost" onClick={() => setShowPreFacturacion(false)} className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full">
+              <Button
+                variant="ghost"
+                onClick={() => setShowPreFacturacion(false)}
+                className="w-full sm:w-auto order-2 sm:order-1"
+              >
                 Cancelar
               </Button>
-              <Button onClick={handleConfirmarGeneracion} className="w-full sm:w-auto min-w-[200px]">
+              <Button
+                onClick={handleConfirmarGeneracion}
+                className="w-full sm:flex-1 order-1 sm:order-2"
+              >
                 <FileSpreadsheet className="h-4 w-4 mr-2" />
-                Confirmar y Generar Facturas
+                Confirmar y Generar
               </Button>
             </div>
           </DialogFooter>

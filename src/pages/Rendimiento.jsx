@@ -43,7 +43,14 @@ import { rendimientoService } from "../services/rendimientoService";
 import { getTodayLocalDate, getCurrentMonthLocal, toLocalDateString } from "../utils/formatters";
 
 // Componente para mostrar una métrica con comparación
-const MetricaCard = ({ titulo, valor, valorAnterior, variacion, icono: Icon, formato = "currency" }) => {
+const MetricaCard = ({
+  titulo,
+  valor,
+  valorAnterior,
+  variacion,
+  icono: Icon,
+  formato = "currency",
+}) => {
   const formatValue = (val) => {
     if (formato === "currency") {
       return new Intl.NumberFormat("es-CO", {
@@ -98,7 +105,9 @@ const SimpleBar = ({ value, maxValue, label, color = "bg-primary" }) => {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="w-20 text-xs text-right text-muted-foreground truncate">{label}</div>
+      <div className="w-20 text-xs text-right text-muted-foreground truncate">
+        {label}
+      </div>
       <div className="flex-1 h-6 bg-muted rounded-full overflow-hidden">
         <div
           className={`h-full ${color} transition-all duration-500`}
@@ -143,7 +152,9 @@ const DistribucionChart = ({ data, titulo }) => {
             return (
               <div
                 key={item.nombre}
-                className={`${colors[index % colors.length]} transition-all duration-300`}
+                className={`${
+                  colors[index % colors.length]
+                } transition-all duration-300`}
                 style={{ width: `${percentage}%` }}
                 title={`${item.nombre}: ${percentage.toFixed(1)}%`}
               />
@@ -155,13 +166,22 @@ const DistribucionChart = ({ data, titulo }) => {
           {data.map((item, index) => {
             const percentage = total > 0 ? (item.valor / total) * 100 : 0;
             return (
-              <div key={item.nombre} className="flex items-center justify-between text-sm">
+              <div
+                key={item.nombre}
+                className="flex items-center justify-between text-sm"
+              >
                 <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${colors[index % colors.length]}`} />
+                  <div
+                    className={`w-3 h-3 rounded-full ${
+                      colors[index % colors.length]
+                    }`}
+                  />
                   <span className="truncate max-w-[120px]">{item.nombre}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">{percentage.toFixed(1)}%</span>
+                  <span className="text-muted-foreground">
+                    {percentage.toFixed(1)}%
+                  </span>
                   <span className="font-medium">
                     {new Intl.NumberFormat("es-CO", {
                       style: "currency",
@@ -218,19 +238,25 @@ const RecaudoPorHoraChart = ({ dataHoy, dataAyer }) => {
         <div className="space-y-2">
           {horasActivas.map((hora) => (
             <div key={hora.hora} className="flex items-center gap-2">
-              <div className="w-12 text-xs text-muted-foreground">{hora.hora}</div>
+              <div className="w-12 text-xs text-muted-foreground">
+                {hora.hora}
+              </div>
               <div className="flex-1 flex gap-1">
                 <div className="flex-1 h-4 bg-muted rounded overflow-hidden relative">
                   <div
                     className="absolute inset-y-0 left-0 bg-muted-foreground/30 transition-all"
                     style={{
-                      width: `${maxValue > 0 ? (hora.valorAyer / maxValue) * 100 : 0}%`,
+                      width: `${
+                        maxValue > 0 ? (hora.valorAyer / maxValue) * 100 : 0
+                      }%`,
                     }}
                   />
                   <div
                     className="absolute inset-y-0 left-0 bg-primary transition-all"
                     style={{
-                      width: `${maxValue > 0 ? (hora.valor / maxValue) * 100 : 0}%`,
+                      width: `${
+                        maxValue > 0 ? (hora.valor / maxValue) * 100 : 0
+                      }%`,
                     }}
                   />
                 </div>
@@ -252,7 +278,12 @@ const RecaudoPorHoraChart = ({ dataHoy, dataAyer }) => {
 };
 
 // Componente de tendencia diaria del mes
-const TendenciaDiariaChart = ({ dataActual, dataAnterior, mesActual, mesAnterior }) => {
+const TendenciaDiariaChart = ({
+  dataActual,
+  dataAnterior,
+  mesActual,
+  mesAnterior,
+}) => {
   const maxValue = Math.max(
     ...dataActual.map((d) => d.valor),
     ...dataAnterior.map((d) => d.valor)
@@ -282,12 +313,18 @@ const TendenciaDiariaChart = ({ dataActual, dataAnterior, mesActual, mesAnterior
         </div>
         <div className="h-48 flex items-end gap-1">
           {dataActual.map((dia, index) => {
-            const valorAnterior = dataAnterior.find((d) => d.dia === dia.dia)?.valor || 0;
-            const heightActual = maxValue > 0 ? (dia.valor / maxValue) * 100 : 0;
-            const heightAnterior = maxValue > 0 ? (valorAnterior / maxValue) * 100 : 0;
+            const valorAnterior =
+              dataAnterior.find((d) => d.dia === dia.dia)?.valor || 0;
+            const heightActual =
+              maxValue > 0 ? (dia.valor / maxValue) * 100 : 0;
+            const heightAnterior =
+              maxValue > 0 ? (valorAnterior / maxValue) * 100 : 0;
 
             return (
-              <div key={dia.dia} className="flex-1 flex flex-col items-center gap-1">
+              <div
+                key={dia.dia}
+                className="flex-1 flex flex-col items-center gap-1"
+              >
                 <div className="w-full flex gap-[1px] items-end h-40">
                   <div
                     className="flex-1 bg-muted-foreground/30 rounded-t transition-all"
@@ -309,7 +346,9 @@ const TendenciaDiariaChart = ({ dataActual, dataAnterior, mesActual, mesAnterior
                   />
                 </div>
                 {index % 5 === 0 && (
-                  <span className="text-[10px] text-muted-foreground">{dia.dia}</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {dia.dia}
+                  </span>
                 )}
               </div>
             );
@@ -345,11 +384,16 @@ const HistoricoMesesChart = ({ data }) => {
         </div>
         <div className="h-32 flex items-end gap-2">
           {data.map((mes) => {
-            const heightRecaudo = maxValue > 0 ? (mes.recaudo / maxValue) * 100 : 0;
-            const heightEgresos = maxValue > 0 ? (mes.egresos / maxValue) * 100 : 0;
+            const heightRecaudo =
+              maxValue > 0 ? (mes.recaudo / maxValue) * 100 : 0;
+            const heightEgresos =
+              maxValue > 0 ? (mes.egresos / maxValue) * 100 : 0;
 
             return (
-              <div key={`${mes.mes}-${mes.año}`} className="flex-1 flex flex-col items-center">
+              <div
+                key={`${mes.mes}-${mes.año}`}
+                className="flex-1 flex flex-col items-center"
+              >
                 <div className="w-full flex gap-[2px] items-end h-24">
                   <div
                     className="flex-1 bg-green-500 rounded-t transition-all hover:bg-green-600"
@@ -370,7 +414,9 @@ const HistoricoMesesChart = ({ data }) => {
                     }).format(mes.egresos)}`}
                   />
                 </div>
-                <span className="text-[10px] text-muted-foreground mt-1">{mes.mes}</span>
+                <span className="text-[10px] text-muted-foreground mt-1">
+                  {mes.mes}
+                </span>
               </div>
             );
           })}
@@ -383,7 +429,9 @@ const HistoricoMesesChart = ({ data }) => {
 // Componente principal de Rendimiento
 const Rendimiento = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "diario");
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get("tab") || "diario"
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dataDiario, setDataDiario] = useState(null);
@@ -405,10 +453,14 @@ const Rendimiento = () => {
 
       try {
         if (activeTab === "diario") {
-          const data = await rendimientoService.getRendimientoDiario(fechaSeleccionada);
+          const data = await rendimientoService.getRendimientoDiario(
+            fechaSeleccionada
+          );
           setDataDiario(data);
         } else {
-          const data = await rendimientoService.getRendimientoMensual(mesSeleccionado);
+          const data = await rendimientoService.getRendimientoMensual(
+            mesSeleccionado
+          );
           setDataMensual(data);
         }
       } catch (err) {
@@ -539,11 +591,15 @@ const Rendimiento = () => {
               </Button>
             </div>
             <Badge variant="outline">
-              vs {new Date(dataDiario.fecha_comparacion).toLocaleDateString("es-CO", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-              })}
+              vs{" "}
+              {new Date(dataDiario.fecha_comparacion).toLocaleDateString(
+                "es-CO",
+                {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                }
+              )}
             </Badge>
           </div>
 
@@ -634,7 +690,9 @@ const Rendimiento = () => {
           {dataDiario.ultimas_transacciones?.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Últimas Transacciones del Día</CardTitle>
+                <CardTitle className="text-base">
+                  Últimas Transacciones del Día
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -651,7 +709,9 @@ const Rendimiento = () => {
                     {dataDiario.ultimas_transacciones.map((tx) => (
                       <TableRow key={tx.id}>
                         <TableCell className="font-mono">{tx.hora}</TableCell>
-                        <TableCell className="font-medium">{tx.placa}</TableCell>
+                        <TableCell className="font-medium">
+                          {tx.placa}
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline">{tx.medio_pago}</Badge>
                         </TableCell>
@@ -673,12 +733,13 @@ const Rendimiento = () => {
       {activeTab === "mensual" && dataMensual && (
         <div className="space-y-6">
           {/* Navegación de mes */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => navegarMes(-1)}
+                className="shrink-0"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -686,7 +747,7 @@ const Rendimiento = () => {
                 type="month"
                 value={mesSeleccionado}
                 onChange={(e) => setMesSeleccionado(e.target.value)}
-                className="w-auto"
+                className="w-full sm:w-auto min-w-[150px]"
               />
               <Button
                 variant="outline"
@@ -697,13 +758,16 @@ const Rendimiento = () => {
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="text-xs sm:text-sm">
                 {dataMensual.periodo.mes_nombre} {dataMensual.periodo.año}
               </Badge>
-              <span className="text-muted-foreground">vs</span>
-              <Badge variant="secondary">
-                {dataMensual.periodo_anterior.mes_nombre} {dataMensual.periodo_anterior.año}
+              <span className="text-muted-foreground text-xs sm:text-sm">
+                vs
+              </span>
+              <Badge variant="secondary" className="text-xs sm:text-sm">
+                {dataMensual.periodo_anterior.mes_nombre}{" "}
+                {dataMensual.periodo_anterior.año}
               </Badge>
             </div>
           </div>
@@ -792,7 +856,9 @@ const Rendimiento = () => {
             )}
 
             {dataMensual.graficas.historico_6_meses?.length > 0 && (
-              <HistoricoMesesChart data={dataMensual.graficas.historico_6_meses} />
+              <HistoricoMesesChart
+                data={dataMensual.graficas.historico_6_meses}
+              />
             )}
 
             {dataMensual.graficas.recaudo_por_rubro?.length > 0 && (
@@ -805,7 +871,9 @@ const Rendimiento = () => {
             {dataMensual.graficas.recaudo_por_dia_semana?.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Recaudo por Día de Semana</CardTitle>
+                  <CardTitle className="text-base">
+                    Recaudo por Día de Semana
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {dataMensual.graficas.recaudo_por_dia_semana.map((dia) => (
@@ -813,7 +881,9 @@ const Rendimiento = () => {
                       key={dia.dia}
                       value={dia.total}
                       maxValue={Math.max(
-                        ...dataMensual.graficas.recaudo_por_dia_semana.map((d) => d.total)
+                        ...dataMensual.graficas.recaudo_por_dia_semana.map(
+                          (d) => d.total
+                        )
                       )}
                       label={dia.dia.slice(0, 3)}
                       color="bg-primary"

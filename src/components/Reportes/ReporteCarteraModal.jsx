@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogClose,
   DialogBody,
   DialogFooter,
 } from "../ui/dialog";
@@ -51,13 +50,17 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
 
       // Validar que si hay fecha inicio, también haya fecha fin
       if (filtros.fechaInicio && !filtros.fechaFin) {
-        setError("Si especifica una fecha de inicio, debe especificar también una fecha de fin");
+        setError(
+          "Si especifica una fecha de inicio, debe especificar también una fecha de fin"
+        );
         setIsLoading(false);
         return;
       }
 
       if (!filtros.fechaInicio && filtros.fechaFin) {
-        setError("Si especifica una fecha de fin, debe especificar también una fecha de inicio");
+        setError(
+          "Si especifica una fecha de fin, debe especificar también una fecha de inicio"
+        );
         setIsLoading(false);
         return;
       }
@@ -65,7 +68,9 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
       // Validar que fecha inicio sea menor o igual a fecha fin
       if (filtros.fechaInicio && filtros.fechaFin) {
         if (new Date(filtros.fechaInicio) > new Date(filtros.fechaFin)) {
-          setError("La fecha de inicio debe ser anterior o igual a la fecha de fin");
+          setError(
+            "La fecha de inicio debe ser anterior o igual a la fecha de fin"
+          );
           setIsLoading(false);
           return;
         }
@@ -102,8 +107,8 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
       } else {
         setError(
           err.message ||
-          err.detalle ||
-          "Error al descargar el reporte. Por favor, intente nuevamente."
+            err.detalle ||
+            "Error al descargar el reporte. Por favor, intente nuevamente."
         );
       }
     } finally {
@@ -130,19 +135,16 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10">
-                <FileSpreadsheet className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <DialogTitle>Configurar Reporte de Cartera</DialogTitle>
-                <DialogDescription>
-                  Seleccione los filtros para generar el reporte en Excel
-                </DialogDescription>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10">
+              <FileSpreadsheet className="h-5 w-5 text-blue-600" />
             </div>
-            <DialogClose onClose={() => onOpenChange(false)} />
+            <div>
+              <DialogTitle>Configurar Reporte de Cartera</DialogTitle>
+              <DialogDescription>
+                Seleccione los filtros para generar el reporte en Excel
+              </DialogDescription>
+            </div>
           </div>
         </DialogHeader>
 
@@ -199,8 +201,10 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
                 className="w-full"
               >
                 <option value="todos">Todos los tipos</option>
-                {VEHICLE_TYPES.map(type => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
+                {VEHICLE_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
                 ))}
               </Select>
             </div>
