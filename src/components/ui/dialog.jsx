@@ -1,6 +1,8 @@
 import * as React from "react";
 import { X } from "lucide-react";
-import { Button } from "./button";
+
+// Context para compartir onOpenChange entre componentes
+const DialogContext = React.createContext(null);
 
 /**
  * Componente Dialog/Modal reutilizable
@@ -20,30 +22,55 @@ export function Dialog({ open, onOpenChange, children }) {
     };
   }, [open]);
 
+  // Cerrar con tecla Escape
+  React.useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape" && open) {
+        onOpenChange(false);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [open, onOpenChange]);
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay */}
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={() => onOpenChange(false)}
-      />
-      
-      {/* Content Container */}
-      <div className="relative z-50 w-full flex items-center justify-center px-4">
-        {children}
+    <DialogContext.Provider value={{ onOpenChange }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        {/* Overlay */}
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in-0"
+          onClick={() => onOpenChange(false)}
+        />
+        
+        {/* Content Container */}
+        <div className="relative z-50 w-full flex items-center justify-center px-4">
+          {children}
+        </div>
       </div>
-    </div>
+    </DialogContext.Provider>
   );
 }
 
-export function DialogContent({ children, className = "" }) {
+export function DialogContent({ children, className = "", showCloseButton = true }) {
+  const context = React.useContext(DialogContext);
+  
   return (
     <div
-      className={`bg-background border rounded-lg shadow-lg ${className}`}
+      className={`bg-background border rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 relative ${className}`}
       onClick={(e) => e.stopPropagation()}
     >
+      {/* Botón X de cierre - siempre visible en la esquina superior derecha */}
+      {showCloseButton && context && (
+        <button
+          onClick={() => context.onOpenChange(false)}
+          className="absolute right-3 top-3 z-50 rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+          aria-label="Cerrar"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      )}
       {children}
     </div>
   );
@@ -51,7 +78,7 @@ export function DialogContent({ children, className = "" }) {
 
 export function DialogHeader({ children, className = "" }) {
   return (
-    <div className={`flex items-center justify-between p-6 border-b ${className}`}>
+    <div className={`flex flex-col gap-1.5 p-6 pr-12 border-b ${className}`}>
       {children}
     </div>
   );
@@ -67,23 +94,25 @@ export function DialogTitle({ children, className = "" }) {
 
 export function DialogDescription({ children, className = "" }) {
   return (
-    <p className={`text-sm text-muted-foreground mt-1 ${className}`}>
+    <p className={`text-sm text-muted-foreground ${className}`}>
       {children}
     </p>
   );
 }
 
-export function DialogClose({ onClose, className = "" }) {
+export function DialogClose({ className = "" }) {
+  const context = React.useContext(DialogContext);
+  
+  if (!context) return null;
+  
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={onClose}
-      className={`h-8 w-8 p-0 ${className}`}
+    <button
+      onClick={() => context.onOpenChange(false)}
+      className={`rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors ${className}`}
+      aria-label="Cerrar"
     >
-      <X className="h-4 w-4" />
-      <span className="sr-only">Cerrar</span>
-    </Button>
+      <X className="h-5 w-5" />
+    </button>
   );
 }
 
