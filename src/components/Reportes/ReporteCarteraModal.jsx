@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogClose,
   DialogBody,
   DialogFooter,
 } from "../ui/dialog";
@@ -130,19 +129,16 @@ export default function ReporteCarteraModal({ open, onOpenChange }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10">
-                <FileSpreadsheet className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <DialogTitle>Configurar Reporte de Cartera</DialogTitle>
-                <DialogDescription>
-                  Seleccione los filtros para generar el reporte en Excel
-                </DialogDescription>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10">
+              <FileSpreadsheet className="h-5 w-5 text-blue-600" />
             </div>
-            <DialogClose onClose={() => onOpenChange(false)} />
+            <div>
+              <DialogTitle>Configurar Reporte de Cartera</DialogTitle>
+              <DialogDescription>
+                Seleccione los filtros para generar el reporte en Excel
+              </DialogDescription>
+            </div>
           </div>
         </DialogHeader>
 

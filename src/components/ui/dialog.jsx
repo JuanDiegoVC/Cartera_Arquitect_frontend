@@ -43,7 +43,7 @@ export function Dialog({ open, onOpenChange, children }) {
           className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in-0"
           onClick={() => onOpenChange(false)}
         />
-        
+
         {/* Content Container */}
         <div className="relative z-50 w-full flex items-center justify-center px-4">
           {children}
@@ -53,9 +53,13 @@ export function Dialog({ open, onOpenChange, children }) {
   );
 }
 
-export function DialogContent({ children, className = "", showCloseButton = true }) {
+export function DialogContent({
+  children,
+  className = "",
+  showCloseButton = true,
+}) {
   const context = React.useContext(DialogContext);
-  
+
   return (
     <div
       className={`bg-background border rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 relative ${className}`}
@@ -94,17 +98,15 @@ export function DialogTitle({ children, className = "" }) {
 
 export function DialogDescription({ children, className = "" }) {
   return (
-    <p className={`text-sm text-muted-foreground ${className}`}>
-      {children}
-    </p>
+    <p className={`text-sm text-muted-foreground ${className}`}>{children}</p>
   );
 }
 
 export function DialogClose({ className = "" }) {
   const context = React.useContext(DialogContext);
-  
+
   if (!context) return null;
-  
+
   return (
     <button
       onClick={() => context.onOpenChange(false)}
@@ -117,16 +119,14 @@ export function DialogClose({ className = "" }) {
 }
 
 export function DialogBody({ children, className = "" }) {
-  return (
-    <div className={`p-6 ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`p-6 ${className}`}>{children}</div>;
 }
 
 export function DialogFooter({ children, className = "" }) {
   return (
-    <div className={`flex items-center justify-end gap-2 p-6 border-t bg-muted/10 ${className}`}>
+    <div
+      className={`flex items-center justify-end gap-2 p-6 border-t bg-muted/10 ${className}`}
+    >
       {children}
     </div>
   );

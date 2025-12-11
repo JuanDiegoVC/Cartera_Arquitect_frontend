@@ -4,9 +4,9 @@
  * @returns {string} Cantidad formateada
  */
 export const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
@@ -18,24 +18,24 @@ export const formatCurrency = (amount) => {
  * @param {string} format - Formato deseado ('short', 'long', 'datetime')
  * @returns {string} Fecha formateada
  */
-export const formatDate = (date, format = 'short') => {
-  if (!date) return '';
+export const formatDate = (date, format = "short") => {
+  if (!date) return "";
 
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const dateObj = typeof date === "string" ? new Date(date) : date;
 
   const options = {
-    short: { year: 'numeric', month: '2-digit', day: '2-digit' },
-    long: { year: 'numeric', month: 'long', day: 'numeric' },
+    short: { year: "numeric", month: "2-digit", day: "2-digit" },
+    long: { year: "numeric", month: "long", day: "numeric" },
     datetime: {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     },
   };
 
-  return new Intl.DateTimeFormat('es-CO', options[format]).format(dateObj);
+  return new Intl.DateTimeFormat("es-CO", options[format]).format(dateObj);
 };
 
 /**
@@ -44,7 +44,7 @@ export const formatDate = (date, format = 'short') => {
  * @returns {string} Placa formateada
  */
 export const formatPlaca = (placa) => {
-  if (!placa) return '';
+  if (!placa) return "";
   return placa.toUpperCase().trim();
 };
 
@@ -91,7 +91,7 @@ export const VEHICLE_TYPES = [
  * @returns {string} Nombre descriptivo
  */
 export const getTipoVehiculoLabel = (tipo) => {
-  const found = VEHICLE_TYPES.find(t => t.value === tipo);
+  const found = VEHICLE_TYPES.find((t) => t.value === tipo);
   return found ? found.label : tipo;
 };
 
@@ -102,9 +102,9 @@ export const getTipoVehiculoLabel = (tipo) => {
  */
 export const getEstadoDeudaColor = (estado) => {
   const colores = {
-    pendiente: 'red',
-    abonado: 'orange',
-    pagado: 'green',
+    pendiente: "red",
+    abonado: "orange",
+    pagado: "green",
   };
-  return colores[estado] || 'gray';
+  return colores[estado] || "gray";
 };

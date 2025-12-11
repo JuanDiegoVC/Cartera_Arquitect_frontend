@@ -2,10 +2,10 @@
  * Componente: CargaMasivaModal
  * Modal principal para carga masiva de datos desde Excel.
  * Permite subir archivo, ver preview editable y confirmar la carga.
- * 
+ *
  * @author Frontend Senior Developer
  * @date 2025-11-27
- * 
+ *
  * Flujo:
  * 1. Usuario hace clic en "Carga Masiva" en Configuración
  * 2. Se abre el modal con zona de drag & drop
@@ -52,20 +52,35 @@ import { cargaMasivaService } from "@/services/cargaMasivaService";
  * Estados del modal
  */
 const STEPS = {
-  UPLOAD: "upload",      // Subir archivo
-  PREVIEW: "preview",    // Vista previa con edición
-  LOADING: "loading",    // Procesando
-  SUCCESS: "success",    // Carga exitosa
-  ERROR: "error",        // Error en la carga
+  UPLOAD: "upload", // Subir archivo
+  PREVIEW: "preview", // Vista previa con edición
+  LOADING: "loading", // Procesando
+  SUCCESS: "success", // Carga exitosa
+  ERROR: "error", // Error en la carga
 };
 
 /**
  * Tabs de datos
  */
 const TABS = [
-  { id: "rubros", label: "Rubros", icon: Database, description: "Conceptos de cobro" },
-  { id: "vehiculos", label: "Vehículos", icon: Car, description: "Flota de vehículos" },
-  { id: "cartera_pendiente", label: "Cartera Pendiente", icon: Receipt, description: "Deudas históricas" },
+  {
+    id: "rubros",
+    label: "Rubros",
+    icon: Database,
+    description: "Conceptos de cobro",
+  },
+  {
+    id: "vehiculos",
+    label: "Vehículos",
+    icon: Car,
+    description: "Flota de vehículos",
+  },
+  {
+    id: "cartera_pendiente",
+    label: "Cartera Pendiente",
+    icon: Receipt,
+    description: "Deudas históricas",
+  },
 ];
 
 export default function CargaMasivaModal({ open, onOpenChange }) {
@@ -83,7 +98,10 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
     vehiculos: [],
     cartera_pendiente: [],
   });
-  const [validacion, setValidacion] = useState({ errores: [], advertencias: [] });
+  const [validacion, setValidacion] = useState({
+    errores: [],
+    advertencias: [],
+  });
   const [resultado, setResultado] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -142,7 +160,7 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
 
     try {
       const response = await cargaMasivaService.uploadPreview(file);
-      
+
       clearInterval(progressInterval);
       setUploadProgress(100);
 
@@ -150,7 +168,7 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
         setPreviewData(response.data);
         setValidacion(response.validacion);
         setStep(STEPS.PREVIEW);
-        
+
         // Mostrar advertencias si las hay
         if (response.validacion.advertencias.length > 0) {
           toast.warning("Archivo procesado con advertencias", {
@@ -166,10 +184,10 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       clearInterval(progressInterval);
       console.error("Error uploading file:", error);
       setErrorMessage(
-        error.response?.data?.detalle || 
-        error.response?.data?.error || 
-        error.message || 
-        "Error al procesar el archivo"
+        error.response?.data?.detalle ||
+          error.response?.data?.error ||
+          error.message ||
+          "Error al procesar el archivo"
       );
       setStep(STEPS.ERROR);
       toast.error("Error al procesar", {
@@ -193,23 +211,29 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
     setIsDragOver(false);
   }, []);
 
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
+  const handleDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
 
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      processFile(files[0]);
-    }
-  }, [processFile]);
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        processFile(files[0]);
+      }
+    },
+    [processFile]
+  );
 
-  const handleFileSelect = useCallback((e) => {
-    const files = e.target.files;
-    if (files.length > 0) {
-      processFile(files[0]);
-    }
-  }, [processFile]);
+  const handleFileSelect = useCallback(
+    (e) => {
+      const files = e.target.files;
+      if (files.length > 0) {
+        processFile(files[0]);
+      }
+    },
+    [processFile]
+  );
 
   /**
    * Actualizar datos de una pestaña
@@ -247,7 +271,7 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
 
     try {
       const response = await cargaMasivaService.confirmLoad(previewData);
-      
+
       clearInterval(progressInterval);
       setUploadProgress(100);
 
@@ -264,10 +288,10 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       clearInterval(progressInterval);
       console.error("Error confirming load:", error);
       setErrorMessage(
-        error.response?.data?.detalle || 
-        error.response?.data?.error || 
-        error.message || 
-        "Error al ejecutar la carga"
+        error.response?.data?.detalle ||
+          error.response?.data?.error ||
+          error.message ||
+          "Error al ejecutar la carga"
       );
       setStep(STEPS.ERROR);
       toast.error("Error en la carga masiva");
@@ -294,7 +318,9 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
           toast.success("¡Validación exitosa!", {
             description: "Los datos están listos para importar",
           });
-        } else if (response.validacion.errores.length < validacion.errores.length) {
+        } else if (
+          response.validacion.errores.length < validacion.errores.length
+        ) {
           toast.info("Algunos errores corregidos", {
             description: `Quedan ${response.validacion.errores.length} errores por corregir`,
           });
@@ -309,7 +335,8 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
     } catch (error) {
       console.error("Error revalidating:", error);
       toast.error("Error al revalidar", {
-        description: error.response?.data?.detalle || error.message || "Error desconocido",
+        description:
+          error.response?.data?.detalle || error.message || "Error desconocido",
       });
     } finally {
       setIsRevalidating(false);
@@ -351,8 +378,8 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       <div
         className={cn(
           "border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer",
-          isDragOver 
-            ? "border-primary bg-primary/5 scale-[1.02]" 
+          isDragOver
+            ? "border-primary bg-primary/5 scale-[1.02]"
             : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
         )}
         onDragOver={handleDragOver}
@@ -367,30 +394,33 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
           className="hidden"
           onChange={handleFileSelect}
         />
-        
+
         <div className="flex flex-col items-center gap-4">
-          <div className={cn(
-            "p-4 rounded-full transition-colors",
-            isDragOver ? "bg-primary/10" : "bg-muted"
-          )}>
-            <Upload className={cn(
-              "h-10 w-10 transition-colors",
-              isDragOver ? "text-primary" : "text-muted-foreground"
-            )} />
+          <div
+            className={cn(
+              "p-4 rounded-full transition-colors",
+              isDragOver ? "bg-primary/10" : "bg-muted"
+            )}
+          >
+            <Upload
+              className={cn(
+                "h-10 w-10 transition-colors",
+                isDragOver ? "text-primary" : "text-muted-foreground"
+              )}
+            />
           </div>
-          
+
           <div>
             <p className="text-lg font-medium">
-              {isDragOver 
-                ? "Suelta el archivo aquí" 
-                : "Arrastra tu archivo Excel aquí"
-              }
+              {isDragOver
+                ? "Suelta el archivo aquí"
+                : "Arrastra tu archivo Excel aquí"}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               o haz clic para seleccionar un archivo
             </p>
           </div>
-          
+
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <FileSpreadsheet className="h-4 w-4" />
             <span>Formatos aceptados: .xlsx, .xls (máx. 10MB)</span>
@@ -405,16 +435,23 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
         <AlertDescription className="text-sm">
           El archivo Excel debe contener tres pestañas:
           <ul className="list-disc list-inside mt-2 space-y-1">
-            <li><strong>Rubros:</strong> nombre, descripcion</li>
             <li>
-              <strong>Vehiculos:</strong> placa, tipo_vehiculo, propietario_nombre, conductor_actual_nombre, estado
+              <strong>Rubros:</strong> nombre, descripcion
+            </li>
+            <li>
+              <strong>Vehiculos:</strong> placa, tipo_vehiculo,
+              propietario_nombre, conductor_actual_nombre, estado
               <br />
               <span className="text-xs text-muted-foreground ml-4">
-                Tipos válidos: automovil, bus, buseta, camioneta, campero, escalera, micro, microbus 
-                (con variantes _municipal o _intermunicipal)
+                Tipos válidos: automovil, bus, buseta, camioneta, campero,
+                escalera, micro, microbus (con variantes _municipal o
+                _intermunicipal)
               </span>
             </li>
-            <li><strong>Cartera_Pendiente:</strong> placa_vehiculo, nombre_rubro, periodo, valor_cargado, saldo_pendiente, estado_deuda</li>
+            <li>
+              <strong>Cartera_Pendiente:</strong> placa_vehiculo, nombre_rubro,
+              periodo, valor_cargado, saldo_pendiente, estado_deuda
+            </li>
           </ul>
         </AlertDescription>
       </Alert>
@@ -436,30 +473,38 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
             const count = previewData[tab.id]?.length || 0;
             const isActive = activeTab === tab.id;
             const tabErrors = validacion.errores.filter(
-              (e) => e.pestana === (tab.id === "cartera_pendiente" ? "Cartera_Pendiente" : tab.id.charAt(0).toUpperCase() + tab.id.slice(1))
+              (e) =>
+                e.pestana ===
+                (tab.id === "cartera_pendiente"
+                  ? "Cartera_Pendiente"
+                  : tab.id.charAt(0).toUpperCase() + tab.id.slice(1))
             );
-            
+
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
                   "p-4 rounded-lg border-2 transition-all text-left",
-                  isActive 
-                    ? "border-primary bg-primary/5" 
+                  isActive
+                    ? "border-primary bg-primary/5"
                     : "border-muted hover:border-primary/50"
                 )}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <tab.icon className={cn(
-                    "h-5 w-5",
-                    isActive ? "text-primary" : "text-muted-foreground"
-                  )} />
+                  <tab.icon
+                    className={cn(
+                      "h-5 w-5",
+                      isActive ? "text-primary" : "text-muted-foreground"
+                    )}
+                  />
                   <span className="font-medium">{tab.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold">{count}</span>
-                  <span className="text-xs text-muted-foreground">registros</span>
+                  <span className="text-xs text-muted-foreground">
+                    registros
+                  </span>
                   {tabErrors.length > 0 && (
                     <Badge variant="destructive" className="text-xs ml-auto">
                       {tabErrors.length}
@@ -477,7 +522,9 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
         {currentErrors.length > 0 && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Errores encontrados ({currentErrors.length})</AlertTitle>
+            <AlertTitle>
+              Errores encontrados ({currentErrors.length})
+            </AlertTitle>
             <AlertDescription>
               <ul className="list-disc list-inside mt-2 max-h-24 overflow-auto text-sm">
                 {currentErrors.slice(0, 5).map((err, idx) => (
@@ -494,7 +541,10 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
         )}
 
         {currentWarnings.length > 0 && (
-          <Alert variant="warning" className="border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/10">
+          <Alert
+            variant="warning"
+            className="border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/10"
+          >
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
             <AlertTitle className="text-yellow-800 dark:text-yellow-200">
               Advertencias ({currentWarnings.length})
@@ -534,13 +584,14 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       <Loader2 className="h-12 w-12 animate-spin text-primary" />
       <div className="text-center">
         <p className="text-lg font-medium">
-          {isConfirming ? "Ejecutando carga masiva..." : "Procesando archivo..."}
+          {isConfirming
+            ? "Ejecutando carga masiva..."
+            : "Procesando archivo..."}
         </p>
         <p className="text-sm text-muted-foreground mt-1">
-          {isConfirming 
-            ? "Esto puede tomar unos momentos" 
-            : `Analizando ${fileName}`
-          }
+          {isConfirming
+            ? "Esto puede tomar unos momentos"
+            : `Analizando ${fileName}`}
         </p>
       </div>
       <Progress value={uploadProgress} className="w-64" />
@@ -556,7 +607,7 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       <div className="p-4 rounded-full bg-green-100 dark:bg-green-900/30">
         <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
       </div>
-      
+
       <div className="text-center">
         <h3 className="text-xl font-bold text-green-700 dark:text-green-300">
           ¡Carga Masiva Completada!
@@ -569,7 +620,9 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       {resultado && (
         <div className="grid grid-cols-3 gap-4 w-full max-w-md">
           <div className="p-4 rounded-lg bg-muted text-center">
-            <p className="text-2xl font-bold text-primary">{resultado.rubros_creados}</p>
+            <p className="text-2xl font-bold text-primary">
+              {resultado.rubros_creados}
+            </p>
             <p className="text-xs text-muted-foreground">Rubros creados</p>
             {resultado.rubros_existentes > 0 && (
               <p className="text-xs text-muted-foreground">
@@ -578,7 +631,9 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
             )}
           </div>
           <div className="p-4 rounded-lg bg-muted text-center">
-            <p className="text-2xl font-bold text-primary">{resultado.vehiculos_creados}</p>
+            <p className="text-2xl font-bold text-primary">
+              {resultado.vehiculos_creados}
+            </p>
             <p className="text-xs text-muted-foreground">Vehículos creados</p>
             {resultado.vehiculos_existentes > 0 && (
               <p className="text-xs text-muted-foreground">
@@ -587,7 +642,9 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
             )}
           </div>
           <div className="p-4 rounded-lg bg-muted text-center">
-            <p className="text-2xl font-bold text-primary">{resultado.deudas_creadas}</p>
+            <p className="text-2xl font-bold text-primary">
+              {resultado.deudas_creadas}
+            </p>
             <p className="text-xs text-muted-foreground">Deudas creadas</p>
             {resultado.deudas_existentes > 0 && (
               <p className="text-xs text-muted-foreground">
@@ -612,7 +669,7 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       <div className="p-4 rounded-full bg-red-100 dark:bg-red-900/30">
         <AlertCircle className="h-12 w-12 text-red-600 dark:text-red-400" />
       </div>
-      
+
       <div className="text-center">
         <h3 className="text-xl font-bold text-red-700 dark:text-red-300">
           Error en la Carga
@@ -667,7 +724,8 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
                   Carga Masiva de Datos
                 </DialogTitle>
                 <DialogDescription>
-                  {step === STEPS.UPLOAD && "Sube un archivo Excel con los datos a importar"}
+                  {step === STEPS.UPLOAD &&
+                    "Sube un archivo Excel con los datos a importar"}
                   {step === STEPS.PREVIEW && `Revisando: ${fileName}`}
                   {step === STEPS.LOADING && "Procesando..."}
                   {step === STEPS.SUCCESS && "Importación completada"}
@@ -675,7 +733,7 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
                 </DialogDescription>
               </div>
             </div>
-            
+
             {step === STEPS.PREVIEW && (
               <Button
                 variant="ghost"
@@ -711,12 +769,12 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
                   </span>
                 )}
               </div>
-              
+
               <div className="flex gap-2">
                 <Button variant="outline" onClick={handleClose}>
                   Cancelar
                 </Button>
-                <Button 
+                <Button
                   variant="secondary"
                   onClick={handleRevalidate}
                   disabled={isRevalidating || isConfirming}
@@ -733,7 +791,7 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
                     </>
                   )}
                 </Button>
-                <Button 
+                <Button
                   onClick={handleConfirm}
                   disabled={isConfirming || isRevalidating}
                 >

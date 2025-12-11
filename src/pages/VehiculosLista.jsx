@@ -82,8 +82,6 @@ export default function VehiculosLista() {
     }
   }, [location]);
 
-
-
   // Exportar a Excel
   const handleExportExcel = async () => {
     setExporting(true);
@@ -269,8 +267,10 @@ export default function VehiculosLista() {
                 className="w-full px-3 py-2 border rounded-md bg-background"
               >
                 <option value="">Todos los tipos</option>
-                {VEHICLE_TYPES.map(type => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
+                {VEHICLE_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -404,10 +404,11 @@ export default function VehiculosLista() {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${vehiculo.estado === "activo"
-                            ? "bg-success/10 text-success"
-                            : "bg-muted text-muted-foreground"
-                            }`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            vehiculo.estado === "activo"
+                              ? "bg-success/10 text-success"
+                              : "bg-muted text-muted-foreground"
+                          }`}
                         >
                           {vehiculo.estado_display || vehiculo.estado}
                         </span>
@@ -499,8 +500,10 @@ export default function VehiculosLista() {
                   }
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {VEHICLE_TYPES.map(type => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
+                  {VEHICLE_TYPES.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
                   ))}
                 </select>
               </div>
