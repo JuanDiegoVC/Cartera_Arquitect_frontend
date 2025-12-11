@@ -407,7 +407,6 @@ export default function GestionEgresos() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Categoría</TableHead>
-                        <TableHead>Vehículo/Conductor</TableHead>
                         <TableHead>Método</TableHead>
                         <TableHead>Hora</TableHead>
                         <TableHead className="text-right">Monto</TableHead>
@@ -418,20 +417,6 @@ export default function GestionEgresos() {
                         <TableRow key={egreso.egreso_id}>
                           <TableCell className="font-medium">
                             {egreso.categoria_nombre}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {egreso.vehiculo_placa ? (
-                              <div>
-                                <p className="font-semibold">
-                                  {egreso.vehiculo_placa}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {egreso.conductor_nombre || "Sin conductor"}
-                                </p>
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground">-</span>
-                            )}
                           </TableCell>
                           <TableCell>
                             <span
