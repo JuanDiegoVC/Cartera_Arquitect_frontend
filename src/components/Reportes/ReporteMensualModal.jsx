@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { reportesService } from "../../services/reportesService";
+import { getCurrentMonthLocal, toLocalDateString } from "../../utils/formatters";
 import {
   TrendingUp,
   TrendingDown,
@@ -19,20 +20,20 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
   const [error, setError] = useState(null);
   const [downloading, setDownloading] = useState(false);
 
-  // Default to current month
-  const [selectedMonth, setSelectedMonth] = useState(
-    new Date().toISOString().slice(0, 7) // YYYY-MM
-  );
+    // Default to current month
+    const [selectedMonth, setSelectedMonth] = useState(
+        getCurrentMonthLocal() // YYYY-MM
+    );
 
-  const fetchReporte = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Calculate start and end of month
-      const [year, month] = selectedMonth.split("-");
-      const startDate = `${year}-${month}-01`;
-      // Last day of month
-      const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
+    const fetchReporte = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            // Calculate start and end of month
+            const [year, month] = selectedMonth.split("-");
+            const startDate = `${year}-${month}-01`;
+            // Last day of month
+            const endDate = toLocalDateString(new Date(year, month, 0));
 
       const result = await reportesService.getReporteMensual({
         periodo_inicio: startDate,
@@ -53,13 +54,13 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
     }
   }, [open, selectedMonth, fetchReporte]);
 
-  const handleDownloadExcel = async () => {
-    setDownloading(true);
-    try {
-      // Calculate start and end of month
-      const [year, month] = selectedMonth.split("-");
-      const startDate = `${year}-${month}-01`;
-      const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
+    const handleDownloadExcel = async () => {
+        setDownloading(true);
+        try {
+            // Calculate start and end of month
+            const [year, month] = selectedMonth.split("-");
+            const startDate = `${year}-${month}-01`;
+            const endDate = toLocalDateString(new Date(year, month, 0));
 
       const response = await reportesService.descargarReporteMensual({
         periodo_inicio: startDate,

@@ -35,7 +35,7 @@ import {
   obtenerCategorias,
   obtenerHistorialEgresos,
 } from "@/services/egresosService";
-import { formatCurrency } from "@/utils/formatters";
+import { formatCurrency, formatLocalDate } from "@/utils/formatters";
 
 export default function HistorialEgresos() {
   const navigate = useNavigate();
@@ -141,11 +141,7 @@ export default function HistorialEgresos() {
 
   const formatearFecha = (fecha) => {
     if (!fecha) return "-";
-    return new Date(fecha).toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+    return formatLocalDate(fecha, 'short');
   };
 
   return (
@@ -405,11 +401,10 @@ export default function HistorialEgresos() {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                              egreso.medio_pago === "efectivo"
+                            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${egreso.medio_pago === "efectivo"
                                 ? "bg-green-100 text-green-800"
                                 : "bg-blue-100 text-blue-800"
-                            }`}
+                              }`}
                           >
                             {egreso.medio_pago_display || egreso.medio_pago}
                           </span>

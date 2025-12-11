@@ -22,7 +22,7 @@ import { Checkbox } from "../components/ui/checkbox";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { cobrosService } from "../services/cobrosService";
 import { vehiculosService } from "../services/vehiculosService";
-import { VEHICLE_TYPES } from "../utils/formatters";
+import { VEHICLE_TYPES, getTodayLocalDate } from "../utils/formatters";
 
 export default function ConfiguracionCobros() {
     const [activeTab, setActiveTab] = useState("rubros");
@@ -120,7 +120,7 @@ export default function ConfiguracionCobros() {
             setFormData(
                 activeTab === "rubros"
                     ? { nombre: "", descripcion: "", es_ocasional: false }
-                    : { rubro: "", tipo_vehiculo: "taxi_blanco", valor: "", fecha_inicio_vigencia: new Date().toISOString().split('T')[0] }
+                    : { rubro: "", tipo_vehiculo: "taxi_blanco", valor: "", fecha_inicio_vigencia: getTodayLocalDate() }
             );
         }
         setIsModalOpen(true);
@@ -199,7 +199,7 @@ export default function ConfiguracionCobros() {
                 rubro: item.rubro_id,
                 tipo_vehiculo: item.tipo_vehiculo,
                 valor: valor,
-                fecha_inicio_vigencia: new Date().toISOString().split('T')[0] // Vigencia desde hoy
+                fecha_inicio_vigencia: getTodayLocalDate() // Vigencia desde hoy
             };
 
             if (item.tarifa_id) {

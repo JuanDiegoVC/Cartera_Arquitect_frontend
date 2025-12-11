@@ -45,6 +45,7 @@ import BotonDescargarCierreTurno from "@/components/Reportes/BotonDescargarCierr
 import CierreTurnoDocument from "@/components/Reportes/CierreTurnoDocument";
 import { pdf } from "@react-pdf/renderer";
 import { useAuth } from "@/hooks/useAuth";
+import { formatLocalDate } from "@/utils/formatters";
 
 /**
  * Componente CierreDeTurno
@@ -600,14 +601,7 @@ const CierreDeTurno = () => {
                         className="cursor-pointer hover:bg-muted/50"
                       >
                         <TableCell>
-                          {new Date(cierre.fecha_cierre).toLocaleDateString(
-                            "es-CO",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
-                          )}
+                          {formatLocalDate(cierre.fecha_cierre, 'long')}
                         </TableCell>
                         <TableCell className="text-right font-semibold">
                           {formatearMoneda(cierre.balance_caja_fisica)}
@@ -616,7 +610,7 @@ const CierreDeTurno = () => {
                           {cierre.cantidad_ingresos} (
                           {formatearMoneda(
                             cierre.total_ingresos_efectivo +
-                              cierre.total_ingresos_digitales
+                            cierre.total_ingresos_digitales
                           )}
                           )
                         </TableCell>
@@ -679,15 +673,7 @@ const CierreDeTurno = () => {
               Detalle de Cierre
             </h1>
             <p className="text-muted-foreground mt-1">
-              {new Date(cierreSeleccionado.fecha_cierre).toLocaleDateString(
-                "es-CO",
-                {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                }
-              )}
+              {formatLocalDate(cierreSeleccionado.fecha_cierre, 'long')}
             </p>
           </div>
           <div className="flex gap-2">
@@ -830,13 +816,12 @@ const CierreDeTurno = () => {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                              ingreso.concepto === "Administración"
-                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                : ingreso.concepto === "Pólizas"
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${ingreso.concepto === "Administración"
+                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                              : ingreso.concepto === "Pólizas"
                                 ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
                                 : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                            }`}
+                              }`}
                           >
                             {ingreso.concepto ||
                               ingreso.concepto_pago ||
@@ -886,11 +871,10 @@ const CierreDeTurno = () => {
                         <TableCell>{egreso.descripcion}</TableCell>
                         <TableCell>
                           <span
-                            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                              egreso.medio_pago === "Efectivo"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                            }`}
+                            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${egreso.medio_pago === "Efectivo"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                              : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                              }`}
                           >
                             {egreso.medio_pago || "Efectivo"}
                           </span>
@@ -972,10 +956,9 @@ const CierreDeTurno = () => {
               cierreGuardadoHoy
                 ? "El cierre de hoy ya fue guardado"
                 : !botonHabilitado
-                ? `Disponible a partir de las ${
-                    HORA_HABILITAR_BOTON.hora
+                  ? `Disponible a partir de las ${HORA_HABILITAR_BOTON.hora
                   }:${String(HORA_HABILITAR_BOTON.minuto).padStart(2, "0")}`
-                : "Guardar cierre de turno"
+                  : "Guardar cierre de turno"
             }
           >
             {guardando ? (
@@ -1031,16 +1014,14 @@ const CierreDeTurno = () => {
       {/* Alerta informativa sobre el estado del cierre */}
       {!cierreGuardadoHoy && (
         <Alert
-          className={`print:hidden ${
-            botonHabilitado
-              ? "border-green-200 bg-green-50 dark:bg-green-950/20"
-              : "border-amber-200 bg-amber-50 dark:bg-amber-950/20"
-          }`}
+          className={`print:hidden ${botonHabilitado
+            ? "border-green-200 bg-green-50 dark:bg-green-950/20"
+            : "border-amber-200 bg-amber-50 dark:bg-amber-950/20"
+            }`}
         >
           <Clock
-            className={`h-4 w-4 ${
-              botonHabilitado ? "text-green-600" : "text-amber-600"
-            }`}
+            className={`h-4 w-4 ${botonHabilitado ? "text-green-600" : "text-amber-600"
+              }`}
           />
           <AlertDescription
             className={
@@ -1277,13 +1258,12 @@ const CierreDeTurno = () => {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                              ingreso.concepto === "Administración"
-                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                : ingreso.concepto === "Pólizas"
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${ingreso.concepto === "Administración"
+                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                              : ingreso.concepto === "Pólizas"
                                 ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
                                 : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                            }`}
+                              }`}
                           >
                             {ingreso.concepto}
                           </span>
@@ -1293,11 +1273,10 @@ const CierreDeTurno = () => {
                         </TableCell>
                         <TableCell className="hidden xl:table-cell">
                           <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                              ingreso.medio_pago === "Efectivo"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                            }`}
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${ingreso.medio_pago === "Efectivo"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                              : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                              }`}
                           >
                             {ingreso.medio_pago}
                           </span>
@@ -1384,11 +1363,10 @@ const CierreDeTurno = () => {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                              egreso.medio_pago === "Efectivo"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                            }`}
+                            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${egreso.medio_pago === "Efectivo"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                              : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                              }`}
                           >
                             {egreso.medio_pago || "Efectivo"}
                           </span>

@@ -40,6 +40,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { rendimientoService } from "../services/rendimientoService";
+import { getTodayLocalDate, getCurrentMonthLocal, toLocalDateString } from "../utils/formatters";
 
 // Componente para mostrar una métrica con comparación
 const MetricaCard = ({
@@ -263,9 +264,9 @@ const RecaudoPorHoraChart = ({ dataHoy, dataAyer }) => {
               <div className="w-20 text-xs text-right">
                 {hora.valor > 0
                   ? new Intl.NumberFormat("es-CO", {
-                      notation: "compact",
-                      maximumFractionDigits: 0,
-                    }).format(hora.valor)
+                    notation: "compact",
+                    maximumFractionDigits: 0,
+                  }).format(hora.valor)
                   : "-"}
               </div>
             </div>
@@ -438,10 +439,10 @@ const Rendimiento = () => {
 
   // Estados para navegación de fecha
   const [fechaSeleccionada, setFechaSeleccionada] = useState(
-    searchParams.get("fecha") || new Date().toISOString().split("T")[0]
+    searchParams.get("fecha") || getTodayLocalDate()
   );
   const [mesSeleccionado, setMesSeleccionado] = useState(
-    searchParams.get("mes") || new Date().toISOString().slice(0, 7)
+    searchParams.get("mes") || getCurrentMonthLocal()
   );
 
   // Cargar datos según la pestaña activa
@@ -489,7 +490,7 @@ const Rendimiento = () => {
   const navegarFecha = (direccion) => {
     const fecha = new Date(fechaSeleccionada);
     fecha.setDate(fecha.getDate() + direccion);
-    setFechaSeleccionada(fecha.toISOString().split("T")[0]);
+    setFechaSeleccionada(toLocalDateString(fecha));
   };
 
   const navegarMes = (direccion) => {
@@ -535,22 +536,20 @@ const Rendimiento = () => {
       <div className="flex border-b">
         <button
           onClick={() => setActiveTab("diario")}
-          className={`px-4 py-2 font-medium text-sm transition-colors relative ${
-            activeTab === "diario"
+          className={`px-4 py-2 font-medium text-sm transition-colors relative ${activeTab === "diario"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           <Calendar className="h-4 w-4 inline-block mr-2" />
           Rendimiento Diario
         </button>
         <button
           onClick={() => setActiveTab("mensual")}
-          className={`px-4 py-2 font-medium text-sm transition-colors relative ${
-            activeTab === "mensual"
+          className={`px-4 py-2 font-medium text-sm transition-colors relative ${activeTab === "mensual"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           <BarChart3 className="h-4 w-4 inline-block mr-2" />
           Rendimiento Mensual
@@ -586,9 +585,7 @@ const Rendimiento = () => {
                 variant="outline"
                 size="icon"
                 onClick={() => navegarFecha(1)}
-                disabled={
-                  fechaSeleccionada >= new Date().toISOString().split("T")[0]
-                }
+                disabled={fechaSeleccionada >= getTodayLocalDate()}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -756,10 +753,7 @@ const Rendimiento = () => {
                 variant="outline"
                 size="icon"
                 onClick={() => navegarMes(1)}
-                disabled={
-                  mesSeleccionado >= new Date().toISOString().slice(0, 7)
-                }
-                className="shrink-0"
+                disabled={mesSeleccionado >= getCurrentMonthLocal()}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -920,35 +914,31 @@ const Rendimiento = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {dataMensual.graficas.top_vehiculos.map(
-                      (vehiculo, index) => (
-                        <TableRow key={vehiculo.placa}>
-                          <TableCell>
-                            <Badge
-                              variant={index < 3 ? "default" : "outline"}
-                              className={
-                                index === 0
-                                  ? "bg-yellow-500"
-                                  : index === 1
+                    {dataMensual.graficas.top_vehiculos.map((vehiculo, index) => (
+                      <TableRow key={vehiculo.placa}>
+                        <TableCell>
+                          <Badge
+                            variant={index < 3 ? "default" : "outline"}
+                            className={
+                              index === 0
+                                ? "bg-yellow-500"
+                                : index === 1
                                   ? "bg-gray-400"
                                   : index === 2
-                                  ? "bg-amber-700"
-                                  : ""
-                              }
-                            >
-                              {index + 1}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {vehiculo.placa}
-                          </TableCell>
-                          <TableCell>{vehiculo.propietario}</TableCell>
-                          <TableCell className="text-right font-medium">
-                            {formatCurrency(vehiculo.valor)}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )}
+                                    ? "bg-amber-700"
+                                    : ""
+                            }
+                          >
+                            {index + 1}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-medium">{vehiculo.placa}</TableCell>
+                        <TableCell>{vehiculo.propietario}</TableCell>
+                        <TableCell className="text-right font-medium">
+                          {formatCurrency(vehiculo.valor)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               </CardContent>
