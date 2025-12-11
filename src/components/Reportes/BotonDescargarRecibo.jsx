@@ -2,6 +2,7 @@ import { Button } from "../ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { pagosService } from "../../services/pagosService";
+import { getTodayLocalDate } from "../../utils/formatters";
 
 /**
  * Componente Botón para Descargar Recibo de Caja en PDF
@@ -23,7 +24,7 @@ const BotonDescargarRecibo = ({
   // Use current date if transaction date is not available in datosRecibo (it usually is in receipt details)
   // For immediate download after payment, we can use current date or extract from response if available.
   // Let's use current date as fallback or try to find it.
-  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const dateStr = getTodayLocalDate().replace(/-/g, "");
   const nombreArchivo = `PAGO_${placa}_${dateStr}.pdf`;
 
   const handleDownload = async () => {

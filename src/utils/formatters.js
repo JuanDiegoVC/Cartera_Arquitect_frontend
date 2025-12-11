@@ -39,6 +39,76 @@ export const formatDate = (date, format = 'short') => {
 };
 
 /**
+ * Returns today's date in YYYY-MM-DD format, in local timezone.
+ * Use this instead of new Date().toISOString().split('T')[0] to avoid
+ * the UTC issue where dates shift after 7 PM Colombia time.
+ * @returns {string} Date in YYYY-MM-DD format
+ */
+export const getTodayLocalDate = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * Returns the current month in YYYY-MM format, in local timezone.
+ * Use this instead of new Date().toISOString().slice(0, 7) to avoid UTC issues.
+ * @returns {string} Month in YYYY-MM format
+ */
+export const getCurrentMonthLocal = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+};
+
+/**
+ * Converts a Date object to YYYY-MM-DD format in local timezone.
+ * @param {Date} date - Date object to convert
+ * @returns {string} Date in YYYY-MM-DD format
+ */
+export const toLocalDateString = (date) => {
+  if (!date) return '';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * Formats a date string from backend for display in local timezone.
+ * Fixes the issue where 'YYYY-MM-DD' is interpreted as UTC midnight,
+ * causing dates to shift to the previous day after 7 PM local time.
+ * @param {string} dateString - Date string from backend (e.g., '2025-12-10')
+ * @param {string} format - Format: 'short', 'long', 'datetime'
+ * @returns {string} Formatted date in local timezone
+ */
+export const formatLocalDate = (dateString, format = 'short') => {
+  if (!dateString) return '-';
+
+  // Append T00:00:00 to date-only strings to force local interpretation
+  // This prevents UTC conversion that shifts dates back a day after 7 PM
+  let dateToFormat = dateString;
+  if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    dateToFormat = dateString + 'T00:00:00';
+  }
+
+  const date = new Date(dateToFormat);
+  if (isNaN(date.getTime())) return dateString;
+
+  const options = {
+    short: { year: 'numeric', month: 'short', day: 'numeric' },
+    long: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' },
+    datetime: { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' },
+  };
+
+  return new Intl.DateTimeFormat('es-CO', options[format] || options.short).format(date);
+};
+
+/**
  * Formatea una placa de vehículo en mayúsculas
  * @param {string} placa - Placa a formatear
  * @returns {string} Placa formateada

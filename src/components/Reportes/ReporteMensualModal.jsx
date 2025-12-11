@@ -8,6 +8,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { reportesService } from "../../services/reportesService";
+import { getCurrentMonthLocal, toLocalDateString } from "../../utils/formatters";
 import {
     TrendingUp,
     TrendingDown,
@@ -26,7 +27,7 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
 
     // Default to current month
     const [selectedMonth, setSelectedMonth] = useState(
-        new Date().toISOString().slice(0, 7) // YYYY-MM
+        getCurrentMonthLocal() // YYYY-MM
     );
 
     const fetchReporte = useCallback(async () => {
@@ -37,7 +38,7 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
             const [year, month] = selectedMonth.split("-");
             const startDate = `${year}-${month}-01`;
             // Last day of month
-            const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
+            const endDate = toLocalDateString(new Date(year, month, 0));
 
             const result = await reportesService.getReporteMensual({
                 periodo_inicio: startDate,
@@ -64,7 +65,7 @@ export default function ReporteMensualModal({ open, onOpenChange }) {
             // Calculate start and end of month
             const [year, month] = selectedMonth.split("-");
             const startDate = `${year}-${month}-01`;
-            const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
+            const endDate = toLocalDateString(new Date(year, month, 0));
 
             const response = await reportesService.descargarReporteMensual({
                 periodo_inicio: startDate,

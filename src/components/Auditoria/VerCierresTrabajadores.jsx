@@ -49,6 +49,7 @@ import {
 } from "lucide-react";
 import { auditoriaService } from "@/services/auditoriaService";
 import { toast } from "sonner";
+import { getTodayLocalDate, toLocalDateString } from "@/utils/formatters";
 
 /**
  * Componente para ver los cierres de turno de trabajadores
@@ -60,13 +61,13 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
   const [cierres, setCierres] = useState([]);
   const [trabajadores, setTrabajadores] = useState([]);
   const [totalCierres, setTotalCierres] = useState(0);
-  
+
   // Filtros
   const [fechaSeleccionada, setFechaSeleccionada] = useState(
-    new Date().toISOString().split("T")[0]
+    getTodayLocalDate()
   );
   const [trabajadorSeleccionado, setTrabajadorSeleccionado] = useState("");
-  
+
   // Estado para ver detalle de un cierre
   const [cierreDetalle, setCierreDetalle] = useState(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
@@ -86,7 +87,7 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
       if (trabajadorSeleccionado && trabajadorSeleccionado !== "todos") {
         filtros.usuario_id = trabajadorSeleccionado;
       }
-      
+
       const data = await auditoriaService.obtenerCierresTrabajadores(filtros);
       setCierres(data.cierres || []);
       setTrabajadores(data.trabajadores || []);
@@ -123,11 +124,11 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
   const cambiarFecha = (dias) => {
     const fecha = new Date(fechaSeleccionada);
     fecha.setDate(fecha.getDate() + dias);
-    setFechaSeleccionada(fecha.toISOString().split("T")[0]);
+    setFechaSeleccionada(toLocalDateString(fecha));
   };
 
   const irAHoy = () => {
-    setFechaSeleccionada(new Date().toISOString().split("T")[0]);
+    setFechaSeleccionada(getTodayLocalDate());
   };
 
   // Formatear moneda
@@ -151,7 +152,7 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
   };
 
   // Verificar si es hoy
-  const esHoy = fechaSeleccionada === new Date().toISOString().split("T")[0];
+  const esHoy = fechaSeleccionada === getTodayLocalDate();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -183,8 +184,8 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : cierreDetalle ? (
-              <DetalleCierreTrabajador 
-                cierre={cierreDetalle} 
+              <DetalleCierreTrabajador
+                cierre={cierreDetalle}
                 formatearMoneda={formatearMoneda}
               />
             ) : null}
@@ -202,7 +203,7 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                
+
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <Input
@@ -212,7 +213,7 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
                     className="w-[160px]"
                   />
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="icon"
@@ -221,7 +222,7 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-                
+
                 {!esHoy && (
                   <Button
                     variant="secondary"
@@ -263,8 +264,8 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
                 {totalCierres === 0
                   ? "No hay cierres registrados"
                   : totalCierres === 1
-                  ? "1 cierre registrado"
-                  : `${totalCierres} cierres registrados`}
+                    ? "1 cierre registrado"
+                    : `${totalCierres} cierres registrados`}
               </p>
             </div>
 
@@ -337,11 +338,10 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <p className={`font-bold ${
-                            cierre.balance_caja_fisica >= 0 
-                              ? "text-blue-600" 
+                          <p className={`font-bold ${cierre.balance_caja_fisica >= 0
+                              ? "text-blue-600"
                               : "text-orange-600"
-                          }`}>
+                            }`}>
                             {formatearMoneda(cierre.balance_caja_fisica)}
                           </p>
                         </TableCell>
