@@ -60,9 +60,9 @@ export default function DeudoresMorosos() {
             const pageWidth = doc.internal.pageSize.getWidth();
             const textWidth = pageWidth - (margin * 2);
 
-            // Configurar fuente Arial 11 (helvetica es el equivalente en jsPDF)
+            // Configurar fuente Arial 10 (helvetica es el equivalente en jsPDF)
             doc.setFont("helvetica", "normal");
-            doc.setFontSize(11);
+            doc.setFontSize(10.5);
 
             // Función para justificar texto
             const justifyText = (text, maxWidth, fontSize) => {
@@ -133,21 +133,21 @@ export default function DeudoresMorosos() {
 
             // Fecha
             doc.text(`Medellín, ${fechaFormateada}`, margin, y);
-            y += 12;
+            y += 9;
 
             // Destinatario
             doc.text("Señor(a)", margin, y);
-            y += 6;
+            y += 5;
             doc.setFont("helvetica", "bold");
             doc.text(item.conductor.toUpperCase(), margin, y);
-            y += 10;
+            y += 8;
 
             // Referencia
             doc.setFont("helvetica", "bold");
             doc.text("Referencia: ", margin, y);
             doc.setFont("helvetica", "normal");
             doc.text("Cobro prejudicial por obligaciones pendientes.", margin + 22, y);
-            y += 12;
+            y += 9;
 
             // Formatear valores - Usar MORA (deuda vencida), no deuda total
             const moraFormateada = parseFloat(item.total_mora || 0).toLocaleString('es-CO', { 
@@ -162,64 +162,61 @@ export default function DeudoresMorosos() {
                 ? item.rubros_mora 
                 : "obligaciones de afiliación y administración";
 
-            const lineHeight = 6;
+            const lineHeight = 4.5;
 
             // Cuerpo del documento - Párrafo 1
             const parrafo1 = `Por medio de la presente, SOTRAPEÑOL LTDA le informa que, debido al incumplimiento de las obligaciones a su cargo como afiliado a esta empresa, por concepto de ${conceptoDeuda}, que a la fecha se encuentran en mora, por un valor de ${moraFormateada}, obligación derivada del contrato de vinculación y/o administración celebrado entre usted y la empresa; por lo que, le hacemos este requerimiento con el fin de que se ponga al día en sus obligaciones, de lo contrario, nos faculta para iniciar en su contra, sin necesidad de nuevos avisos, el proceso judicial ante un juez de la república, para que la obligación preste mérito ejecutivo y se puedan pedir medidas cautelares (embargo y secuestro) de bienes que se encuentren a su nombre, con el fin de obtener el pago forzoso de las obligaciones pendientes.`;
             
-            y = drawJustifiedText(parrafo1, margin, y, textWidth, lineHeight, 11);
-            y += 4;
+            y = drawJustifiedText(parrafo1, margin, y, textWidth, lineHeight, 10);
+            y += 3;
 
             // Párrafo 2
             const parrafo2 = `Una vez iniciado el proceso, la deuda continuará incrementándose por concepto de intereses moratorios, costas procesales y honorarios profesionales, los cuales deberán ser asumidos integralmente por usted.`;
             
-            y = drawJustifiedText(parrafo2, margin, y, textWidth, lineHeight, 11);
-            y += 4;
+            y = drawJustifiedText(parrafo2, margin, y, textWidth, lineHeight, 10);
+            y += 3;
 
             // Párrafo 3
             const parrafo3 = `Adicionalmente, el incumplimiento de estas obligaciones, podrá generar afectaciones negativas en su historial crediticio, así como en el de cualquier codeudor o garante vinculado a la obligación.`;
             
-            y = drawJustifiedText(parrafo3, margin, y, textWidth, lineHeight, 11);
-            y += 4;
+            y = drawJustifiedText(parrafo3, margin, y, textWidth, lineHeight, 10);
+            y += 3;
 
             // Párrafo 4 - Plazo (5 días hábiles)
             const parrafo4 = `Para evitar mayores perjuicios económicos, evitar un proceso jurídico y la práctica de medidas judiciales, cuenta con un plazo improrrogable de cinco (5) días hábiles siguientes a la recepción de esta comunicación, para que se ponga al día con todas las obligaciones pendientes con SOTRAPEÑOL LTDA.`;
             
-            y = drawJustifiedText(parrafo4, margin, y, textWidth, lineHeight, 11);
-            y += 4;
+            y = drawJustifiedText(parrafo4, margin, y, textWidth, lineHeight, 10);
+            y += 3;
 
             // Párrafo 5
             const parrafo5 = `Transcurrido dicho término sin recibir respuesta, se entenderá que no existe interés de su parte, en cumplir voluntariamente y se procederá a iniciar la actuación judicial correspondiente.`;
             
-            y = drawJustifiedText(parrafo5, margin, y, textWidth, lineHeight, 11);
-            y += 4;
+            y = drawJustifiedText(parrafo5, margin, y, textWidth, lineHeight, 10);
+            y += 3;
 
             // Párrafo 6
             const parrafo6 = `Se le informa que, solamente el pago de las obligaciones pendientes, es el único mecanismo para detener el inicio del proceso judicial.`;
             
-            y = drawJustifiedText(parrafo6, margin, y, textWidth, lineHeight, 11);
-            y += 4;
+            y = drawJustifiedText(parrafo6, margin, y, textWidth, lineHeight, 10);
+            y += 3;
 
             // Nota de adjuntos
             doc.text("Se adjuntan las facturas y soportes objeto de cobro.", margin, y);
-
-            // ========== PÁGINA 2 ==========
-            doc.addPage();
-            y = 30;
+            y += 12;
 
             // Despedida
             doc.text("Atentamente,", margin, y);
-            y += 15;
+            y += 12;
 
             // Firma
             doc.setFont("helvetica", "bold");
             doc.text("JHON JAIRO RAMÍREZ ATEHORTÚA", margin, y);
-            y += 6;
+            y += 5;
             doc.setFont("helvetica", "normal");
             doc.text("C.C. 71.773.489", margin, y);
-            y += 6;
+            y += 5;
             doc.text("Representante Legal", margin, y);
-            y += 6;
+            y += 5;
             doc.setFont("helvetica", "bold");
             doc.text("SOTRAPEÑOL LTDA", margin, y);
 
