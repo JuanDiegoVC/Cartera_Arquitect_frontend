@@ -82,10 +82,12 @@ const VehicleSearch = () => {
 
   const calcularTotalDeuda = () => {
     if (!vehicleData?.deudas_pendientes) return 0;
-    return vehicleData.deudas_pendientes.reduce(
-      (total, deuda) => total + parseFloat(deuda.saldo_pendiente),
-      0
-    );
+    return vehicleData.deudas_pendientes
+      .filter((deuda) => deuda.estado_deuda !== "anulada") // Excluir anuladas
+      .reduce(
+        (total, deuda) => total + parseFloat(deuda.saldo_pendiente),
+        0
+      );
   };
 
   const formatCurrency = (value) => {
@@ -134,39 +136,41 @@ const VehicleSearch = () => {
                 vehicleData.deudas_pendientes.length > 0 ? (
                 <>
                   <div className="deudas-list">
-                    {vehicleData.deudas_pendientes.map((deuda) => (
-                      <div key={deuda.deuda_id} className="deuda-item">
-                        <div className="deuda-info">
-                          <span className="deuda-rubro">
-                            {deuda.rubro.nombre}
-                          </span>
-                          <span className="deuda-periodo">
-                            {(() => {
-                              const [year, month] = deuda.periodo.split('-');
-                              return new Date(parseInt(year), parseInt(month) - 1, 15).toLocaleDateString(
-                                "es-CO",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                }
-                              );
-                            })()}
-                          </span>
-                        </div>
-                        <div className="deuda-montos">
-                          <div>
-                            <small>Valor:</small>
-                            <span>{formatCurrency(deuda.valor_cargado)}</span>
+                    {vehicleData.deudas_pendientes
+                      .filter((deuda) => deuda.estado_deuda !== "anulada") // Excluir anuladas
+                      .map((deuda) => (
+                        <div key={deuda.deuda_id} className="deuda-item">
+                          <div className="deuda-info">
+                            <span className="deuda-rubro">
+                              {deuda.rubro.nombre}
+                            </span>
+                            <span className="deuda-periodo">
+                              {(() => {
+                                const [year, month] = deuda.periodo.split('-');
+                                return new Date(parseInt(year), parseInt(month) - 1, 15).toLocaleDateString(
+                                  "es-CO",
+                                  {
+                                    year: "numeric",
+                                    month: "long",
+                                  }
+                                );
+                              })()}
+                            </span>
                           </div>
-                          <div>
-                            <small>Saldo:</small>
-                            <strong className="saldo-pendiente">
-                              {formatCurrency(deuda.saldo_pendiente)}
-                            </strong>
+                          <div className="deuda-montos">
+                            <div>
+                              <small>Valor:</small>
+                              <span>{formatCurrency(deuda.valor_cargado)}</span>
+                            </div>
+                            <div>
+                              <small>Saldo:</small>
+                              <strong className="saldo-pendiente">
+                                {formatCurrency(deuda.saldo_pendiente)}
+                              </strong>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
 
                   <div className="total-deuda">
