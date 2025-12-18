@@ -541,10 +541,12 @@ export default function GenerarFacturacion() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${deuda.estado_deuda === "pagado"
-                          ? "bg-green-100 text-green-800"
-                          : deuda.estado_deuda === "abonado"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                            ? "bg-green-100 text-green-800"
+                            : deuda.estado_deuda === "abonado"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : deuda.estado_deuda === "anulada"
+                                ? "bg-gray-100 text-gray-600 line-through"
+                                : "bg-red-100 text-red-800"
                           }`}>
                           {deuda.estado_deuda}
                         </span>
@@ -554,7 +556,7 @@ export default function GenerarFacturacion() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleOpenEditModal(deuda)}
-                          disabled={deuda.estado_deuda === "pagado"}
+                          disabled={deuda.estado_deuda === "pagado" || deuda.estado_deuda === "anulada"}
                         >
                           <Edit2 className="h-3 w-3 mr-1" />
                           Editar
