@@ -237,16 +237,20 @@ export default function Taquilla() {
         owner: data.propietario_nombre,
         vehicleType: data.tipo_vehiculo,
         items: data.deudas_pendientes.map((deuda) => {
+          // Parsear fecha manualmente para evitar problemas de zona horaria
+          const [year, month] = deuda.periodo.split('-');
+          const monthFormatted = new Date(parseInt(year), parseInt(month) - 1, 15).toLocaleDateString(
+            "es-CO",
+            {
+              year: "numeric",
+              month: "long",
+            }
+          );
+
           const deudaObj = {
             id: deuda.deuda_id.toString(),
             concept: deuda.rubro.nombre,
-            month: new Date(deuda.periodo + "T00:00:00").toLocaleDateString(
-              "es-CO",
-              {
-                year: "numeric",
-                month: "long",
-              }
-            ),
+            month: monthFormatted,
             amount: parseFloat(deuda.valor_cargado),
             saldoPendiente: parseFloat(deuda.saldo_pendiente),
             periodo: deuda.periodo,
@@ -479,16 +483,20 @@ export default function Taquilla() {
         owner: updatedData.propietario_nombre,
         vehicleType: updatedData.tipo_vehiculo,
         items: updatedData.deudas_pendientes.map((deuda) => {
+          // Parsear fecha manualmente para evitar problemas de zona horaria
+          const [year, month] = deuda.periodo.split('-');
+          const monthFormatted = new Date(parseInt(year), parseInt(month) - 1, 15).toLocaleDateString(
+            "es-CO",
+            {
+              year: "numeric",
+              month: "long",
+            }
+          );
+
           const deudaObj = {
             id: deuda.deuda_id.toString(),
             concept: deuda.rubro.nombre,
-            month: new Date(deuda.periodo + "T00:00:00").toLocaleDateString(
-              "es-CO",
-              {
-                year: "numeric",
-                month: "long",
-              }
-            ),
+            month: monthFormatted,
             amount: parseFloat(deuda.valor_cargado),
             saldoPendiente: parseFloat(deuda.saldo_pendiente),
             periodo: deuda.periodo,

@@ -103,7 +103,7 @@ const VehicleSearch = () => {
           value={searchTerm}
           onChange={setSearchTerm}
           onSelect={handlePlacaSelect}
-          placeholder="Buscar por placa (ej: ABC123)..."
+          placeholder="Buscar por placa"
         />
         {loading && <span className="search-loading">🔍</span>}
       </div>
@@ -131,7 +131,7 @@ const VehicleSearch = () => {
               <h3>Estado de Cuenta</h3>
 
               {vehicleData.deudas_pendientes &&
-              vehicleData.deudas_pendientes.length > 0 ? (
+                vehicleData.deudas_pendientes.length > 0 ? (
                 <>
                   <div className="deudas-list">
                     {vehicleData.deudas_pendientes.map((deuda) => (
@@ -141,13 +141,16 @@ const VehicleSearch = () => {
                             {deuda.rubro.nombre}
                           </span>
                           <span className="deuda-periodo">
-                            {new Date(deuda.periodo).toLocaleDateString(
-                              "es-CO",
-                              {
-                                year: "numeric",
-                                month: "long",
-                              }
-                            )}
+                            {(() => {
+                              const [year, month] = deuda.periodo.split('-');
+                              return new Date(parseInt(year), parseInt(month) - 1, 15).toLocaleDateString(
+                                "es-CO",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                }
+                              );
+                            })()}
                           </span>
                         </div>
                         <div className="deuda-montos">

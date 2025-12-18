@@ -88,4 +88,34 @@ export const cobrosService = {
             throw error.response?.data || error;
         }
     },
+
+    // --- DEUDAS (CORRECCIÓN DE FACTURAS) ---
+    /**
+     * Buscar deudas por placa del vehículo
+     * @param {string} placa - Placa a buscar (búsqueda parcial)
+     * @returns {Promise<Array>} Lista de deudas encontradas
+     */
+    getDeudasByPlaca: async (placa) => {
+        try {
+            const response = await apiClient.get(`/v1/cobros/deudas/?placa=${encodeURIComponent(placa)}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
+    /**
+     * Actualizar una deuda (valor, estado, descripción)
+     * @param {number} id - ID de la deuda
+     * @param {Object} data - Datos a actualizar
+     * @returns {Promise<Object>} Deuda actualizada
+     */
+    updateDeuda: async (id, data) => {
+        try {
+            const response = await apiClient.patch(`/v1/cobros/deudas/${id}/`, data);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
 };
