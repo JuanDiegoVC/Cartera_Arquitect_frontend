@@ -43,6 +43,8 @@ import { reportesService } from "@/services/reportesService";
 import { toast } from "sonner";
 import BotonDescargarCierreTurno from "@/components/Reportes/BotonDescargarCierreTurno";
 import CierreTurnoDocument from "@/components/Reportes/CierreTurnoDocument";
+import ResumenPorConcepto from "@/components/Reportes/ResumenPorConcepto";
+import { agruparPorConcepto } from "@/utils/agruparPorConcepto";
 import { pdf } from "@react-pdf/renderer";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -224,6 +226,10 @@ const CierreDeTurno = () => {
       const day = String(fechaLocal.getDate()).padStart(2, "0");
       const fechaCierre = `${year}-${month}-${day}`;
 
+      // Calcular totales por concepto para el guardado automático
+      const totalesIngresos = agruparPorConcepto(datos.movimientos.ingresos, "concepto", "monto");
+      const totalesEgresos = agruparPorConcepto(datos.movimientos.egresos, "categoria", "monto");
+
       const cierreData = {
         fecha_cierre: fechaCierre,
         total_ingresos_efectivo: datos.resumen.total_ingresos_efectivo,
@@ -232,6 +238,11 @@ const CierreDeTurno = () => {
         balance_caja_fisica: datos.resumen.balance_caja_fisica,
         detalle_ingresos: datos.movimientos.ingresos,
         detalle_egresos: datos.movimientos.egresos,
+        // Totales agrupados por concepto/categoría
+        totales_por_concepto: {
+          ingresos: totalesIngresos.resumenOrdenado,
+          egresos: totalesEgresos.resumenOrdenado,
+        },
         observaciones: motivo,
       };
 
@@ -282,6 +293,11 @@ const CierreDeTurno = () => {
         balance_caja_fisica: datos.resumen.balance_caja_fisica,
         detalle_ingresos: datos.movimientos.ingresos,
         detalle_egresos: datos.movimientos.egresos,
+        // Totales agrupados por concepto/categoría
+        totales_por_concepto: {
+          ingresos: totalesIngresosPorConcepto.resumenOrdenado,
+          egresos: totalesEgresosPorCategoria.resumenOrdenado,
+        },
         observaciones: "Cierre manual",
       };
 
@@ -392,6 +408,11 @@ const CierreDeTurno = () => {
       fecha: new Date().toISOString(),
       resumen: datos.resumen,
       movimientos: datos.movimientos,
+      // Totales agrupados por concepto para mostrar en el PDF
+      totalesPorConcepto: {
+        ingresos: totalesIngresosPorConcepto.resumenOrdenado,
+        egresos: totalesEgresosPorCategoria.resumenOrdenado,
+      },
       cajero: {
         nombre: user?.nombre_completo || "Cajero",
         usuario: user?.username || "usuario@sotrapeñol.com",
@@ -484,6 +505,22 @@ const CierreDeTurno = () => {
       total: totalFiltrado,
     };
   }, [ingresosFiltrados]);
+
+  // Calcular totales por concepto de ingresos
+  const totalesIngresosPorConcepto = useMemo(() => {
+    if (!datos?.movimientos?.ingresos) {
+      return { totalesPorConcepto: {}, resumenOrdenado: [], totalGeneral: 0 };
+    }
+    return agruparPorConcepto(datos.movimientos.ingresos, "concepto", "monto");
+  }, [datos?.movimientos?.ingresos]);
+
+  // Calcular totales por categoría de egresos
+  const totalesEgresosPorCategoria = useMemo(() => {
+    if (!datos?.movimientos?.egresos) {
+      return { totalesPorConcepto: {}, resumenOrdenado: [], totalGeneral: 0 };
+    }
+    return agruparPorConcepto(datos.movimientos.egresos, "categoria", "monto");
+  }, [datos?.movimientos?.egresos]);
 
   // Limpiar filtros
   const limpiarFiltros = () => {
@@ -649,6 +686,12 @@ const CierreDeTurno = () => {
   if (vistaActual === "detalle" && cierreSeleccionado) {
     const { resumen, movimientos } = cierreSeleccionado;
 
+    // Calcular totales por concepto para el historial (pueden venir del backend o calcularse)
+    const totalesIngresosHistorial = cierreSeleccionado.totales_por_concepto?.ingresos 
+      || agruparPorConcepto(movimientos.ingresos, "concepto", "monto").resumenOrdenado;
+    const totalesEgresosHistorial = cierreSeleccionado.totales_por_concepto?.egresos 
+      || agruparPorConcepto(movimientos.egresos, "categoria", "monto").resumenOrdenado;
+
     const datosPDFHistorial = {
       empresa: {
         nombre: "SOTRAPEÑOL",
@@ -664,6 +707,11 @@ const CierreDeTurno = () => {
         total_egresos: resumen.total_egresos,
       },
       movimientos: movimientos,
+      // Totales agrupados por concepto
+      totalesPorConcepto: {
+        ingresos: totalesIngresosHistorial,
+        egresos: totalesEgresosHistorial,
+      },
       cajero: {
         nombre: user?.nombre_completo || "Cajero",
         usuario: user?.username || "usuario@sotrapeñol.com",
@@ -905,6 +953,26 @@ const CierreDeTurno = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Resumen por Concepto en vista de detalle del historial */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {totalesIngresosHistorial.length > 0 && (
+            <ResumenPorConcepto
+              resumen={totalesIngresosHistorial}
+              titulo="Totales de Ingresos por Concepto"
+              tipo="ingresos"
+              formatearMoneda={formatearMoneda}
+            />
+          )}
+          {totalesEgresosHistorial.length > 0 && (
+            <ResumenPorConcepto
+              resumen={totalesEgresosHistorial}
+              titulo="Totales de Egresos por Categoría"
+              tipo="egresos"
+              formatearMoneda={formatearMoneda}
+            />
+          )}
         </div>
       </div>
     );
@@ -1329,6 +1397,16 @@ const CierreDeTurno = () => {
           </CardContent>
         </Card>
 
+        {/* Resumen de Ingresos por Concepto */}
+        {totalesIngresosPorConcepto.resumenOrdenado.length > 0 && (
+          <ResumenPorConcepto
+            resumen={totalesIngresosPorConcepto.resumenOrdenado}
+            titulo="Totales de Ingresos por Concepto"
+            tipo="ingresos"
+            formatearMoneda={formatearMoneda}
+          />
+        )}
+
         {/* Tabla de Gastos */}
         <Card>
           <CardHeader>
@@ -1404,6 +1482,16 @@ const CierreDeTurno = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Resumen de Egresos por Categoría */}
+        {totalesEgresosPorCategoria.resumenOrdenado.length > 0 && (
+          <ResumenPorConcepto
+            resumen={totalesEgresosPorCategoria.resumenOrdenado}
+            titulo="Totales de Egresos por Categoría"
+            tipo="egresos"
+            formatearMoneda={formatearMoneda}
+          />
+        )}
       </div>
 
       {/* Información adicional para impresión */}
