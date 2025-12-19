@@ -290,6 +290,87 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     padding: 10,
   },
+
+  // Sección de totales por concepto
+  totalesSection: {
+    marginTop: 15,
+    marginBottom: 15,
+  },
+  totalesSectionTitle: {
+    fontSize: 11,
+    fontWeight: "bold",
+    color: "#1F2937",
+    marginBottom: 8,
+    textTransform: "uppercase",
+  },
+  totalesGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  totalesCard: {
+    width: "48%",
+    padding: 10,
+    borderRadius: 4,
+    border: "1 solid #D1D5DB",
+  },
+  totalesCardIngresos: {
+    backgroundColor: "#ECFDF5",
+    borderColor: "#10B981",
+  },
+  totalesCardEgresos: {
+    backgroundColor: "#FEF2F2",
+    borderColor: "#EF4444",
+  },
+  totalesCardTitle: {
+    fontSize: 9,
+    fontWeight: "bold",
+    marginBottom: 6,
+    textTransform: "uppercase",
+  },
+  totalesCardTitleIngresos: {
+    color: "#047857",
+  },
+  totalesCardTitleEgresos: {
+    color: "#DC2626",
+  },
+  totalesRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 3,
+    borderBottom: "0.5 solid #E5E7EB",
+  },
+  totalesConcepto: {
+    fontSize: 8,
+    color: "#374151",
+    maxWidth: "60%",
+  },
+  totalesMonto: {
+    fontSize: 8,
+    fontWeight: "bold",
+    textAlign: "right",
+  },
+  totalesMontoIngresos: {
+    color: "#047857",
+  },
+  totalesMontoEgresos: {
+    color: "#DC2626",
+  },
+  totalGeneralRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 5,
+    marginTop: 3,
+    borderTop: "1 solid #9CA3AF",
+  },
+  totalGeneralLabel: {
+    fontSize: 9,
+    fontWeight: "bold",
+    color: "#1F2937",
+  },
+  totalGeneralMonto: {
+    fontSize: 10,
+    fontWeight: "bold",
+  },
 });
 
 /**
@@ -323,7 +404,7 @@ const CierreTurnoDocument = ({ datosCierre }) => {
   console.log("📑 [CierreTurnoDocument] Renderizando documento PDF");
   console.log("📦 [CierreTurnoDocument] Datos recibidos:", datosCierre);
 
-  const { empresa, fecha, resumen, movimientos, cajero } = datosCierre;
+  const { empresa, fecha, resumen, movimientos, totalesPorConcepto, cajero } = datosCierre;
 
   return (
     <Document>
@@ -480,6 +561,64 @@ const CierreTurnoDocument = ({ datosCierre }) => {
             </View>
           )}
         </View>
+
+        {/* Sección de Totales por Concepto */}
+        {totalesPorConcepto && (totalesPorConcepto.ingresos?.length > 0 || totalesPorConcepto.egresos?.length > 0) && (
+          <View style={styles.totalesSection}>
+            <Text style={styles.sectionTitle}>Resumen por Concepto</Text>
+            <View style={styles.totalesGrid}>
+              {/* Totales de Ingresos */}
+              {totalesPorConcepto.ingresos?.length > 0 && (
+                <View style={[styles.totalesCard, styles.totalesCardIngresos]}>
+                  <Text style={[styles.totalesCardTitle, styles.totalesCardTitleIngresos]}>
+                    Ingresos por Concepto
+                  </Text>
+                  {totalesPorConcepto.ingresos.map((item, index) => (
+                    <View key={index} style={styles.totalesRow}>
+                      <Text style={styles.totalesConcepto}>
+                        {item.concepto} ({item.cantidad})
+                      </Text>
+                      <Text style={[styles.totalesMonto, styles.totalesMontoIngresos]}>
+                        {formatCurrency(item.total)}
+                      </Text>
+                    </View>
+                  ))}
+                  <View style={styles.totalGeneralRow}>
+                    <Text style={styles.totalGeneralLabel}>TOTAL</Text>
+                    <Text style={[styles.totalGeneralMonto, styles.totalesMontoIngresos]}>
+                      {formatCurrency(totalesPorConcepto.ingresos.reduce((sum, i) => sum + i.total, 0))}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {/* Totales de Egresos */}
+              {totalesPorConcepto.egresos?.length > 0 && (
+                <View style={[styles.totalesCard, styles.totalesCardEgresos]}>
+                  <Text style={[styles.totalesCardTitle, styles.totalesCardTitleEgresos]}>
+                    Egresos por Categoría
+                  </Text>
+                  {totalesPorConcepto.egresos.map((item, index) => (
+                    <View key={index} style={styles.totalesRow}>
+                      <Text style={styles.totalesConcepto}>
+                        {item.concepto} ({item.cantidad})
+                      </Text>
+                      <Text style={[styles.totalesMonto, styles.totalesMontoEgresos]}>
+                        {formatCurrency(item.total)}
+                      </Text>
+                    </View>
+                  ))}
+                  <View style={styles.totalGeneralRow}>
+                    <Text style={styles.totalGeneralLabel}>TOTAL</Text>
+                    <Text style={[styles.totalGeneralMonto, styles.totalesMontoEgresos]}>
+                      {formatCurrency(totalesPorConcepto.egresos.reduce((sum, i) => sum + i.total, 0))}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
 
         {/* Sección de Firmas */}
         <View style={styles.signatureSection}>
