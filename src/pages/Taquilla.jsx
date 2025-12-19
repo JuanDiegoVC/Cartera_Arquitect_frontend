@@ -53,7 +53,7 @@ export default function Taquilla() {
 
 
   // Estado para el formulario de pago
-  const [medioPago, setMedioPago] = useState("efectivo");
+  const [medioPago, setMedioPago] = useState("transferencia");
   const [observacion, setObservacion] = useState("");
 
   // Estados para el filtro de fecha
@@ -236,28 +236,34 @@ export default function Taquilla() {
         plate: data.placa,
         owner: data.propietario_nombre,
         vehicleType: data.tipo_vehiculo,
-        items: data.deudas_pendientes.map((deuda) => {
-          const deudaObj = {
-            id: deuda.deuda_id.toString(),
-            concept: deuda.rubro.nombre,
-            month: new Date(deuda.periodo + "T00:00:00").toLocaleDateString(
+        items: data.deudas_pendientes
+          .filter((deuda) => deuda.estado_deuda !== "anulada") // Excluir anuladas
+          .map((deuda) => {
+            // Parsear fecha manualmente para evitar problemas de zona horaria
+            const [year, month] = deuda.periodo.split('-');
+            const monthFormatted = new Date(parseInt(year), parseInt(month) - 1, 15).toLocaleDateString(
               "es-CO",
               {
                 year: "numeric",
                 month: "long",
               }
-            ),
-            amount: parseFloat(deuda.valor_cargado),
-            saldoPendiente: parseFloat(deuda.saldo_pendiente),
-            periodo: deuda.periodo,
-            estado_vencimiento: deuda.estado_vencimiento, // Pasar el estado del backend
-          };
+            );
 
-          // Calcular el estado correcto basado en fecha y saldo
-          deudaObj.status = calculateDeudaStatus(deudaObj);
+            const deudaObj = {
+              id: deuda.deuda_id.toString(),
+              concept: deuda.rubro.nombre,
+              month: monthFormatted,
+              amount: parseFloat(deuda.valor_cargado),
+              saldoPendiente: parseFloat(deuda.saldo_pendiente),
+              periodo: deuda.periodo,
+              estado_vencimiento: deuda.estado_vencimiento, // Pasar el estado del backend
+            };
 
-          return deudaObj;
-        }),
+            // Calcular el estado correcto basado en fecha y saldo
+            deudaObj.status = calculateDeudaStatus(deudaObj);
+
+            return deudaObj;
+          }),
       };
 
       setSearchedVehicle(transformedData);
@@ -478,28 +484,34 @@ export default function Taquilla() {
         plate: updatedData.placa,
         owner: updatedData.propietario_nombre,
         vehicleType: updatedData.tipo_vehiculo,
-        items: updatedData.deudas_pendientes.map((deuda) => {
-          const deudaObj = {
-            id: deuda.deuda_id.toString(),
-            concept: deuda.rubro.nombre,
-            month: new Date(deuda.periodo + "T00:00:00").toLocaleDateString(
+        items: updatedData.deudas_pendientes
+          .filter((deuda) => deuda.estado_deuda !== "anulada") // Excluir anuladas
+          .map((deuda) => {
+            // Parsear fecha manualmente para evitar problemas de zona horaria
+            const [year, month] = deuda.periodo.split('-');
+            const monthFormatted = new Date(parseInt(year), parseInt(month) - 1, 15).toLocaleDateString(
               "es-CO",
               {
                 year: "numeric",
                 month: "long",
               }
-            ),
-            amount: parseFloat(deuda.valor_cargado),
-            saldoPendiente: parseFloat(deuda.saldo_pendiente),
-            periodo: deuda.periodo,
-            estado_vencimiento: deuda.estado_vencimiento, // Pasar el estado del backend
-          };
+            );
 
-          // Calcular el estado correcto basado en fecha y saldo
-          deudaObj.status = calculateDeudaStatus(deudaObj);
+            const deudaObj = {
+              id: deuda.deuda_id.toString(),
+              concept: deuda.rubro.nombre,
+              month: monthFormatted,
+              amount: parseFloat(deuda.valor_cargado),
+              saldoPendiente: parseFloat(deuda.saldo_pendiente),
+              periodo: deuda.periodo,
+              estado_vencimiento: deuda.estado_vencimiento, // Pasar el estado del backend
+            };
 
-          return deudaObj;
-        }),
+            // Calcular el estado correcto basado en fecha y saldo
+            deudaObj.status = calculateDeudaStatus(deudaObj);
+
+            return deudaObj;
+          }),
       };
 
       setSearchedVehicle(transformedData);

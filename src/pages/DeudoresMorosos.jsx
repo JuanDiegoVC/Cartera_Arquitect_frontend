@@ -93,7 +93,7 @@ export default function DeudoresMorosos() {
 
                 lines.forEach((line, index) => {
                     const isLastLine = index === lines.length - 1;
-                    
+
                     if (isLastLine) {
                         // Última línea: alineación normal a la izquierda
                         doc.text(line, x, currentY);
@@ -106,7 +106,7 @@ export default function DeudoresMorosos() {
                             const lineWidth = doc.getTextWidth(line);
                             const totalSpaceWidth = maxWidth - lineWidth + (doc.getTextWidth(' ') * (words.length - 1));
                             const spaceWidth = totalSpaceWidth / (words.length - 1);
-                            
+
                             let currentX = x;
                             words.forEach((word, wordIndex) => {
                                 doc.text(word, currentX, currentY);
@@ -125,8 +125,8 @@ export default function DeudoresMorosos() {
             // Fecha en formato largo (ej: "3 de diciembre de 2025")
             const fecha = new Date();
             const dia = fecha.getDate();
-            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
             const mes = meses[fecha.getMonth()];
             const año = fecha.getFullYear();
             const fechaFormateada = `${dia} de ${mes} de ${año}`;
@@ -150,55 +150,54 @@ export default function DeudoresMorosos() {
             y += 9;
 
             // Formatear valores - Usar MORA (deuda vencida), no deuda total
-            const moraFormateada = parseFloat(item.total_mora || 0).toLocaleString('es-CO', { 
-                style: 'currency', 
+            const moraFormateada = parseFloat(item.total_mora || 0).toLocaleString('es-CO', {
+                style: 'currency',
                 currency: 'COP',
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             });
 
             // Obtener rubros en MORA (solo deudas vencidas)
-            const conceptoDeuda = item.rubros_mora 
-                ? item.rubros_mora 
+            const conceptoDeuda = item.rubros_mora
+                ? item.rubros_mora
                 : "obligaciones de afiliación y administración";
 
             const lineHeight = 4.5;
 
             // Cuerpo del documento - Párrafo 1
             const parrafo1 = `Por medio de la presente, SOTRAPEÑOL LTDA le informa que, debido al incumplimiento de las obligaciones a su cargo como afiliado a esta empresa, por concepto de ${conceptoDeuda}, que a la fecha se encuentran en mora, por un valor de ${moraFormateada}, obligación derivada del contrato de vinculación y/o administración celebrado entre usted y la empresa; por lo que, le hacemos este requerimiento con el fin de que se ponga al día en sus obligaciones, de lo contrario, nos faculta para iniciar en su contra, sin necesidad de nuevos avisos, el proceso judicial ante un juez de la república, para que la obligación preste mérito ejecutivo y se puedan pedir medidas cautelares (embargo y secuestro) de bienes que se encuentren a su nombre, con el fin de obtener el pago forzoso de las obligaciones pendientes.`;
-            
-            y = drawJustifiedText(parrafo1, margin, y, textWidth, lineHeight, 10);
-            y += 3;
+            y = drawJustifiedText(parrafo1, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
             // Párrafo 2
             const parrafo2 = `Una vez iniciado el proceso, la deuda continuará incrementándose por concepto de intereses moratorios, costas procesales y honorarios profesionales, los cuales deberán ser asumidos integralmente por usted.`;
-            
-            y = drawJustifiedText(parrafo2, margin, y, textWidth, lineHeight, 10);
-            y += 3;
+
+            y = drawJustifiedText(parrafo2, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
             // Párrafo 3
             const parrafo3 = `Adicionalmente, el incumplimiento de estas obligaciones, podrá generar afectaciones negativas en su historial crediticio, así como en el de cualquier codeudor o garante vinculado a la obligación.`;
-            
-            y = drawJustifiedText(parrafo3, margin, y, textWidth, lineHeight, 10);
-            y += 3;
+
+            y = drawJustifiedText(parrafo3, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
             // Párrafo 4 - Plazo (5 días hábiles)
             const parrafo4 = `Para evitar mayores perjuicios económicos, evitar un proceso jurídico y la práctica de medidas judiciales, cuenta con un plazo improrrogable de cinco (5) días hábiles siguientes a la recepción de esta comunicación, para que se ponga al día con todas las obligaciones pendientes con SOTRAPEÑOL LTDA.`;
-            
-            y = drawJustifiedText(parrafo4, margin, y, textWidth, lineHeight, 10);
-            y += 3;
+
+            y = drawJustifiedText(parrafo4, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
             // Párrafo 5
             const parrafo5 = `Transcurrido dicho término sin recibir respuesta, se entenderá que no existe interés de su parte, en cumplir voluntariamente y se procederá a iniciar la actuación judicial correspondiente.`;
-            
-            y = drawJustifiedText(parrafo5, margin, y, textWidth, lineHeight, 10);
-            y += 3;
+
+            y = drawJustifiedText(parrafo5, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
             // Párrafo 6
             const parrafo6 = `Se le informa que, solamente el pago de las obligaciones pendientes, es el único mecanismo para detener el inicio del proceso judicial.`;
-            
-            y = drawJustifiedText(parrafo6, margin, y, textWidth, lineHeight, 10);
-            y += 3;
+
+            y = drawJustifiedText(parrafo6, margin, y, textWidth, lineHeight, 11);
+            y += 4;
 
             // Nota de adjuntos
             doc.text("Se adjuntan las facturas y soportes objeto de cobro.", margin, y);
@@ -330,7 +329,9 @@ export default function DeudoresMorosos() {
                                             <td className="px-4 py-3 text-right font-mono text-muted-foreground">
                                                 ${parseFloat(item.total_deuda).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
                                             </td>
-                                            <td className={`px-4 py-3 text-right font-mono font-medium ${parseFloat(item.total_mora) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                            <td className={`px-4 py-3 text-right font-mono font-medium ${item.estado_semaforo === 'rojo' ? 'text-red-600' :
+                                                item.estado_semaforo === 'amarillo' ? 'text-yellow-600' : 'text-green-600'
+                                                }`}>
                                                 ${parseFloat(item.total_mora || 0).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
                                             </td>
                                             <td className="px-4 py-3 text-right font-mono text-muted-foreground">

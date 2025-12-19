@@ -267,11 +267,13 @@ export default function NotificacionesConfig() {
                         </p>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                     <Button
                         variant="outline"
                         onClick={loadNotificaciones}
                         disabled={loading}
+                        size="sm"
+                        className="flex-1 sm:flex-none"
                     >
                         <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
                         Actualizar
@@ -280,7 +282,8 @@ export default function NotificacionesConfig() {
                         variant="outline"
                         onClick={handleLimpiarTodas}
                         disabled={limpiando || notificaciones.length === 0}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50 flex-1 sm:flex-none"
+                        size="sm"
                     >
                         <Trash2 className={`h-4 w-4 mr-2 ${limpiando ? "animate-pulse" : ""}`} />
                         {limpiando ? "Limpiando..." : "Limpiar Todo"}
@@ -288,7 +291,8 @@ export default function NotificacionesConfig() {
                     <Button
                         onClick={handleGenerarAlertas}
                         disabled={generando}
-                        className="bg-primary"
+                        className="bg-primary w-full sm:w-auto"
+                        size="sm"
                     >
                         <Bell className={`h-4 w-4 mr-2 ${generando ? "animate-pulse" : ""}`} />
                         {generando ? "Generando..." : "Generar Alertas"}

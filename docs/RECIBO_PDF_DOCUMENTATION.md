@@ -193,7 +193,7 @@ Edita el objeto `empresa` en `src/hooks/useReciboData.js`:
 const empresa = {
   nombre: "SOTRAPEÑOL",
   nit: "800.123.456-7",
-  direccion: "Calle 50 #45-30, Medellín, Antioquia",
+  direccion: "Calle 50 #45-30, rojo, Antioquia",
   telefono: "(604) 123-4567",
 };
 ```

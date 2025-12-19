@@ -27,7 +27,7 @@ import {
   crearEgreso,
   obtenerEgresosHoy,
 } from "@/services/egresosService";
-import { formatCurrency } from "@/utils/formatters";
+import { formatCurrency, getTodayLocalDate } from "@/utils/formatters";
 import { useCurrencyInput } from "@/hooks/useCurrencyInput";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -49,7 +49,7 @@ export default function GestionEgresos() {
   // Estado del formulario
   const [formData, setFormData] = useState({
     categoria: "",
-    fecha_egreso: new Date().toISOString().split("T")[0],
+    fecha_egreso: getTodayLocalDate(),
     medio_pago: "efectivo",
     valor: "",
     descripcion: "",
@@ -174,7 +174,7 @@ export default function GestionEgresos() {
       // Limpiar formulario
       setFormData({
         categoria: "",
-        fecha_egreso: new Date().toISOString().split("T")[0],
+        fecha_egreso: getTodayLocalDate(),
         medio_pago: "efectivo",
         valor: "",
         descripcion: "",
@@ -317,7 +317,7 @@ export default function GestionEgresos() {
                   onChange={(e) =>
                     handleInputChange("fecha_egreso", e.target.value)
                   }
-                  max={new Date().toISOString().split("T")[0]}
+                  max={getTodayLocalDate()}
                 />
               </div>
 
@@ -407,7 +407,6 @@ export default function GestionEgresos() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Categoría</TableHead>
-                        <TableHead>Vehículo/Conductor</TableHead>
                         <TableHead>Método</TableHead>
                         <TableHead>Hora</TableHead>
                         <TableHead className="text-right">Monto</TableHead>
@@ -419,27 +418,12 @@ export default function GestionEgresos() {
                           <TableCell className="font-medium">
                             {egreso.categoria_nombre}
                           </TableCell>
-                          <TableCell className="text-sm">
-                            {egreso.vehiculo_placa ? (
-                              <div>
-                                <p className="font-semibold">
-                                  {egreso.vehiculo_placa}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {egreso.conductor_nombre || "Sin conductor"}
-                                </p>
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground">-</span>
-                            )}
-                          </TableCell>
                           <TableCell>
                             <span
-                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                                egreso.medio_pago === "efectivo"
+                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${egreso.medio_pago === "efectivo"
                                   ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                                   : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                              }`}
+                                }`}
                             >
                               {egreso.medio_pago_display ||
                                 egreso.medio_pago ||
