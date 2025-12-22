@@ -185,9 +185,9 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       console.error("Error uploading file:", error);
       setErrorMessage(
         error.response?.data?.detalle ||
-          error.response?.data?.error ||
-          error.message ||
-          "Error al procesar el archivo"
+        error.response?.data?.error ||
+        error.message ||
+        "Error al procesar el archivo"
       );
       setStep(STEPS.ERROR);
       toast.error("Error al procesar", {
@@ -289,9 +289,9 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
       console.error("Error confirming load:", error);
       setErrorMessage(
         error.response?.data?.detalle ||
-          error.response?.data?.error ||
-          error.message ||
-          "Error al ejecutar la carga"
+        error.response?.data?.error ||
+        error.message ||
+        "Error al ejecutar la carga"
       );
       setStep(STEPS.ERROR);
       toast.error("Error en la carga masiva");
@@ -648,10 +648,93 @@ export default function CargaMasivaModal({ open, onOpenChange }) {
             <p className="text-xs text-muted-foreground">Deudas creadas</p>
             {resultado.deudas_existentes > 0 && (
               <p className="text-xs text-muted-foreground">
-                ({resultado.deudas_existentes} existentes)
+                ({resultado.deudas_existentes} ya existían)
+              </p>
+            )}
+            {resultado.deudas_omitidas_duplicadas > 0 && (
+              <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                ({resultado.deudas_omitidas_duplicadas} duplicados omitidos)
               </p>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Detalle de deudas existentes */}
+      {resultado?.deudas_existentes_detalle?.length > 0 && (
+        <div className="w-full max-w-2xl">
+          <Alert variant="warning" className="border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/10">
+            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+            <AlertTitle className="text-yellow-800 dark:text-yellow-200">
+              Deudas que ya existían en la base de datos ({resultado.deudas_existentes_detalle.length})
+            </AlertTitle>
+            <AlertDescription className="text-yellow-700 dark:text-yellow-300">
+              <p className="text-sm mb-2">
+                Las siguientes combinaciones de vehículo + rubro + periodo ya existían y no fueron duplicadas:
+              </p>
+              <div className="max-h-48 overflow-auto border rounded bg-background/50 p-2">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-1 font-medium">Placa</th>
+                      <th className="text-left p-1 font-medium">Rubro</th>
+                      <th className="text-left p-1 font-medium">Periodo</th>
+                      <th className="text-left p-1 font-medium">ID en BD</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resultado.deudas_existentes_detalle.map((deuda, idx) => (
+                      <tr key={idx} className="border-b last:border-0">
+                        <td className="p-1 font-mono">{deuda.placa}</td>
+                        <td className="p-1">{deuda.rubro}</td>
+                        <td className="p-1">{deuda.periodo}</td>
+                        <td className="p-1 text-muted-foreground">#{deuda.id_existente}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
+      {/* Detalle de duplicados omitidos del Excel */}
+      {resultado?.deudas_omitidas_detalle?.length > 0 && (
+        <div className="w-full max-w-2xl">
+          <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-900/10">
+            <AlertCircle className="h-4 w-4 text-blue-600" />
+            <AlertTitle className="text-blue-800 dark:text-blue-200">
+              Duplicados omitidos del archivo Excel ({resultado.deudas_omitidas_detalle.length})
+            </AlertTitle>
+            <AlertDescription className="text-blue-700 dark:text-blue-300">
+              <p className="text-sm mb-2">
+                Las siguientes filas fueron omitidas porque ya existía otra fila con el mismo vehículo + rubro + mes:
+              </p>
+              <div className="max-h-48 overflow-auto border rounded bg-background/50 p-2">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-1 font-medium">Placa</th>
+                      <th className="text-left p-1 font-medium">Rubro</th>
+                      <th className="text-left p-1 font-medium">Fecha Original</th>
+                      <th className="text-left p-1 font-medium">Mes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resultado.deudas_omitidas_detalle.map((deuda, idx) => (
+                      <tr key={idx} className="border-b last:border-0">
+                        <td className="p-1 font-mono">{deuda.placa}</td>
+                        <td className="p-1">{deuda.rubro}</td>
+                        <td className="p-1 text-muted-foreground">{deuda.periodo_original}</td>
+                        <td className="p-1 font-medium">{deuda.periodo_normalizado}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </AlertDescription>
+          </Alert>
         </div>
       )}
 
