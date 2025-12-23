@@ -82,6 +82,7 @@ export default function GenerarFacturacion() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedDeuda, setSelectedDeuda] = useState(null);
   const [editingValue, setEditingValue] = useState("");
+  const [editingPeriodo, setEditingPeriodo] = useState("");
   const [savingDeuda, setSavingDeuda] = useState(false);
   const [correctionSuccess, setCorrectionSuccess] = useState(null);
 
@@ -244,6 +245,7 @@ export default function GenerarFacturacion() {
   const handleOpenEditModal = (deuda) => {
     setSelectedDeuda(deuda);
     setEditingValue(deuda.valor_cargado);
+    setEditingPeriodo(deuda.periodo); // Format: YYYY-MM-DD
     setEditModalOpen(true);
   };
 
@@ -254,15 +256,22 @@ export default function GenerarFacturacion() {
     setCorrectionError(null);
 
     try {
-      await cobrosService.updateDeuda(selectedDeuda.deuda_id, {
+      const updatePayload = {
         valor_cargado: parseFloat(editingValue),
-      });
+      };
+
+      // Include periodo if changed
+      if (editingPeriodo && editingPeriodo !== selectedDeuda.periodo) {
+        updatePayload.periodo = editingPeriodo;
+      }
+
+      await cobrosService.updateDeuda(selectedDeuda.deuda_id, updatePayload);
 
       // Actualizar lista local
       setDeudasEncontradas((prev) =>
         prev.map((d) =>
           d.deuda_id === selectedDeuda.deuda_id
-            ? { ...d, valor_cargado: editingValue, saldo_pendiente: editingValue }
+            ? { ...d, valor_cargado: editingValue, saldo_pendiente: editingValue, periodo: editingPeriodo }
             : d
         )
       );
@@ -555,15 +564,20 @@ export default function GenerarFacturacion() {
                   <Label className="text-muted-foreground">Rubro</Label>
                   <p className="font-medium">{selectedDeuda.rubro_nombre}</p>
                 </div>
-                <div>
-                  <Label className="text-muted-foreground">Periodo</Label>
-                  <p className="font-medium">
-                    {(() => {
-                      const [year, month] = selectedDeuda.periodo.split('-');
-                      return new Date(parseInt(year), parseInt(month) - 1, 15).toLocaleDateString("es-CO", { year: "numeric", month: "long" });
-                    })()}
-                  </p>
-                </div>
+              </div>
+
+              {/* Campo editable del periodo */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-periodo">Periodo (Fecha)</Label>
+                <Input
+                  id="edit-periodo"
+                  type="date"
+                  value={editingPeriodo}
+                  onChange={(e) => setEditingPeriodo(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Formato: YYYY-MM-DD (el día se usa para el periodo del mes)
+                </p>
               </div>
 
               {/* Campo editable del valor */}
