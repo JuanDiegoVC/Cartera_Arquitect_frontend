@@ -384,7 +384,7 @@ export default function GenerarFacturacion() {
                 vehículos activos del mes seleccionado.
                 <br />
                 <span className="text-xs mt-1 block">
-                  Nota: Los demás rubros variables (pólizas, comisiones, etc.)
+                  Nota: Los demás rubros variables (Seguridad social, fondo de reposición, etc.)
                   deben cargarse mediante la <strong>Carga Masiva</strong>.
                 </span>
               </AlertDescription>
