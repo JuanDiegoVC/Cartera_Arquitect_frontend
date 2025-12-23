@@ -4,6 +4,7 @@ import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { Search, AlertCircle, TrendingUp, CheckCircle, FileText } from "lucide-react";
 import { cobrosService } from "../services/cobrosService";
+import Logo1 from "../assets/Logo1.png";
 
 export default function DeudoresMorosos() {
     const [data, setData] = useState([]);
@@ -131,7 +132,18 @@ export default function DeudoresMorosos() {
             const año = fecha.getFullYear();
             const fechaFormateada = `${dia} de ${mes} de ${año}`;
 
-            // Fecha
+            // Agregar logo (esquina superior derecha)
+            const logoImg = new Image();
+            logoImg.src = Logo1;
+            // Logo original es 436x474 (casi cuadrado, ligeramente más alto que ancho)
+            // Dimensiones hardcodeadas para mantener proporción correcta
+            const logoWidth = 22;
+            const logoHeight = 24;
+            const logoX = pageWidth - margin - logoWidth;
+            doc.addImage(logoImg, 'PNG', logoX, 10, logoWidth, logoHeight);
+
+            // Fecha (alineada a la izquierda)
+            y = 35;
             doc.text(`Medellín, ${fechaFormateada}`, margin, y);
             y += 9;
 

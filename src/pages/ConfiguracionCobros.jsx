@@ -38,6 +38,7 @@ export default function ConfiguracionCobros() {
 
     const [filterRubro, setFilterRubro] = useState("all");
     const [filterTipoVehiculo, setFilterTipoVehiculo] = useState("all");
+    const [filterYear, setFilterYear] = useState("all");
 
     // Cargar datos al cambiar de tab o filtros
     useEffect(() => {
@@ -45,7 +46,7 @@ export default function ConfiguracionCobros() {
         if (activeTab === "tarifas") {
             loadRubrosList();
         }
-    }, [activeTab, filterRubro, filterTipoVehiculo]);
+    }, [activeTab, filterRubro, filterTipoVehiculo, filterYear]);
 
     const loadData = async () => {
         setLoading(true);
@@ -58,6 +59,7 @@ export default function ConfiguracionCobros() {
                 const params = {};
                 if (filterRubro !== "all") params.rubro = filterRubro;
                 if (filterTipoVehiculo !== "all") params.tipo_vehiculo = filterTipoVehiculo;
+                // Fetch all tarifas, year filter is applied client-side
                 result = await cobrosService.getAllTarifas(params);
             } else if (activeTab === "polizas") {
                 // Cargar tarifas de pólizas
@@ -90,7 +92,17 @@ export default function ConfiguracionCobros() {
             }
 
             // Manejar respuesta paginada o lista directa
-            const listData = Array.isArray(result) ? result : (result.results || []);
+            let listData = Array.isArray(result) ? result : (result.results || []);
+
+            // Apply year filter client-side for tarifas
+            if (activeTab === "tarifas" && filterYear !== "all") {
+                listData = listData.filter(item => {
+                    if (!item.fecha_inicio_vigencia) return false;
+                    const itemYear = new Date(item.fecha_inicio_vigencia + "T12:00:00").getFullYear();
+                    return itemYear === parseInt(filterYear);
+                });
+            }
+
             setData(listData);
         } catch (err) {
             setError("Error al cargar los datos");
@@ -270,8 +282,8 @@ export default function ConfiguracionCobros() {
 
             {/* Filters for Tarifas */}
             {activeTab === "tarifas" && (
-                <div className="flex gap-4">
-                    <div className="w-1/3">
+                <div className="flex gap-4 flex-wrap">
+                    <div className="w-full md:w-1/4">
                         <Label className="mb-2 block">Filtrar por Rubro</Label>
                         <Select
                             value={filterRubro}
@@ -290,7 +302,7 @@ export default function ConfiguracionCobros() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="w-1/3">
+                    <div className="w-full md:w-1/4">
                         <Label className="mb-2 block">Filtrar por Tipo Vehículo</Label>
                         <Select
                             value={filterTipoVehiculo}
@@ -304,6 +316,28 @@ export default function ConfiguracionCobros() {
                                 {VEHICLE_TYPES.map(type => (
                                     <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                                 ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="w-full md:w-1/4">
+                        <Label className="mb-2 block">Filtrar por Año</Label>
+                        <Select
+                            value={filterYear}
+                            onValueChange={setFilterYear}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Todos los años" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos los años</SelectItem>
+                                {[...Array(5)].map((_, i) => {
+                                    const year = new Date().getFullYear() - 2 + i;
+                                    return (
+                                        <SelectItem key={year} value={String(year)}>
+                                            {year}
+                                        </SelectItem>
+                                    );
+                                })}
                             </SelectContent>
                         </Select>
                     </div>
