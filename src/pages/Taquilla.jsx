@@ -35,6 +35,7 @@ import { Separator } from "../components/ui/separator";
 import { vehiculosService } from "../services/vehiculosService";
 import { pagosService } from "../services/pagosService";
 import BotonDescargarRecibo from "../components/Reportes/BotonDescargarRecibo";
+import BotonImprimirRecibo from "../components/Reportes/BotonImprimirRecibo";
 import { useReciboData } from "../hooks/useReciboData";
 import PlacaAutocomplete from "../components/common/PlacaAutocomplete";
 
@@ -650,20 +651,26 @@ export default function Taquilla() {
 
                     <div className="flex flex-col gap-3">
                       {datosRecibo && (
-                        <BotonDescargarRecibo
-                          datosRecibo={datosRecibo}
-                          variant="default"
-                          className="w-full bg-primary hover:bg-primary/90"
-                        />
+                        <>
+                          <BotonDescargarRecibo
+                            datosRecibo={datosRecibo}
+                            variant="default"
+                            className="w-full bg-primary hover:bg-primary/90"
+                          />
+                          <BotonImprimirRecibo
+                            datosRecibo={datosRecibo}
+                            variant="outline"
+                            className="w-full"
+                          />
+                        </>
                       )}
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => {
                           setPaymentSuccess(null);
                           setDatosRecibo(null);
-                          // Optional: Clear search or reset form if needed
                         }}
-                        className="w-full"
+                        className="w-full text-muted-foreground"
                       >
                         Cerrar y Continuar
                       </Button>
