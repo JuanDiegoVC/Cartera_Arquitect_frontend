@@ -187,7 +187,13 @@ export default function GestionEgresos() {
 
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err.response?.data?.detail || "Error al guardar el egreso");
+      // Manejar error de saldo insuficiente
+      const errorData = err.response?.data;
+      if (errorData?.error?.includes("Saldo insuficiente")) {
+        setError(errorData.detail);
+      } else {
+        setError(errorData?.detail || errorData?.error || "Error al guardar el egreso");
+      }
       console.error(err);
     } finally {
       setGuardando(false);
@@ -420,10 +426,11 @@ export default function GestionEgresos() {
                           </TableCell>
                           <TableCell>
                             <span
-                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${egreso.medio_pago === "efectivo"
+                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                                egreso.medio_pago === "efectivo"
                                   ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                                   : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                }`}
+                              }`}
                             >
                               {egreso.medio_pago_display ||
                                 egreso.medio_pago ||
