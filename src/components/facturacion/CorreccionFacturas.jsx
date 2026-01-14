@@ -30,6 +30,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { cobrosService } from "../../services/cobrosService";
+import apiClient from "../../services/api";
 import { VEHICLE_TYPES } from "../../utils/formatters";
 
 /**
@@ -46,6 +47,11 @@ export default function CorreccionFacturas() {
     periodo: "",
   });
   const [rubrosDisponibles, setRubrosDisponibles] = useState([]);
+  
+  // ======= Estados para Autocompletado de Placa =======
+  const [vehiculos, setVehiculos] = useState([]);
+  const [placaSearch, setPlacaSearch] = useState("");
+  const [showPlacaDropdown, setShowPlacaDropdown] = useState(false);
 
   // ======= Estados para Resultados =======
   const [deudasEncontradas, setDeudasEncontradas] = useState([]);
@@ -72,7 +78,7 @@ export default function CorreccionFacturas() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Cargar rubros al montar el componente
+  // Cargar rubros y vehículos al montar el componente
   useEffect(() => {
     const fetchRubros = async () => {
       try {
@@ -83,7 +89,19 @@ export default function CorreccionFacturas() {
         console.error("Error cargando rubros:", err);
       }
     };
+    
+    const fetchVehiculos = async () => {
+      try {
+        const response = await apiClient.get("/v1/flota/vehiculos/?limit=1000");
+        const data = response.data.results || response.data;
+        setVehiculos(data);
+      } catch (err) {
+        console.error("Error cargando vehículos:", err);
+      }
+    };
+    
     fetchRubros();
+    fetchVehiculos();
   }, []);
 
   // Obtener mes actual en formato YYYY-MM
@@ -104,6 +122,30 @@ export default function CorreccionFacturas() {
     setFiltros((prev) => ({ ...prev, [campo]: valor }));
   };
 
+  // Handler para cambio en búsqueda de placa (autocompletado)
+  const handlePlacaSearchChange = (value) => {
+    const upperValue = value.toUpperCase();
+    setPlacaSearch(upperValue);
+    setShowPlacaDropdown(upperValue.length > 0);
+    // También actualizar el filtro real
+    handleFiltroChange("placa", upperValue);
+  };
+
+  // Handler para seleccionar placa del dropdown
+  const handleSelectPlaca = (placa) => {
+    setPlacaSearch(placa);
+    handleFiltroChange("placa", placa);
+    setShowPlacaDropdown(false);
+  };
+
+  // Filtrar vehículos según búsqueda
+  const vehiculosFiltrados = useMemo(() => {
+    if (!placaSearch) return [];
+    return vehiculos.filter((v) =>
+      v.placa.includes(placaSearch)
+    ).slice(0, 10); // Limitar a 10 resultados
+  }, [vehiculos, placaSearch]);
+
   // Handler para limpiar filtros
   const handleLimpiarFiltros = () => {
     setFiltros({
@@ -112,6 +154,8 @@ export default function CorreccionFacturas() {
       rubro_id: "",
       periodo: "",
     });
+    setPlacaSearch("");
+    setShowPlacaDropdown(false);
     setDeudasEncontradas([]);
     setSelectedDeudas(new Set());
     setSelectAll(false);
@@ -360,20 +404,41 @@ export default function CorreccionFacturas() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Filtro por Placa */}
-            <div className="space-y-1.5">
+            {/* Filtro por Placa con Autocompletado */}
+            <div className="space-y-1.5 relative">
               <Label className="text-xs font-medium">Placa</Label>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar placa..."
                   className="pl-8 h-9"
-                  value={filtros.placa}
-                  onChange={(e) =>
-                    handleFiltroChange("placa", e.target.value.toUpperCase())
-                  }
+                  value={placaSearch}
+                  onChange={(e) => handlePlacaSearchChange(e.target.value)}
+                  onFocus={() => placaSearch && setShowPlacaDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowPlacaDropdown(false), 200)}
                 />
               </div>
+              {/* Dropdown de sugerencias de placas */}
+              {showPlacaDropdown && vehiculosFiltrados.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md max-h-48 overflow-y-auto">
+                  {vehiculosFiltrados.map((v) => (
+                    <div
+                      key={v.placa}
+                      className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground font-medium"
+                      onMouseDown={() => handleSelectPlaca(v.placa)}
+                    >
+                      {v.placa}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {showPlacaDropdown && placaSearch && vehiculosFiltrados.length === 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md">
+                  <div className="px-3 py-2 text-sm text-muted-foreground">
+                    No se encontraron vehículos
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Filtro por Tipo de Vehículo */}
