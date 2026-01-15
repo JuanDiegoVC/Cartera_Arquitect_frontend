@@ -238,6 +238,11 @@ export default function PlacaAutocomplete({
                         <span className="font-bold text-lg text-primary">
                           {suggestion.placa}
                         </span>
+                        {suggestion.num_interno && (
+                          <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-700 dark:text-blue-300 font-mono">
+                            #{suggestion.num_interno}
+                          </span>
+                        )}
                         <span className="text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground">
                           {suggestion.tipo_vehiculo_display}
                         </span>
