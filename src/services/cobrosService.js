@@ -105,6 +105,33 @@ export const cobrosService = {
     },
 
     /**
+     * Buscar deudas con filtros avanzados
+     * @param {Object} filtros - Filtros para la búsqueda
+     * @param {string} [filtros.placa] - Placa del vehículo (búsqueda parcial)
+     * @param {string} [filtros.tipo_vehiculo] - Tipo de vehículo
+     * @param {number} [filtros.rubro_id] - ID del rubro
+     * @param {string} [filtros.periodo] - Periodo en formato YYYY-MM
+     * @param {string} [filtros.estado_deuda] - Estado de la deuda
+     * @returns {Promise<Array>} Lista de deudas encontradas
+     */
+    getDeudasConFiltros: async (filtros = {}) => {
+        try {
+            const params = new URLSearchParams();
+            
+            if (filtros.placa) params.append("placa", filtros.placa);
+            if (filtros.tipo_vehiculo) params.append("tipo_vehiculo", filtros.tipo_vehiculo);
+            if (filtros.rubro_id) params.append("rubro_id", filtros.rubro_id);
+            if (filtros.periodo) params.append("periodo", filtros.periodo);
+            if (filtros.estado_deuda) params.append("estado_deuda", filtros.estado_deuda);
+
+            const response = await apiClient.get(`/v1/cobros/deudas/?${params.toString()}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
+    /**
      * Actualizar una deuda (valor, estado, descripción)
      * @param {number} id - ID de la deuda
      * @param {Object} data - Datos a actualizar
@@ -113,6 +140,24 @@ export const cobrosService = {
     updateDeuda: async (id, data) => {
         try {
             const response = await apiClient.patch(`/v1/cobros/deudas/${id}/`, data);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
+    /**
+     * Actualización masiva de deudas
+     * @param {Array<number>} deudaIds - Lista de IDs de deudas a actualizar
+     * @param {number} nuevoValor - Nuevo valor para todas las deudas
+     * @returns {Promise<Object>} Resultado de la operación
+     */
+    actualizacionMasivaDeudas: async (deudaIds, nuevoValor) => {
+        try {
+            const response = await apiClient.post("/v1/cobros/deudas/actualizacion-masiva/", {
+                deuda_ids: deudaIds,
+                nuevo_valor: nuevoValor,
+            });
             return response.data;
         } catch (error) {
             throw error.response?.data || error;

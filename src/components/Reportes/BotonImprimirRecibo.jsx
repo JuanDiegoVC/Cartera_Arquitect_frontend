@@ -6,7 +6,7 @@ import { getTodayLocalDate } from "../../utils/formatters";
 /**
  * Componente Botón para Imprimir Recibo Térmico
  * 
- * Genera un recibo en formato 80mm para impresoras térmicas (EPSON TM-T20II)
+ * Genera un recibo en formato 75mm para impresoras térmicas (EPSON TM-T20II)
  * y abre el diálogo de impresión del navegador.
  */
 const BotonImprimirRecibo = ({
@@ -22,10 +22,10 @@ const BotonImprimirRecibo = ({
             // Importar jsPDF dinámicamente
             const { jsPDF } = await import("jspdf");
 
-            // Configurar página para papel térmico 80mm
-            const pageWidth = 80; // mm
+            // Configurar página para papel térmico 75mm
+            const pageWidth = 75; // mm
             const margin = 4; // mm
-            const contentWidth = pageWidth - (margin * 2);
+            const contentWidth = pageWidth - (margin * 2); // Ancho de contenido: 67 mm
 
             // Calcular altura necesaria basada en el contenido
             const itemsCount = datosRecibo.items?.length || 0;
