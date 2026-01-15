@@ -40,6 +40,7 @@ export default function VehiculosLista() {
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [formData, setFormData] = useState({
     placa: "",
+    num_interno: "",
     tipo_vehiculo: "automovil",
     propietario_nombre: "",
     conductor_actual_nombre: "",
@@ -179,6 +180,7 @@ export default function VehiculosLista() {
     setEditingVehicle(null);
     setFormData({
       placa: "",
+      num_interno: "",
       tipo_vehiculo: "automovil",
       propietario_nombre: "",
       conductor_actual_nombre: "",
@@ -191,6 +193,7 @@ export default function VehiculosLista() {
   const handleEdit = (vehicle) => {
     setEditingVehicle(vehicle);
     setFormData({
+      num_interno: vehicle.num_interno || "",
       placa: vehicle.placa,
       tipo_vehiculo: vehicle.tipo_vehiculo,
       propietario_nombre: vehicle.propietario_nombre || "",
@@ -296,7 +299,7 @@ export default function VehiculosLista() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Placa, propietario..."
+                  placeholder="Placa, N° Interno, propietario..."
                   value={filters.search}
                   onChange={(e) => handleFilterChange("search", e.target.value)}
                   className="pl-10"
@@ -362,6 +365,9 @@ export default function VehiculosLista() {
                       Placa
                     </th>
                     <th className="px-4 py-3 text-left text-sm font-semibold">
+                      N° Interno
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">
                       Tipo
                     </th>
                     <th className="px-4 py-3 text-left text-sm font-semibold">
@@ -389,6 +395,15 @@ export default function VehiculosLista() {
                     >
                       <td className="px-4 py-3 font-mono font-semibold">
                         {vehiculo.placa}
+                      </td>
+                      <td className="px-4 py-3">
+                        {vehiculo.num_interno ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                            #{vehiculo.num_interno}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
@@ -489,6 +504,24 @@ export default function VehiculosLista() {
                   minLength={6}
                   maxLength={6}
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="num_interno">Número Interno (Opcional)</Label>
+                <Input
+                  id="num_interno"
+                  value={formData.num_interno}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      num_interno: e.target.value.toUpperCase(),
+                    })
+                  }
+                  placeholder="001, 709, O19, etc."
+                  maxLength={10}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Identificador auxiliar del vehículo
+                </p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="tipo">Tipo de Vehículo</Label>
