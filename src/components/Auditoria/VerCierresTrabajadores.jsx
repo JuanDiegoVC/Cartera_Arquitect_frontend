@@ -120,9 +120,9 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
     setCierreDetalle(null);
   };
 
-  // Navegar fechas
+  // Navegar fechas - Usar T00:00:00 para evitar problemas de timezone
   const cambiarFecha = (dias) => {
-    const fecha = new Date(fechaSeleccionada);
+    const fecha = new Date(fechaSeleccionada + "T00:00:00");
     fecha.setDate(fecha.getDate() + dias);
     setFechaSeleccionada(toLocalDateString(fecha));
   };
