@@ -136,6 +136,7 @@ export const VEHICLE_TYPES = [
   { value: "buseta_rojo", label: "Buseta rojo" },
   { value: "camioneta_intermunicipal", label: "Camioneta Intermunicipal" },
   { value: "campero_municipal", label: "Campero Municipal" },
+  { value: "campero_guatape", label: "Campero Guatapé" },
   { value: "escalera_municipal", label: "Escalera Municipal" },
   { value: "micro_rojo", label: "Micro rojo" },
   { value: "microbus_municipal", label: "Microbús Municipal" },
