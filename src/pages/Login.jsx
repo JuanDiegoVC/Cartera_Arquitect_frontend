@@ -9,7 +9,7 @@ import { Label } from '../components/ui/label';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import logo from '../assets/Logo1.png';
-import logo2 from '../assets/Logo2.png';
+import logo2 from '../assets/LogoSotrac-Photoroom.png';
 import './Login.css';
 
 const Login = () => {
@@ -46,7 +46,7 @@ const Login = () => {
           <div className="inline-flex items-center justify-center mb-4">
             <img src={logo} alt="Logo Sotrapeñol" className="login-logo w-24 h-24 object-contain" />
           </div>
-          <img src={logo2} alt="Sotrapeñol" className="h-12 w-auto object-contain mx-auto" />
+          <img src={logo2} alt="Sotrapeñol" className="h-16 w-auto object-contain mx-auto" />
           <p className="text-muted-foreground mt-2">Sistema de Gestión de Recaudos</p>
         </div>
 
