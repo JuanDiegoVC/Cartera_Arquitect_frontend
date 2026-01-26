@@ -159,6 +159,23 @@ const BotonImprimirRecibo = ({
             doc.text(`Medio de pago: ${medioPago}`, margin, y);
             y += 5;
 
+            // Observaciones (si existen)
+            const observaciones = datosRecibo.pago?.observaciones;
+            if (observaciones && observaciones.trim() !== "") {
+                doc.setFont("helvetica", "bold");
+                doc.text("Observaciones:", margin, y);
+                y += 4;
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(7);
+                const observacionesLines = doc.splitTextToSize(observaciones, contentWidth);
+                observacionesLines.forEach((line) => {
+                    doc.text(line, margin, y);
+                    y += 3.5;
+                });
+                y += 2;
+            }
+
             // Línea separadora
             doc.line(margin, y, pageWidth - margin, y);
             y += 5;
