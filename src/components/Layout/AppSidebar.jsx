@@ -16,7 +16,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import "./AppSidebar.css";
-import logo2 from "../../assets/Logo2.png";
+import logo2 from "../../assets/LogoSotrac-Photoroom.png";
 import {
   Collapsible,
   CollapsibleContent,
@@ -154,7 +154,7 @@ export function AppSidebar() {
         {!isCollapsed && (
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <img src={logo2} alt="Logo Sotrapeñol" className="h-10 w-auto object-contain" />
+              <img src={logo2} alt="Logo Sotrapeñol" className="h-12 w-auto object-contain" />
             </div>
             {user && (
               <div className="flex items-start gap-2 p-2 rounded-lg bg-sidebar-accent/50">
