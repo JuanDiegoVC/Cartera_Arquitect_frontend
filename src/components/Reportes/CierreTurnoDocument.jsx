@@ -562,9 +562,9 @@ const CierreTurnoDocument = ({ datosCierre }) => {
           )}
         </View>
 
-        {/* Sección de Totales por Concepto */}
+        {/* Sección de Totales por Concepto - wrap=false evita cortes entre páginas */}
         {totalesPorConcepto && (totalesPorConcepto.ingresos?.length > 0 || totalesPorConcepto.egresos?.length > 0) && (
-          <View style={styles.totalesSection}>
+          <View style={styles.totalesSection} wrap={false}>
             <Text style={styles.sectionTitle}>Resumen por Concepto</Text>
             <View style={styles.totalesGrid}>
               {/* Totales de Ingresos */}
@@ -620,8 +620,8 @@ const CierreTurnoDocument = ({ datosCierre }) => {
           </View>
         )}
 
-        {/* Sección de Firmas */}
-        <View style={styles.signatureSection}>
+        {/* Sección de Firmas - wrap=false evita cortes entre páginas */}
+        <View style={styles.signatureSection} wrap={false}>
           <View style={styles.signatureRow}>
             <View style={styles.signatureBox}>
               <View style={styles.signatureLine} />

@@ -401,10 +401,10 @@ const CierreDeTurno = () => {
 
     return {
       empresa: {
-        nombre: "SOTRAPEÑOL",
+        nombre: "Empresa De Transporte Sotra Peñol",
         nit: "800.123.456-7",
-        direccion: "Calle Principal, Guatapé, Antioquia",
-        telefono: "(604) 123-4567",
+        direccion: "Cra. 17 #734, Peñol, Antioquia",
+        telefono: "(604) 2309116",
       },
       fecha: new Date().toISOString(),
       resumen: datos.resumen,

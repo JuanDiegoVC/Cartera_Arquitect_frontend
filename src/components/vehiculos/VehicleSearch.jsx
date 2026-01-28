@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useDebounce } from "../../hooks/useDebounce";
 import { vehiculosService } from "../../services/vehiculosService";
 import PlacaAutocomplete from "../common/PlacaAutocomplete";
+import BotonDescargarEstadoCuenta from "../Reportes/BotonDescargarEstadoCuenta";
 import "./VehicleSearch.css";
 
 /**
@@ -178,6 +179,14 @@ const VehicleSearch = () => {
                     <span className="total-amount">
                       {formatCurrency(calcularTotalDeuda())}
                     </span>
+                  </div>
+
+                  <div className="estado-cuenta-download">
+                    <BotonDescargarEstadoCuenta
+                      vehicleData={vehicleData}
+                      variant="outline"
+                      className="download-estado-cuenta-btn"
+                    />
                   </div>
                 </>
               ) : (

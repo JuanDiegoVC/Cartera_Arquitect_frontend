@@ -46,10 +46,10 @@ export const useReciboData = () => {
 
     // Información de la empresa (hardcoded por ahora, puede venir de config)
     const empresa = {
-      nombre: "SOTRAPEÑOL",
+      nombre: "Empresa De Transporte Sotra Peñol",
       nit: "800.123.456-7",
-      direccion: "Calle 50 #45-30, Medellín, Antioquia",
-      telefono: "(604) 123-4567",
+      direccion: "Cra. 17 #734, Peñol, Antioquia",
+      telefono: "(604) 2309116",
     };
 
     // Mapear medio de pago a texto legible
