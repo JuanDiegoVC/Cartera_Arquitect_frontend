@@ -237,15 +237,15 @@ export default function DeudoresMorosos() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">Cartera Vencida</h1>
-                <p className="text-muted-foreground">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Cartera Vencida</h1>
+                <p className="text-sm sm:text-base text-muted-foreground">
                     Monitoreo de vehículos con deudas y alertas de morosidad
                 </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Estado Crítico</CardTitle>
@@ -291,25 +291,25 @@ export default function DeudoresMorosos() {
             </div>
 
             <div className="flex items-center space-x-2">
-                <div className="relative flex-1 max-w-sm">
+                <div className="relative flex-1 max-w-full sm:max-w-sm">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Buscar por placa o conductor..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-8"
+                        className="pl-8 text-sm"
                     />
                 </div>
             </div>
 
             {error && (
-                <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-md">
+                <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-md text-sm">
                     {error}
                 </div>
             )}
 
             <Card>
-                <CardContent className="p-0">
+                <CardContent className="p-0 sm:p-0">
                     {loading ? (
                         <div className="text-center py-12 text-muted-foreground">
                             Cargando reporte...
@@ -320,52 +320,52 @@ export default function DeudoresMorosos() {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full">
+                            <table className="w-full min-w-[600px] text-xs sm:text-sm">
                                 <thead>
                                     <tr className="border-b bg-muted/50">
-                                        <th className="px-4 py-3 text-left text-sm font-semibold">Placa</th>
-                                        <th className="px-4 py-3 text-left text-sm font-semibold">Conductor</th>
-                                        <th className="px-4 py-3 text-right text-sm font-semibold">Deuda Total</th>
-                                        <th className="px-4 py-3 text-right text-sm font-semibold">Total Mora</th>
-                                        <th className="px-4 py-3 text-right text-sm font-semibold">Límite</th>
-                                        <th className="px-4 py-3 text-center text-sm font-semibold">Uso Cupo</th>
-                                        <th className="px-4 py-3 text-center text-sm font-semibold">Estado</th>
-                                        <th className="px-4 py-3 text-center text-sm font-semibold">Acciones</th>
+                                        <th className="px-3 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">Placa</th>
+                                        <th className="px-3 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold hidden lg:table-cell">Conductor</th>
+                                        <th className="px-3 py-2 sm:py-3 text-right text-xs sm:text-sm font-semibold whitespace-nowrap">Deuda</th>
+                                        <th className="px-3 py-2 sm:py-3 text-right text-xs sm:text-sm font-semibold whitespace-nowrap">Mora</th>
+                                        <th className="px-3 py-2 sm:py-3 text-right text-xs sm:text-sm font-semibold hidden md:table-cell">Límite</th>
+                                        <th className="px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold">Uso</th>
+                                        <th className="px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold hidden sm:table-cell">Estado</th>
+                                        <th className="px-2 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold w-8 sm:w-10"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredData.map((item) => (
                                         <tr key={item.placa} className="border-b hover:bg-muted/30 transition-colors">
-                                            <td className="px-4 py-3 font-medium">{item.placa}</td>
-                                            <td className="px-4 py-3 text-muted-foreground">{item.conductor}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-muted-foreground">
+                                            <td className="px-3 py-2 sm:py-3 font-medium font-mono">{item.placa}</td>
+                                            <td className="px-3 py-2 sm:py-3 text-muted-foreground hidden lg:table-cell truncate max-w-[150px]">{item.conductor}</td>
+                                            <td className="px-3 py-2 sm:py-3 text-right font-mono text-muted-foreground whitespace-nowrap">
                                                 ${parseFloat(item.total_deuda).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
                                             </td>
-                                            <td className={`px-4 py-3 text-right font-mono font-medium ${item.estado_semaforo === 'rojo' ? 'text-red-600' :
+                                            <td className={`px-3 py-2 sm:py-3 text-right font-mono font-medium whitespace-nowrap ${item.estado_semaforo === 'rojo' ? 'text-red-600' :
                                                 item.estado_semaforo === 'amarillo' ? 'text-yellow-600' : 'text-green-600'
                                                 }`}>
                                                 ${parseFloat(item.total_mora || 0).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
                                             </td>
-                                            <td className="px-4 py-3 text-right font-mono text-muted-foreground">
+                                            <td className="px-3 py-2 sm:py-3 text-right font-mono text-muted-foreground hidden md:table-cell whitespace-nowrap">
                                                 ${parseFloat(item.limite_deuda).toLocaleString('es-CO', { minimumFractionDigits: 0 })}
                                             </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <span className="font-bold">{item.porcentaje_deuda}%</span>
+                                            <td className="px-3 py-2 sm:py-3 text-center">
+                                                <span className="font-bold text-xs sm:text-sm">{item.porcentaje_deuda}%</span>
                                             </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <Badge className={`${getSemaforoColor(item.estado_semaforo)} text-white`}>
+                                            <td className="px-3 py-2 sm:py-3 text-center hidden sm:table-cell">
+                                                <Badge className={`${getSemaforoColor(item.estado_semaforo)} text-white text-[10px] sm:text-xs px-1.5 sm:px-2`}>
                                                     {getSemaforoIcon(item.estado_semaforo)}
                                                     {item.estado_semaforo.toUpperCase()}
                                                 </Badge>
                                             </td>
-                                            <td className="px-4 py-3 text-center">
+                                            <td className="px-2 py-2 sm:py-3 text-center">
                                                 <button
                                                     onClick={() => generateCobroJuridicoPDF(item)}
-                                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
+                                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-7 w-7 sm:h-9 sm:w-9"
                                                     title="Generar Carta de Cobro Jurídico"
                                                     disabled={parseFloat(item.total_mora || 0) === 0}
                                                 >
-                                                    <FileText className={`h-4 w-4 ${parseFloat(item.total_mora || 0) === 0 ? 'opacity-30' : ''}`} />
+                                                    <FileText className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${parseFloat(item.total_mora || 0) === 0 ? 'opacity-30' : ''}`} />
                                                 </button>
                                             </td>
                                         </tr>

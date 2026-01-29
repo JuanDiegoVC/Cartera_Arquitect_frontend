@@ -507,22 +507,23 @@ export default function GenerarFacturacion() {
                       !newOcasional.rubro_id ||
                       !newOcasional.valor
                     }
-                    className="h-9 px-4"
+                    className="h-9 px-3 sm:px-4 w-full md:w-auto"
                   >
-                    <Plus className="h-4 w-4 mr-2" /> Agregar
+                    <Plus className="h-4 w-4 sm:mr-2" /> 
+                    <span className="hidden sm:inline">Agregar</span>
                   </Button>
                 </div>
 
                 {/* Lista de agregados */}
                 {rubrosOcasionalesAgregados.length > 0 && (
-                  <div className="mt-4 bg-background border rounded-md overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                  <div className="mt-4 bg-background border rounded-md overflow-x-auto">
+                    <table className="w-full text-xs sm:text-sm min-w-[300px]">
+                      <thead className="bg-muted/50 text-[10px] sm:text-xs uppercase text-muted-foreground">
                         <tr>
-                          <th className="px-4 py-2 text-left font-medium">Placa</th>
-                          <th className="px-4 py-2 text-left font-medium">Rubro</th>
-                          <th className="px-4 py-2 text-left font-medium">Valor</th>
-                          <th className="px-4 py-2 w-10"></th>
+                          <th className="px-2 sm:px-4 py-2 text-left font-medium">Placa</th>
+                          <th className="px-2 sm:px-4 py-2 text-left font-medium">Rubro</th>
+                          <th className="px-2 sm:px-4 py-2 text-left font-medium">Valor</th>
+                          <th className="px-2 sm:px-4 py-2 w-8 sm:w-10"></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -531,13 +532,13 @@ export default function GenerarFacturacion() {
                             key={idx}
                             className="border-b last:border-0 hover:bg-muted/20"
                           >
-                            <td className="px-4 py-2 font-medium">{item.placa}</td>
-                            <td className="px-4 py-2">{item.rubro_nombre}</td>
-                            <td className="px-4 py-2">${Number(item.valor).toLocaleString("es-CO")}</td>
-                            <td className="px-4 py-2 text-right">
+                            <td className="px-2 sm:px-4 py-2 font-medium">{item.placa}</td>
+                            <td className="px-2 sm:px-4 py-2 truncate max-w-[100px] sm:max-w-none">{item.rubro_nombre}</td>
+                            <td className="px-2 sm:px-4 py-2">${Number(item.valor).toLocaleString("es-CO")}</td>
+                            <td className="px-2 sm:px-4 py-2 text-right">
                               <button
                                 onClick={() => handleRemoveOcasional(idx)}
-                                className="text-destructive hover:text-destructive/80 transition-colors"
+                                className="text-destructive hover:text-destructive/80 transition-colors p-1"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -553,15 +554,15 @@ export default function GenerarFacturacion() {
 
             {/* Botón de Pólizas (opcional) */}
             <section className="pt-4 border-t">
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="min-w-0">
                   <h4 className="text-sm font-medium">Pólizas Anuales</h4>
                   <p className="text-xs text-muted-foreground">Genera pólizas anuales para todos los vehículos</p>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="border-orange-200 text-orange-700 hover:bg-orange-50"
+                  className="border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-950 w-full sm:w-auto shrink-0"
                   onClick={handleGenerarPolizas}
                   disabled={generatingPolizas}
                 >
@@ -581,7 +582,7 @@ export default function GenerarFacturacion() {
             </section>
           </div>
 
-          <DialogFooter className="px-4 sm:px-6 py-4 border-t bg-muted/10 flex flex-col sm:flex-row gap-2 sticky bottom-0">
+          <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 border-t bg-muted/10 flex flex-col-reverse sm:flex-row gap-2 sticky bottom-0 z-10">
             <Button
               variant="ghost"
               onClick={() => setShowPreFacturacion(false)}
@@ -599,7 +600,7 @@ export default function GenerarFacturacion() {
               ) : (
                 <CheckCircle2 className="h-4 w-4 mr-2" />
               )}
-              Confirmar y Generar Facturación
+              <span className="truncate">Confirmar y Generar</span>
             </Button>
           </DialogFooter>
         </DialogContent>

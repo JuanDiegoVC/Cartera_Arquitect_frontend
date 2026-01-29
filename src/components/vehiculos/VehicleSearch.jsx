@@ -9,8 +9,11 @@ import "./VehicleSearch.css";
  * Componente de búsqueda de vehículos por placa
  * RF-002: La búsqueda debe estar siempre visible/accesible
  * HU-04: Consulta de estado de cuenta
+ * @param {Object} props - Propiedades del componente
+ * @param {boolean} props.autoFocus - Si debe enfocar automáticamente el input
+ * @param {Function} props.onClose - Callback para cerrar la búsqueda (móvil)
  */
-const VehicleSearch = () => {
+const VehicleSearch = ({ autoFocus = false, onClose }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [vehicleData, setVehicleData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -79,6 +82,8 @@ const VehicleSearch = () => {
     setShowResults(false);
     setVehicleData(null);
     setError(null);
+    // Notificar al padre si existe el callback (para cerrar modal móvil)
+    if (onClose) onClose();
   };
 
   const calcularTotalDeuda = () => {
@@ -107,6 +112,7 @@ const VehicleSearch = () => {
           onChange={setSearchTerm}
           onSelect={handlePlacaSelect}
           placeholder="Buscar por placa"
+          autoFocus={autoFocus}
         />
         {loading && <span className="search-loading">🔍</span>}
       </div>

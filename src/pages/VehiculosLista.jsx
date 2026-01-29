@@ -228,21 +228,22 @@ export default function VehiculosLista() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
             Lista de Vehículos
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gestione y exporte el registro completo de vehículos afiliados
           </p>
         </div>
         {(isAdministrador() || isGerente()) && (
-          <Button onClick={handleCreate}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nuevo Vehículo
+          <Button onClick={handleCreate} size="sm" className="sm:size-default">
+            <Plus className="mr-1 sm:mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Nuevo Vehículo</span>
+            <span className="sm:hidden">Nuevo</span>
           </Button>
         )}
       </div>
@@ -256,10 +257,10 @@ export default function VehiculosLista() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* Filtro por tipo */}
             <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label className="text-xs sm:text-sm font-medium mb-2 block">
                 Tipo de Vehículo
               </label>
               <select
@@ -267,7 +268,7 @@ export default function VehiculosLista() {
                 onChange={(e) =>
                   handleFilterChange("tipo_vehiculo", e.target.value)
                 }
-                className="w-full px-3 py-2 border rounded-md bg-background"
+                className="w-full px-3 py-2 text-sm border rounded-md bg-background"
               >
                 <option value="">Todos los tipos</option>
                 {VEHICLE_TYPES.map((type) => (
@@ -280,11 +281,11 @@ export default function VehiculosLista() {
 
             {/* Filtro por estado */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Estado</label>
+              <label className="text-xs sm:text-sm font-medium mb-2 block">Estado</label>
               <select
                 value={filters.estado}
                 onChange={(e) => handleFilterChange("estado", e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-background"
+                className="w-full px-3 py-2 text-sm border rounded-md bg-background"
               >
                 <option value="">Todos los estados</option>
                 <option value="activo">Activo</option>
@@ -294,15 +295,15 @@ export default function VehiculosLista() {
 
             {/* Búsqueda */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Buscar</label>
+              <label className="text-xs sm:text-sm font-medium mb-2 block">Buscar</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Placa, N° Interno, propietario..."
+                  placeholder="Placa, N° Interno..."
                   value={filters.search}
                   onChange={(e) => handleFilterChange("search", e.target.value)}
-                  className="pl-10"
+                  className="pl-10 text-sm"
                 />
               </div>
             </div>
@@ -313,17 +314,19 @@ export default function VehiculosLista() {
                 variant="outline"
                 onClick={handleClearFilters}
                 className="flex-1"
+                size="sm"
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Limpiar
+                <RefreshCw className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Limpiar</span>
               </Button>
               <Button
                 onClick={handleExportExcel}
                 disabled={exporting || vehiculos.length === 0}
                 className="flex-1"
+                size="sm"
               >
-                <Download className="h-4 w-4 mr-2" />
-                {exporting ? "Exportando..." : "Excel"}
+                <Download className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">{exporting ? "Exportando..." : "Excel"}</span>
               </Button>
             </div>
           </div>
@@ -357,32 +360,32 @@ export default function VehiculosLista() {
               No se encontraron vehículos con los filtros aplicados
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full min-w-[700px] text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b bg-muted/50">
-                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">
                       Placa
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold hidden sm:table-cell">
                       N° Interno
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">
                       Tipo
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold hidden md:table-cell">
                       Propietario
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold hidden md:table-cell">
                       Conductor
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">
                       Estado
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold hidden lg:table-cell">
                       Registro
                     </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm font-semibold">
                       Acciones
                     </th>
                   </tr>
@@ -393,33 +396,33 @@ export default function VehiculosLista() {
                       key={vehiculo.vehiculo_id}
                       className="border-b hover:bg-muted/30 transition-colors"
                     >
-                      <td className="px-4 py-3 font-mono font-semibold">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 font-mono font-semibold">
                         {vehiculo.placa}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 hidden sm:table-cell">
                         {vehiculo.num_interno ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                          <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-mono font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
                             #{vehiculo.num_interno}
                           </span>
                         ) : (
                           <span className="text-xs text-muted-foreground">-</span>
                         )}
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3">
+                        <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-primary/10 text-primary">
                           {vehiculo.tipo_vehiculo_display ||
                             vehiculo.tipo_vehiculo}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hidden md:table-cell truncate max-w-[120px]">
                         {vehiculo.propietario_nombre || "N/A"}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hidden md:table-cell truncate max-w-[120px]">
                         {vehiculo.conductor_actual_nombre || "N/A"}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium ${
                             vehiculo.estado === "activo"
                               ? "bg-success/10 text-success"
                               : "bg-muted text-muted-foreground"
@@ -428,19 +431,19 @@ export default function VehiculosLista() {
                           {vehiculo.estado_display || vehiculo.estado}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-muted-foreground hidden lg:table-cell">
                         {formatDate(vehiculo.creado_en)}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-right">
                         {isAdministrador() ? (
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex items-center justify-end gap-1 sm:gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEdit(vehiculo)}
-                              className="h-8 w-8 p-0"
+                              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                             >
-                              <Pencil className="h-4 w-4" />
+                              <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             </Button>
                             <Button
                               variant={
@@ -455,15 +458,18 @@ export default function VehiculosLista() {
                                   vehiculo.estado
                                 )
                               }
-                              className="h-8 text-xs"
+                              className="h-7 sm:h-8 text-[10px] sm:text-xs px-2"
                             >
-                              {vehiculo.estado === "activo"
+                              <span className="hidden sm:inline">{vehiculo.estado === "activo"
                                 ? "Desactivar"
-                                : "Activar"}
+                                : "Activar"}</span>
+                              <span className="sm:hidden">{vehiculo.estado === "activo"
+                                ? "Off"
+                                : "On"}</span>
                             </Button>
                           </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-[10px] sm:text-xs text-muted-foreground">
                             Sin permisos
                           </span>
                         )}

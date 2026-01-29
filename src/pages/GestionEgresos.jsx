@@ -201,33 +201,34 @@ export default function GestionEgresos() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             Gestión de Egresos
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Registro y control de gastos operativos
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           {/* Botón de Historial - Solo para Admin y Gerente */}
           {(isAdministrador() || isGerente()) && (
             <Button
               variant="outline"
               onClick={() => navigate("/egresos/historial")}
               className="flex items-center gap-2"
+              size="sm"
             >
               <History className="h-4 w-4" />
               <span className="hidden sm:inline">Historial</span>
             </Button>
           )}
-          <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2">
-            <DollarSign className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium">
-              Total Hoy: {formatCurrency(totalEgresos)}
+          <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 sm:px-4 py-2 flex-1 sm:flex-none justify-center sm:justify-start">
+            <DollarSign className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
+            <span className="text-xs sm:text-sm font-medium">
+              <span className="hidden sm:inline">Total Hoy:</span> {formatCurrency(totalEgresos)}
             </span>
           </div>
         </div>
@@ -248,7 +249,7 @@ export default function GestionEgresos() {
         </Alert>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
         {/* Formulario */}
         <Card>
           <CardHeader>
