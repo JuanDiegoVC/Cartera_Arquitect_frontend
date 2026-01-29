@@ -39,7 +39,7 @@ const BotonDescargarEstadoCuenta = ({
 
     return {
       empresa: {
-        nombre: "Empresa De Transporte Sotra Peñol",
+        nombre: "SOCIEDAD TRANSPORTADORA DE EL PEÑOL",
         nit: "800.123.456-7",
         direccion: "Cra. 17 #734, Peñol, Antioquia",
         telefono: "(604) 2309116",
