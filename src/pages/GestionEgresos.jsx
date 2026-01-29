@@ -131,10 +131,8 @@ export default function GestionEgresos() {
       return;
     }
 
-    // Convertir el valor formateado (1.000,50) a número (1000.50)
-    const valorNumerico = parseFloat(
-      formData.valor.replace(/\./g, "").replace(",", ".")
-    );
+    // Convertir el valor formateado (91.150) a número (91150)
+    const valorNumerico = parseFloat(formData.valor.replace(/\./g, ""));
 
     if (!formData.valor || valorNumerico <= 0) {
       setError("El monto debe ser mayor a 0");
