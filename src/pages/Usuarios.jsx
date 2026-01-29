@@ -171,45 +171,45 @@ export default function Usuarios() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
-            <div className="flex justify-between items-center">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground mb-2">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
                         Gestión de Usuarios
                     </h1>
-                    <p className="text-muted-foreground">
+                    <p className="text-sm sm:text-base text-muted-foreground">
                         Administre los usuarios y sus permisos en el sistema
                     </p>
                 </div>
-                <Button onClick={() => handleOpenModal()}>
-                    <Plus className="mr-2 h-4 w-4" /> Nuevo Usuario
+                <Button onClick={() => handleOpenModal()} size="sm" className="sm:size-default">
+                    <Plus className="mr-1 sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Nuevo Usuario</span><span className="sm:hidden">Nuevo</span>
                 </Button>
             </div>
 
             <Card>
-                <CardHeader>
+                <CardHeader className="p-3 sm:p-6">
                     <div className="flex items-center space-x-2">
-                        <div className="relative flex-1 max-w-sm">
+                        <div className="relative flex-1 max-w-full sm:max-w-sm">
                             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="Buscar por nombre o email..."
+                                placeholder="Buscar..."
                                 value={searchTerm}
                                 onChange={handleSearch}
-                                className="pl-8"
+                                className="pl-8 text-sm"
                             />
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent>
-                    <div className="rounded-md border">
-                        <Table>
+                <CardContent className="p-0 sm:p-6 sm:pt-0">
+                    <div className="rounded-md border overflow-x-auto -mx-0 sm:mx-0">
+                        <Table className="min-w-[500px]">
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Nombre</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Rol</TableHead>
-                                    <TableHead className="text-center">Estado</TableHead>
-                                    <TableHead className="text-right">Acciones</TableHead>
+                                    <TableHead className="text-xs sm:text-sm">Nombre</TableHead>
+                                    <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Email</TableHead>
+                                    <TableHead className="text-xs sm:text-sm">Rol</TableHead>
+                                    <TableHead className="text-xs sm:text-sm text-center">Estado</TableHead>
+                                    <TableHead className="text-xs sm:text-sm text-right">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -228,47 +228,48 @@ export default function Usuarios() {
                                 ) : (
                                     filteredUsuarios.map((user) => (
                                         <TableRow key={user.usuario_id}>
-                                            <TableCell className="font-medium">
+                                            <TableCell className="font-medium text-xs sm:text-sm">
                                                 {user.nombre_completo}
                                             </TableCell>
-                                            <TableCell>{user.email}</TableCell>
+                                            <TableCell className="text-xs sm:text-sm hidden sm:table-cell">{user.email}</TableCell>
                                             <TableCell>{getRoleBadge(user.rol)}</TableCell>
                                             <TableCell className="text-center">
                                                 <Badge
                                                     variant={user.esta_activo ? "default" : "secondary"}
-                                                    className={
+                                                    className={`text-[10px] sm:text-xs ${
                                                         user.esta_activo
                                                             ? "bg-green-100 text-green-800 hover:bg-green-200"
                                                             : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                                                    }
+                                                    }`}
                                                 >
                                                     {user.esta_activo ? "Activo" : "Inactivo"}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
+                                                <div className="flex justify-end gap-1 sm:gap-2">
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
+                                                        className="h-7 w-7 sm:h-8 sm:w-8"
                                                         onClick={() => handleOpenModal(user)}
                                                         title="Editar"
                                                     >
-                                                        <Edit className="h-4 w-4" />
+                                                        <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
+                                                        className={`h-7 w-7 sm:h-8 sm:w-8 ${
+                                                            user.esta_activo
+                                                                ? "text-red-500 hover:text-red-600 hover:bg-red-50"
+                                                                : "text-green-500 hover:text-green-600 hover:bg-green-50"
+                                                        }`}
                                                         onClick={() => handleToggleActive(user)}
                                                         title={
                                                             user.esta_activo ? "Desactivar" : "Activar"
                                                         }
-                                                        className={
-                                                            user.esta_activo
-                                                                ? "text-red-500 hover:text-red-600 hover:bg-red-50"
-                                                                : "text-green-500 hover:text-green-600 hover:bg-green-50"
-                                                        }
                                                     >
-                                                        <Power className="h-4 w-4" />
+                                                        <Power className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                                     </Button>
                                                 </div>
                                             </TableCell>

@@ -78,19 +78,19 @@ const MetricaCard = ({
   };
 
   return (
-    <Card>
+    <Card className="min-w-0">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{titulo}</CardTitle>
-        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+        <CardTitle className="text-xs sm:text-sm font-medium truncate pr-2">{titulo}</CardTitle>
+        {Icon && <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{formatValue(valor)}</div>
-        <div className="flex items-center gap-2 mt-1">
-          <span className={`flex items-center text-sm ${getVariacionColor()}`}>
+      <CardContent className="pt-0">
+        <div className="text-lg sm:text-2xl font-bold truncate">{formatValue(valor)}</div>
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
+          <span className={`flex items-center text-xs sm:text-sm ${getVariacionColor()}`}>
             {getVariacionIcon()}
             {Math.abs(variacion)}%
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-[10px] sm:text-xs text-muted-foreground truncate">
             vs {formatValue(valorAnterior)}
           </span>
         </div>
@@ -104,22 +104,23 @@ const SimpleBar = ({ value, maxValue, label, color = "bg-primary" }) => {
   const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0;
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="w-20 text-xs text-right text-muted-foreground truncate">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <div className="w-10 sm:w-20 text-[10px] sm:text-xs text-right text-muted-foreground truncate flex-shrink-0">
         {label}
       </div>
-      <div className="flex-1 h-6 bg-muted rounded-full overflow-hidden">
+      <div className="flex-1 h-4 sm:h-6 bg-muted rounded-full overflow-hidden min-w-0">
         <div
           className={`h-full ${color} transition-all duration-500`}
           style={{ width: `${Math.min(percentage, 100)}%` }}
         />
       </div>
-      <div className="w-24 text-sm font-medium text-right">
+      <div className="w-16 sm:w-24 text-[10px] sm:text-sm font-medium text-right flex-shrink-0">
         {new Intl.NumberFormat("es-CO", {
           style: "currency",
           currency: "COP",
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
+          notation: window.innerWidth < 640 ? "compact" : "standard",
         }).format(value)}
       </div>
     </div>
@@ -140,13 +141,13 @@ const DistribucionChart = ({ data, titulo }) => {
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{titulo}</CardTitle>
+    <Card className="min-w-0 overflow-hidden">
+      <CardHeader className="pb-2 sm:pb-4">
+        <CardTitle className="text-sm sm:text-base">{titulo}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         {/* Barra de distribución horizontal */}
-        <div className="h-4 rounded-full overflow-hidden flex mb-4">
+        <div className="h-3 sm:h-4 rounded-full overflow-hidden flex mb-3 sm:mb-4">
           {data.map((item, index) => {
             const percentage = total > 0 ? (item.valor / total) * 100 : 0;
             return (
@@ -162,27 +163,27 @@ const DistribucionChart = ({ data, titulo }) => {
           })}
         </div>
         {/* Leyenda */}
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2">
           {data.map((item, index) => {
             const percentage = total > 0 ? (item.valor / total) * 100 : 0;
             return (
               <div
                 key={item.nombre}
-                className="flex items-center justify-between text-sm"
+                className="flex items-center justify-between text-xs sm:text-sm gap-2"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
                   <div
-                    className={`w-3 h-3 rounded-full ${
+                    className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${
                       colors[index % colors.length]
                     }`}
                   />
-                  <span className="truncate max-w-[120px]">{item.nombre}</span>
+                  <span className="truncate">{item.nombre}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">
-                    {percentage.toFixed(1)}%
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                  <span className="text-muted-foreground text-[10px] sm:text-xs">
+                    {percentage.toFixed(0)}%
                   </span>
-                  <span className="font-medium">
+                  <span className="font-medium text-[10px] sm:text-sm">
                     {new Intl.NumberFormat("es-CO", {
                       style: "currency",
                       currency: "COP",
@@ -216,33 +217,33 @@ const RecaudoPorHoraChart = ({ dataHoy, dataAyer }) => {
     }));
 
   return (
-    <Card className="col-span-2">
-      <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2">
+    <Card className="col-span-1 sm:col-span-2 min-w-0 overflow-hidden">
+      <CardHeader className="pb-2 sm:pb-4">
+        <CardTitle className="text-sm sm:text-base flex items-center gap-2">
           <Clock className="h-4 w-4" />
           Recaudo por Hora
         </CardTitle>
-        <CardDescription>Comparación con el día anterior</CardDescription>
+        <CardDescription className="text-xs sm:text-sm">Comparación con el día anterior</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex gap-4 mb-4">
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded bg-primary" />
+      <CardContent className="pt-0">
+        <div className="flex gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-primary" />
             <span>Hoy</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded bg-muted-foreground/30" />
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-muted-foreground/30" />
             <span>Ayer</span>
           </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2 max-h-[300px] sm:max-h-none overflow-y-auto">
           {horasActivas.map((hora) => (
-            <div key={hora.hora} className="flex items-center gap-2">
-              <div className="w-12 text-xs text-muted-foreground">
+            <div key={hora.hora} className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-8 sm:w-12 text-[10px] sm:text-xs text-muted-foreground flex-shrink-0">
                 {hora.hora}
               </div>
-              <div className="flex-1 flex gap-1">
-                <div className="flex-1 h-4 bg-muted rounded overflow-hidden relative">
+              <div className="flex-1 flex gap-0.5 sm:gap-1 min-w-0">
+                <div className="flex-1 h-3 sm:h-4 bg-muted rounded overflow-hidden relative">
                   <div
                     className="absolute inset-y-0 left-0 bg-muted-foreground/30 transition-all"
                     style={{
@@ -261,7 +262,7 @@ const RecaudoPorHoraChart = ({ dataHoy, dataAyer }) => {
                   />
                 </div>
               </div>
-              <div className="w-20 text-xs text-right">
+              <div className="w-12 sm:w-20 text-[10px] sm:text-xs text-right flex-shrink-0">
                 {hora.valor > 0
                   ? new Intl.NumberFormat("es-CO", {
                     notation: "compact",
@@ -290,69 +291,71 @@ const TendenciaDiariaChart = ({
   );
 
   return (
-    <Card className="col-span-2">
-      <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2">
+    <Card className="col-span-1 sm:col-span-2 min-w-0 overflow-hidden">
+      <CardHeader className="pb-2 sm:pb-4">
+        <CardTitle className="text-sm sm:text-base flex items-center gap-2">
           <BarChart3 className="h-4 w-4" />
           Tendencia Diaria
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs sm:text-sm">
           {mesActual} vs {mesAnterior}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex gap-4 mb-4">
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded bg-primary" />
-            <span>{mesActual}</span>
+      <CardContent className="pt-0">
+        <div className="flex gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-primary" />
+            <span className="truncate">{mesActual}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded bg-muted-foreground/30" />
-            <span>{mesAnterior}</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-muted-foreground/30" />
+            <span className="truncate">{mesAnterior}</span>
           </div>
         </div>
-        <div className="h-48 flex items-end gap-1">
-          {dataActual.map((dia, index) => {
-            const valorAnterior =
-              dataAnterior.find((d) => d.dia === dia.dia)?.valor || 0;
-            const heightActual =
-              maxValue > 0 ? (dia.valor / maxValue) * 100 : 0;
-            const heightAnterior =
-              maxValue > 0 ? (valorAnterior / maxValue) * 100 : 0;
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="h-36 sm:h-48 flex items-end gap-0.5 sm:gap-1 min-w-[400px] sm:min-w-0">
+            {dataActual.map((dia, index) => {
+              const valorAnterior =
+                dataAnterior.find((d) => d.dia === dia.dia)?.valor || 0;
+              const heightActual =
+                maxValue > 0 ? (dia.valor / maxValue) * 100 : 0;
+              const heightAnterior =
+                maxValue > 0 ? (valorAnterior / maxValue) * 100 : 0;
 
-            return (
-              <div
-                key={dia.dia}
-                className="flex-1 flex flex-col items-center gap-1"
-              >
-                <div className="w-full flex gap-[1px] items-end h-40">
-                  <div
-                    className="flex-1 bg-muted-foreground/30 rounded-t transition-all"
-                    style={{ height: `${heightAnterior}%` }}
-                    title={`${mesAnterior}: ${new Intl.NumberFormat("es-CO", {
-                      style: "currency",
-                      currency: "COP",
-                      notation: "compact",
-                    }).format(valorAnterior)}`}
-                  />
-                  <div
-                    className="flex-1 bg-primary rounded-t transition-all"
-                    style={{ height: `${heightActual}%` }}
-                    title={`${mesActual}: ${new Intl.NumberFormat("es-CO", {
-                      style: "currency",
-                      currency: "COP",
-                      notation: "compact",
-                    }).format(dia.valor)}`}
-                  />
+              return (
+                <div
+                  key={dia.dia}
+                  className="flex-1 flex flex-col items-center gap-0.5 sm:gap-1 min-w-[8px]"
+                >
+                  <div className="w-full flex gap-[1px] items-end h-28 sm:h-40">
+                    <div
+                      className="flex-1 bg-muted-foreground/30 rounded-t transition-all"
+                      style={{ height: `${heightAnterior}%` }}
+                      title={`${mesAnterior}: ${new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        notation: "compact",
+                      }).format(valorAnterior)}`}
+                    />
+                    <div
+                      className="flex-1 bg-primary rounded-t transition-all"
+                      style={{ height: `${heightActual}%` }}
+                      title={`${mesActual}: ${new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        notation: "compact",
+                      }).format(dia.valor)}`}
+                    />
+                  </div>
+                  {index % 5 === 0 && (
+                    <span className="text-[8px] sm:text-[10px] text-muted-foreground">
+                      {dia.dia}
+                    </span>
+                  )}
                 </div>
-                {index % 5 === 0 && (
-                  <span className="text-[10px] text-muted-foreground">
-                    {dia.dia}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -364,25 +367,25 @@ const HistoricoMesesChart = ({ data }) => {
   const maxValue = Math.max(...data.map((d) => Math.max(d.recaudo, d.egresos)));
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2">
+    <Card className="min-w-0 overflow-hidden">
+      <CardHeader className="pb-2 sm:pb-4">
+        <CardTitle className="text-sm sm:text-base flex items-center gap-2">
           <TrendingUp className="h-4 w-4" />
           Histórico (6 meses)
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="flex gap-4 mb-4">
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded bg-green-500" />
+      <CardContent className="pt-0">
+        <div className="flex gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-green-500" />
             <span>Recaudo</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded bg-red-500" />
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-red-500" />
             <span>Egresos</span>
           </div>
         </div>
-        <div className="h-32 flex items-end gap-2">
+        <div className="h-28 sm:h-32 flex items-end gap-1.5 sm:gap-2">
           {data.map((mes) => {
             const heightRecaudo =
               maxValue > 0 ? (mes.recaudo / maxValue) * 100 : 0;
@@ -392,9 +395,9 @@ const HistoricoMesesChart = ({ data }) => {
             return (
               <div
                 key={`${mes.mes}-${mes.año}`}
-                className="flex-1 flex flex-col items-center"
+                className="flex-1 flex flex-col items-center min-w-0"
               >
-                <div className="w-full flex gap-[2px] items-end h-24">
+                <div className="w-full flex gap-[1px] sm:gap-[2px] items-end h-20 sm:h-24">
                   <div
                     className="flex-1 bg-green-500 rounded-t transition-all hover:bg-green-600"
                     style={{ height: `${heightRecaudo}%` }}
@@ -414,7 +417,7 @@ const HistoricoMesesChart = ({ data }) => {
                     }).format(mes.egresos)}`}
                   />
                 </div>
-                <span className="text-[10px] text-muted-foreground mt-1">
+                <span className="text-[8px] sm:text-[10px] text-muted-foreground mt-1 truncate w-full text-center">
                   {mes.mes}
                 </span>
               </div>
@@ -519,39 +522,39 @@ const Rendimiento = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
             Rendimiento
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Análisis de métricas y desempeño del sistema de recaudos
           </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b">
+      <div className="flex border-b overflow-x-auto">
         <button
           onClick={() => setActiveTab("diario")}
-          className={`px-4 py-2 font-medium text-sm transition-colors relative ${activeTab === "diario"
+          className={`px-3 sm:px-4 py-2 font-medium text-xs sm:text-sm transition-colors relative whitespace-nowrap ${activeTab === "diario"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground"
             }`}
         >
-          <Calendar className="h-4 w-4 inline-block mr-2" />
+          <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block mr-1.5 sm:mr-2" />
           Rendimiento Diario
         </button>
         <button
           onClick={() => setActiveTab("mensual")}
-          className={`px-4 py-2 font-medium text-sm transition-colors relative ${activeTab === "mensual"
+          className={`px-3 sm:px-4 py-2 font-medium text-xs sm:text-sm transition-colors relative whitespace-nowrap ${activeTab === "mensual"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground"
             }`}
         >
-          <BarChart3 className="h-4 w-4 inline-block mr-2" />
+          <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block mr-1.5 sm:mr-2" />
           Rendimiento Mensual
         </button>
       </div>
@@ -564,14 +567,15 @@ const Rendimiento = () => {
 
       {/* Contenido Diario */}
       {activeTab === "diario" && dataDiario && (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Navegación de fecha */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => navegarFecha(-1)}
+                className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -579,18 +583,19 @@ const Rendimiento = () => {
                 type="date"
                 value={fechaSeleccionada}
                 onChange={(e) => setFechaSeleccionada(e.target.value)}
-                className="w-auto"
+                className="flex-1 sm:w-auto text-sm sm:text-base"
               />
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => navegarFecha(1)}
                 disabled={fechaSeleccionada >= getTodayLocalDate()}
+                className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <Badge variant="outline">
+            <Badge variant="outline" className="text-xs sm:text-sm">
               vs{" "}
               {new Date(dataDiario.fecha_comparacion).toLocaleDateString(
                 "es-CO",
@@ -604,7 +609,7 @@ const Rendimiento = () => {
           </div>
 
           {/* Métricas principales */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-3">
             <MetricaCard
               titulo="Recaudo Total"
               valor={dataDiario.metricas.recaudo_total.valor}
@@ -656,7 +661,7 @@ const Rendimiento = () => {
           </div>
 
           {/* Gráficas */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
             {dataDiario.graficas.recaudo_por_hora && (
               <RecaudoPorHoraChart
                 dataHoy={dataDiario.graficas.recaudo_por_hora.hoy}
@@ -688,35 +693,35 @@ const Rendimiento = () => {
 
           {/* Últimas transacciones */}
           {dataDiario.ultimas_transacciones?.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
+            <Card className="min-w-0 overflow-hidden">
+              <CardHeader className="pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-base">
                   Últimas Transacciones del Día
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <Table>
+              <CardContent className="pt-0 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-6">
+                <Table className="min-w-[500px] sm:min-w-0">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Hora</TableHead>
-                      <TableHead>Placa</TableHead>
-                      <TableHead>Medio de Pago</TableHead>
-                      <TableHead>Cajero</TableHead>
-                      <TableHead className="text-right">Monto</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Hora</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Placa</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Medio</TableHead>
+                      <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Cajero</TableHead>
+                      <TableHead className="text-right text-xs sm:text-sm">Monto</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {dataDiario.ultimas_transacciones.map((tx) => (
                       <TableRow key={tx.id}>
-                        <TableCell className="font-mono">{tx.hora}</TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-mono text-xs sm:text-sm py-2 sm:py-4">{tx.hora}</TableCell>
+                        <TableCell className="font-medium text-xs sm:text-sm py-2 sm:py-4">
                           {tx.placa}
                         </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{tx.medio_pago}</Badge>
+                        <TableCell className="py-2 sm:py-4">
+                          <Badge variant="outline" className="text-[10px] sm:text-xs">{tx.medio_pago}</Badge>
                         </TableCell>
-                        <TableCell>{tx.cajero}</TableCell>
-                        <TableCell className="text-right font-medium">
+                        <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">{tx.cajero}</TableCell>
+                        <TableCell className="text-right font-medium text-xs sm:text-sm py-2 sm:py-4">
                           {formatCurrency(tx.monto)}
                         </TableCell>
                       </TableRow>
@@ -773,7 +778,7 @@ const Rendimiento = () => {
           </div>
 
           {/* Métricas principales */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
             <MetricaCard
               titulo="Recaudo Total"
               valor={dataMensual.metricas.recaudo_total.valor}
@@ -791,7 +796,7 @@ const Rendimiento = () => {
               formato="currency"
             />
             <MetricaCard
-              titulo="Tasa de Recaudo"
+              titulo="Tasa Recaudo"
               valor={dataMensual.metricas.tasa_recaudo.valor}
               valorAnterior={dataMensual.metricas.tasa_recaudo.anterior}
               variacion={dataMensual.metricas.tasa_recaudo.variacion}
@@ -809,7 +814,7 @@ const Rendimiento = () => {
           </div>
 
           {/* Segunda fila de métricas */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
             <MetricaCard
               titulo="Egresos Total"
               valor={dataMensual.metricas.egresos_total.valor}
@@ -835,7 +840,7 @@ const Rendimiento = () => {
               formato="number"
             />
             <MetricaCard
-              titulo="Promedio Diario"
+              titulo="Prom. Diario"
               valor={dataMensual.metricas.promedio_diario.valor}
               valorAnterior={dataMensual.metricas.promedio_diario.anterior}
               variacion={dataMensual.metricas.promedio_diario.variacion}
@@ -845,7 +850,7 @@ const Rendimiento = () => {
           </div>
 
           {/* Gráficas */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
             {dataMensual.graficas.tendencia_diaria && (
               <TendenciaDiariaChart
                 dataActual={dataMensual.graficas.tendencia_diaria.actual}
@@ -896,30 +901,30 @@ const Rendimiento = () => {
 
           {/* Top vehículos */}
           {dataMensual.graficas.top_vehiculos?.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
+            <Card className="min-w-0 overflow-hidden">
+              <CardHeader className="pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                   <Car className="h-4 w-4" />
                   Top 10 Vehículos Recaudadores
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <Table>
+              <CardContent className="pt-0 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-6">
+                <Table className="min-w-[400px] sm:min-w-0">
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">#</TableHead>
-                      <TableHead>Placa</TableHead>
-                      <TableHead>Propietario</TableHead>
-                      <TableHead className="text-right">Total Pagado</TableHead>
+                      <TableHead className="w-10 sm:w-12 text-xs sm:text-sm">#</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Placa</TableHead>
+                      <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Propietario</TableHead>
+                      <TableHead className="text-right text-xs sm:text-sm">Total</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {dataMensual.graficas.top_vehiculos.map((vehiculo, index) => (
                       <TableRow key={vehiculo.placa}>
-                        <TableCell>
+                        <TableCell className="py-2 sm:py-4">
                           <Badge
                             variant={index < 3 ? "default" : "outline"}
-                            className={
+                            className={`text-[10px] sm:text-xs ${
                               index === 0
                                 ? "bg-yellow-500"
                                 : index === 1
@@ -927,14 +932,14 @@ const Rendimiento = () => {
                                   : index === 2
                                     ? "bg-amber-700"
                                     : ""
-                            }
+                            }`}
                           >
                             {index + 1}
                           </Badge>
                         </TableCell>
-                        <TableCell className="font-medium">{vehiculo.placa}</TableCell>
-                        <TableCell>{vehiculo.propietario}</TableCell>
-                        <TableCell className="text-right font-medium">
+                        <TableCell className="font-medium text-xs sm:text-sm py-2 sm:py-4">{vehiculo.placa}</TableCell>
+                        <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">{vehiculo.propietario}</TableCell>
+                        <TableCell className="text-right font-medium text-xs sm:text-sm py-2 sm:py-4">
                           {formatCurrency(vehiculo.valor)}
                         </TableCell>
                       </TableRow>

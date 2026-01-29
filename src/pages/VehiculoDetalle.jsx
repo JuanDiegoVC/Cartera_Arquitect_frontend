@@ -149,13 +149,14 @@ export default function VehiculoDetalle() {
   ).length || 0;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
       {/* Header con botón de regreso */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         <Button
           variant="outline"
           onClick={() => navigate("/vehiculos")}
           className="gap-2"
+          size="sm"
         >
           <ArrowLeft className="h-4 w-4" />
           Volver
@@ -163,35 +164,35 @@ export default function VehiculoDetalle() {
         <Button
           onClick={handleRegistrarPago}
           className="gap-2"
-          size="lg"
+          size="default"
           disabled={!vehiculo?.deudas_pendientes?.length}
         >
           <CreditCard className="h-4 w-4" />
-          Registrar Pago
+          <span className="hidden sm:inline">Registrar</span> Pago
         </Button>
       </div>
 
       {/* Información del Vehículo */}
       <Card className="shadow-md">
-        <CardHeader className="bg-primary/5">
+        <CardHeader className="bg-primary/5 p-4 sm:p-6">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <Car className="h-8 w-8 text-primary" />
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 rounded-lg bg-primary/10">
+                <Car className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-bold">
+                <CardTitle className="text-xl sm:text-2xl font-bold">
                   {vehiculo?.placa}
                 </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                   {getTipoVehiculoLabel(vehiculo?.tipo_vehiculo)}
                 </p>
               </div>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="grid md:grid-cols-2 gap-6">
+        <CardContent className="pt-4 sm:pt-6 p-4 sm:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <User className="h-5 w-5 text-muted-foreground" />
@@ -215,52 +216,53 @@ export default function VehiculoDetalle() {
       </Card>
 
       {/* Resumen Financiero */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
               Total Deuda Pendiente
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-danger">
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-xl sm:text-3xl font-bold text-danger truncate">
               ${totalDeuda.toLocaleString("es-CO")}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
               {vehiculo?.deudas_pendientes?.length || 0} rubros pendientes
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
               Deudas Vencidas
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-warning">
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-xl sm:text-3xl font-bold text-warning">
               {deudasVencidas}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
               Requieren atención inmediata
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
               Acción Requerida
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-6 pt-0">
             <Button
               onClick={handleRegistrarPago}
-              className="w-full"
+              className="w-full text-xs sm:text-sm"
+              size="sm"
               disabled={!vehiculo?.deudas_pendientes?.length}
             >
-              <CreditCard className="h-4 w-4 mr-2" />
+              <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Ir a Taquilla
             </Button>
           </CardContent>

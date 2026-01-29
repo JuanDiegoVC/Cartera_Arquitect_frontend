@@ -238,22 +238,124 @@
   gap: 0.5rem;
 }
 
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .search-results {
+    background: hsl(var(--card));
+    border-color: hsl(var(--border));
+  }
+  
+  .result-placa {
+    color: hsl(var(--foreground));
+  }
+  
+  .result-tipo,
+  .deuda-periodo {
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .result-propietario {
+    color: hsl(var(--foreground));
+  }
+  
+  .deudas-section h3 {
+    color: hsl(var(--foreground));
+  }
+  
+  .deuda-item {
+    background: hsl(var(--muted));
+  }
+  
+  .deuda-rubro {
+    color: hsl(var(--foreground));
+  }
+  
+  .total-deuda {
+    background: hsl(var(--muted));
+  }
+  
+  .total-deuda strong {
+    color: hsl(var(--foreground));
+  }
+}
+
+.dark .search-results {
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+}
+
+.dark .result-placa,
+.dark .deudas-section h3,
+.dark .total-deuda strong,
+.dark .result-propietario,
+.dark .deuda-rubro {
+  color: hsl(var(--foreground));
+}
+
+.dark .result-tipo,
+.dark .deuda-periodo,
+.dark .deuda-montos small {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark .deuda-item,
+.dark .total-deuda {
+  background: hsl(var(--muted));
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .vehicle-search {
     max-width: 100%;
   }
   
+  .search-results {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+    max-height: none;
+    overflow-y: auto;
+  }
+  
+  .search-result-card {
+    padding: 1rem;
+    padding-bottom: 2rem;
+  }
+  
   .result-placa {
     font-size: 1.25rem;
+  }
+  
+  .result-header {
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
   }
   
   .deuda-item {
     padding: 0.75rem;
   }
   
-  .deuda-montos {
+  .deuda-info {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .deuda-montos {
+    flex-direction: row;
+    justify-content: space-between;
     gap: 0.5rem;
+  }
+  
+  .total-deuda {
+    padding: 0.75rem;
+  }
+  
+  .total-amount {
+    font-size: 1.1rem;
   }
 }

@@ -233,36 +233,36 @@ export default function ConfiguracionCobros() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
-            <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground mb-2">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
                         Conceptos de Cobro
                     </h1>
-                    <p className="text-muted-foreground">
+                    <p className="text-sm sm:text-base text-muted-foreground">
                         Gestione los rubros y tarifas del sistema
                     </p>
                 </div>
-                <Button onClick={() => handleOpenModal()}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nuevo {activeTab === "rubros" ? "Rubro" : "Tarifa"}
+                <Button onClick={() => handleOpenModal()} size="sm" className="sm:size-default">
+                    <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Nuevo</span> {activeTab === "rubros" ? "Rubro" : "Tarifa"}
                 </Button>
             </div>
 
             {/* Tabs */}
-            <div className="flex space-x-1 rounded-xl bg-muted p-1">
+            <div className="flex space-x-1 rounded-xl bg-muted p-1 overflow-x-auto">
                 <button
                     onClick={() => setActiveTab("rubros")}
-                    className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 ${activeTab === "rubros"
+                    className={`flex-1 min-w-[80px] rounded-lg py-2 sm:py-2.5 text-xs sm:text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 ${activeTab === "rubros"
                         ? "bg-background shadow text-foreground"
                         : "text-muted-foreground hover:bg-white/[0.12] hover:text-white"
                         }`}
                 >
-                    Rubros (Conceptos)
+                    Rubros
                 </button>
                 <button
                     onClick={() => setActiveTab("tarifas")}
-                    className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 ${activeTab === "tarifas"
+                    className={`flex-1 min-w-[80px] rounded-lg py-2 sm:py-2.5 text-xs sm:text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 ${activeTab === "tarifas"
                         ? "bg-background shadow text-foreground"
                         : "text-muted-foreground hover:bg-white/[0.12] hover:text-white"
                         }`}
@@ -271,25 +271,25 @@ export default function ConfiguracionCobros() {
                 </button>
                 <button
                     onClick={() => setActiveTab("polizas")}
-                    className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 ${activeTab === "polizas"
+                    className={`flex-1 min-w-[80px] rounded-lg py-2 sm:py-2.5 text-xs sm:text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 ${activeTab === "polizas"
                         ? "bg-background shadow text-foreground"
                         : "text-muted-foreground hover:bg-white/[0.12] hover:text-white"
                         }`}
                 >
-                    Gestión de Pólizas
+                    Pólizas
                 </button>
             </div>
 
             {/* Filters for Tarifas */}
             {activeTab === "tarifas" && (
-                <div className="flex gap-4 flex-wrap">
-                    <div className="w-full md:w-1/4">
-                        <Label className="mb-2 block">Filtrar por Rubro</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    <div>
+                        <Label className="mb-2 block text-xs sm:text-sm">Filtrar por Rubro</Label>
                         <Select
                             value={filterRubro}
                             onValueChange={setFilterRubro}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger className="text-sm">
                                 <SelectValue placeholder="Todos los rubros" />
                             </SelectTrigger>
                             <SelectContent>
@@ -302,13 +302,13 @@ export default function ConfiguracionCobros() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="w-full md:w-1/4">
-                        <Label className="mb-2 block">Filtrar por Tipo Vehículo</Label>
+                    <div>
+                        <Label className="mb-2 block text-xs sm:text-sm">Filtrar por Tipo Vehículo</Label>
                         <Select
                             value={filterTipoVehiculo}
                             onValueChange={setFilterTipoVehiculo}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger className="text-sm">
                                 <SelectValue placeholder="Todos los tipos" />
                             </SelectTrigger>
                             <SelectContent>
@@ -319,13 +319,13 @@ export default function ConfiguracionCobros() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="w-full md:w-1/4">
-                        <Label className="mb-2 block">Filtrar por Año</Label>
+                    <div>
+                        <Label className="mb-2 block text-xs sm:text-sm">Filtrar por Año</Label>
                         <Select
                             value={filterYear}
                             onValueChange={setFilterYear}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger className="text-sm">
                                 <SelectValue placeholder="Todos los años" />
                             </SelectTrigger>
                             <SelectContent>
@@ -470,7 +470,7 @@ export default function ConfiguracionCobros() {
 
             {/* Modal Form */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="sm:max-w-[500px] p-6">
+                <DialogContent className="sm:max-w-[500px] p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>
                             {editingItem ? "Editar" : "Crear"} {activeTab === "rubros" ? "Rubro" : "Tarifa"}

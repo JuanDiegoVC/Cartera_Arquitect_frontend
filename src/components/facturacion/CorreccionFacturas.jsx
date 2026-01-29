@@ -568,20 +568,20 @@ export default function CorreccionFacturas() {
         {/* ========== TABLA DE RESULTADOS ========== */}
         {deudasEncontradas.length > 0 && (
           <div className="border rounded-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted text-xs uppercase">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full text-xs sm:text-sm min-w-[600px]">
+                <thead className="bg-muted text-[10px] sm:text-xs uppercase">
                   <tr>
-                    <th className="px-2 py-3 text-center w-10">
+                    <th className="px-2 py-2 sm:py-3 text-center w-8 sm:w-10">
                       <span className="sr-only">Seleccionar</span>
                     </th>
-                    <th className="px-4 py-3 text-left">Placa</th>
-                    <th className="px-4 py-3 text-left hidden md:table-cell">Tipo</th>
-                    <th className="px-4 py-3 text-left">Rubro</th>
-                    <th className="px-4 py-3 text-left">Periodo</th>
-                    <th className="px-4 py-3 text-right">Valor</th>
-                    <th className="px-4 py-3 text-center">Estado</th>
-                    <th className="px-4 py-3 text-center">Acción</th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left">Placa</th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left hidden md:table-cell">Tipo</th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left">Rubro</th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left">Periodo</th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-right">Valor</th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-center">Estado</th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-center">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -598,7 +598,7 @@ export default function CorreccionFacturas() {
                           isSelected ? "bg-primary/5" : ""
                         }`}
                       >
-                        <td className="px-2 py-3 text-center">
+                        <td className="px-2 py-2 sm:py-3 text-center">
                           {isEditable && (
                             <Checkbox
                               checked={isSelected}
@@ -608,41 +608,42 @@ export default function CorreccionFacturas() {
                             />
                           )}
                         </td>
-                        <td className="px-4 py-3 font-medium">{deuda.placa}</td>
-                        <td className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 font-medium">{deuda.placa}</td>
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 hidden md:table-cell text-xs text-muted-foreground">
                           {deuda.tipo_vehiculo_display || deuda.tipo_vehiculo}
                         </td>
-                        <td className="px-4 py-3">{deuda.rubro_nombre}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 truncate max-w-[100px] sm:max-w-none">{deuda.rubro_nombre}</td>
+                        <td className="px-2 sm:px-4 py-2 sm:py-3">
                           {formatPeriodo(deuda.periodo)}
                         </td>
-                        <td className="px-4 py-3 text-right font-medium">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 text-right font-medium">
                           {formatCurrency(deuda.valor_cargado)}
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 text-center">
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${
                               deuda.estado_deuda === "pagado"
-                                ? "bg-green-100 text-green-800"
+                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                                 : deuda.estado_deuda === "abonado"
-                                ? "bg-yellow-100 text-yellow-800"
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
                                 : deuda.estado_deuda === "anulada"
-                                ? "bg-gray-100 text-gray-600 line-through"
-                                : "bg-red-100 text-red-800"
+                                ? "bg-gray-100 text-gray-600 line-through dark:bg-gray-800 dark:text-gray-400"
+                                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
                             }`}
                           >
                             {deuda.estado_deuda}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 text-center">
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleOpenEditModal(deuda)}
                             disabled={!isEditable}
+                            className="h-7 sm:h-8 px-2 sm:px-3 text-xs"
                           >
-                            <Edit2 className="h-3 w-3 mr-1" />
-                            Editar
+                            <Edit2 className="h-3 w-3 sm:mr-1" />
+                            <span className="hidden sm:inline">Editar</span>
                           </Button>
                         </td>
                       </tr>

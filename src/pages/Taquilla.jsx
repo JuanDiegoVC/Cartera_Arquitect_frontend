@@ -564,10 +564,10 @@ export default function Taquilla() {
       .reduce((sum, item) => sum + getAmountToPay(item), 0) || 0;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Taquilla</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Taquilla</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Procese pagos de forma rápida y eficiente
         </p>
       </div>
@@ -723,13 +723,13 @@ export default function Taquilla() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-4 items-end">
-                <div className="flex-1 min-w-[150px]">
-                  <label className="text-sm font-medium mb-2 block">Mes:</label>
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 sm:items-end">
+                <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Mes:</label>
                   <select
                     value={filterMonth}
                     onChange={(e) => setFilterMonth(e.target.value)}
-                    className="w-full p-2 border rounded-md bg-background"
+                    className="w-full p-2 text-sm border rounded-md bg-background"
                   >
                     <option value="">Todos los meses</option>
                     <option value="1">Enero</option>
@@ -747,12 +747,12 @@ export default function Taquilla() {
                   </select>
                 </div>
 
-                <div className="flex-1 min-w-[150px]">
-                  <label className="text-sm font-medium mb-2 block">Año:</label>
+                <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Año:</label>
                   <select
                     value={filterYear}
                     onChange={(e) => setFilterYear(e.target.value)}
-                    className="w-full p-2 border rounded-md bg-background"
+                    className="w-full p-2 text-sm border rounded-md bg-background"
                   >
                     <option value="">Todos los años</option>
                     {availableYears.map((year) => (
@@ -767,13 +767,14 @@ export default function Taquilla() {
                   <Button
                     onClick={clearFilters}
                     variant="outline"
-                    className="mb-0"
+                    size="sm"
+                    className="w-full sm:w-auto"
                   >
                     Limpiar Filtros
                   </Button>
                 )}
 
-                <div className="ml-auto text-sm text-muted-foreground">
+                <div className="w-full sm:w-auto sm:ml-auto text-xs sm:text-sm text-muted-foreground text-center sm:text-right">
                   {filterMonth || filterYear ? (
                     <span>
                       Mostrando{" "}
@@ -886,14 +887,14 @@ export default function Taquilla() {
                   Procesar Pago
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
+              <CardContent className="pt-4 sm:pt-6">
                 <div className="space-y-4">
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-medium">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
+                      <h3 className="font-medium text-sm sm:text-base">
                         Seleccione rubros a pagar:
                       </h3>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button
                           onClick={handleSelectAll}
                           variant="outline"
@@ -901,9 +902,9 @@ export default function Taquilla() {
                           disabled={
                             processingPayment || pendingItems.length === 0
                           }
-                          className="text-xs"
+                          className="text-xs h-8"
                         >
-                          ✓ Seleccionar Todos ({pendingItems.length})
+                          ✓ Seleccionar ({pendingItems.length})
                         </Button>
                         {selectedItems.length > 0 && (
                           <Button
@@ -911,9 +912,9 @@ export default function Taquilla() {
                             variant="outline"
                             size="sm"
                             disabled={processingPayment}
-                            className="text-xs"
+                            className="text-xs h-8"
                           >
-                            ✗ Deseleccionar Todos
+                            ✗ Deseleccionar
                           </Button>
                         )}
                       </div>
@@ -922,13 +923,13 @@ export default function Taquilla() {
                       {pendingItems.map((item) => (
                         <div
                           key={item.id}
-                          className={`p-4 rounded-lg border-2 transition-all ${selectedItems.includes(item.id)
+                          className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${selectedItems.includes(item.id)
                             ? "border-primary bg-primary/5"
                             : "border-muted hover:border-muted-foreground/30"
                             }`}
                         >
                           {/* Header con checkbox */}
-                          <div className="flex items-start gap-3">
+                          <div className="flex items-start gap-2 sm:gap-3">
                             <Checkbox
                               id={item.id}
                               checked={selectedItems.includes(item.id)}
@@ -936,39 +937,32 @@ export default function Taquilla() {
                               disabled={processingPayment}
                               className="mt-1"
                             />
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <label
                                 htmlFor={item.id}
                                 className="cursor-pointer block"
                               >
-                                <div className="flex items-start justify-between">
-                                  <div>
-                                    <div className="font-medium text-base">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="font-medium text-sm sm:text-base truncate">
                                       {item.concept}
                                     </div>
-                                    <div className="text-sm text-muted-foreground">
+                                    <div className="text-xs sm:text-sm text-muted-foreground">
                                       {item.month}
                                     </div>
                                     {item.amount !== item.saldoPendiente && (
-                                      <div className="text-xs text-warning mt-1">
-                                        💰 Valor original: $
-                                        {item.amount.toLocaleString("es-CO")} |
-                                        Abonado: $
-                                        {(
-                                          item.amount - item.saldoPendiente
-                                        ).toLocaleString("es-CO")}
+                                      <div className="text-[10px] sm:text-xs text-warning mt-1">
+                                        💰 Original: ${item.amount.toLocaleString("es-CO")} |
+                                        Abonado: ${(item.amount - item.saldoPendiente).toLocaleString("es-CO")}
                                       </div>
                                     )}
                                   </div>
-                                  <div className="text-right">
-                                    <div className="font-bold text-lg">
-                                      $
-                                      {item.saldoPendiente.toLocaleString(
-                                        "es-CO"
-                                      )}
+                                  <div className="text-right shrink-0">
+                                    <div className="font-bold text-base sm:text-lg whitespace-nowrap">
+                                      ${item.saldoPendiente.toLocaleString("es-CO")}
                                     </div>
                                     {item.amount !== item.saldoPendiente && (
-                                      <div className="text-xs text-muted-foreground line-through">
+                                      <div className="text-[10px] sm:text-xs text-muted-foreground line-through">
                                         ${item.amount.toLocaleString("es-CO")}
                                       </div>
                                     )}
@@ -979,7 +973,7 @@ export default function Taquilla() {
                               {/* Opciones de pago (solo si está seleccionado) */}
                               {selectedItems.includes(item.id) && (
                                 <div className="mt-3 space-y-2 pl-0">
-                                  <div className="text-sm font-medium text-muted-foreground mb-2">
+                                  <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
                                     💳 Modo de pago:
                                   </div>
 
@@ -1001,13 +995,10 @@ export default function Taquilla() {
                                       disabled={processingPayment}
                                       className="w-4 h-4"
                                     />
-                                    <span className="text-sm flex-1">
-                                      🔵 Pagar saldo completo:{" "}
+                                    <span className="text-xs sm:text-sm flex-1">
+                                      Pagar saldo completo:{" "}
                                       <strong>
-                                        $
-                                        {item.saldoPendiente.toLocaleString(
-                                          "es-CO"
-                                        )}
+                                        ${item.saldoPendiente.toLocaleString("es-CO")}
                                       </strong>
                                     </span>
                                   </label>
@@ -1032,8 +1023,8 @@ export default function Taquilla() {
                                       className="w-4 h-4 mt-1"
                                     />
                                     <div className="flex-1">
-                                      <span className="text-sm block mb-1">
-                                        🟡 Pagar monto personalizado
+                                      <span className="text-xs sm:text-sm block mb-1">
+                                        Pagar monto personalizado
                                       </span>
                                       {paymentModes[item.id]?.mode ===
                                         "personalizado" && (
@@ -1106,7 +1097,7 @@ export default function Taquilla() {
                   <Separator />
 
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center text-sm">
+                    <div className="flex justify-between items-center text-xs sm:text-sm">
                       <span className="text-muted-foreground">
                         Rubros seleccionados:
                       </span>
@@ -1114,9 +1105,9 @@ export default function Taquilla() {
                         {selectedItems.length}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center text-lg font-bold">
-                      <span>Total a pagar:</span>
-                      <span className="text-primary">
+                    <div className="flex justify-between items-center text-base sm:text-lg font-bold gap-2">
+                      <span className="shrink-0">Total a pagar:</span>
+                      <span className="text-primary truncate">
                         ${totalSelected.toLocaleString("es-CO")}
                       </span>
                     </div>

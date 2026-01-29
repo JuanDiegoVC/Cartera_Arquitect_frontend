@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
  * @param {string} props.placeholder - Placeholder del input
  * @param {boolean} props.disabled - Si el input está deshabilitado
  * @param {string} props.className - Clases adicionales para el contenedor
+ * @param {boolean} props.autoFocus - Si el input debe enfocarse automáticamente
  */
 export default function PlacaAutocomplete({
   value = "",
@@ -30,6 +31,7 @@ export default function PlacaAutocomplete({
   placeholder = "Ingrese placa del vehículo (ej: ABC123)",
   disabled = false,
   className = "",
+  autoFocus = false,
 }) {
   const [inputValue, setInputValue] = useState(value);
   const [suggestions, setSuggestions] = useState([]);
@@ -194,6 +196,7 @@ export default function PlacaAutocomplete({
           disabled={disabled}
           className="pl-10 pr-10 text-lg font-semibold"
           autoComplete="off"
+          autoFocus={autoFocus}
         />
 
         {/* Indicador de carga o botón limpiar */}

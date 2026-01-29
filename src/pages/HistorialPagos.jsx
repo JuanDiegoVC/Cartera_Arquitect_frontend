@@ -66,43 +66,32 @@ export default function HistorialPagos() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">Historial de Pagos</h1>
-                <p className="text-muted-foreground">Consulte y descargue los recibos de pago históricos.</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Historial de Pagos</h1>
+                <p className="text-sm sm:text-base text-muted-foreground">Consulte y descargue los recibos de pago históricos.</p>
             </div>
 
             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Search className="h-5 w-5 text-primary" />
+                <CardHeader className="pb-3 sm:pb-4">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <Search className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                         Buscar por Placa
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex gap-4 items-start">
-                        <div className="flex-1 max-w-md">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-start">
+                        <div className="flex-1">
                             <PlacaAutocomplete
                                 value={plate}
                                 onChange={setPlate}
                                 onSelect={(suggestion) => {
                                     setPlate(suggestion.placa);
-                                    // Trigger search immediately on selection
-                                    // We need to wait a tick for state to update or pass the value directly
-                                    // But handleSearch uses 'plate' state. 
-                                    // Better to just set state and let user click search or use effect?
-                                    // The user requested dynamic search behavior similar to Taquilla.
-                                    // But Taquilla just fills the form. 
-                                    // Let's trigger search here for better UX.
-                                    // We'll pass the suggestion.placa to a modified handleSearch or just rely on the user clicking search 
-                                    // as the original code did, but the user asked for "same functionality".
-                                    // In Taquilla, selecting fills the search.
-                                    // Let's just fill it for now to be safe, user can click search.
                                 }}
                                 placeholder="Ingrese placa (ej: ABC123)"
                             />
                         </div>
-                        <div className="w-48">
+                        <div className="w-full sm:w-48">
                             <Input
                                 type="month"
                                 value={month}
@@ -113,6 +102,7 @@ export default function HistorialPagos() {
                         <Button
                             onClick={handleSearch}
                             disabled={loading || plate.length < 3}
+                            className="w-full sm:w-auto"
                         >
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Buscar"}
                         </Button>
@@ -126,38 +116,46 @@ export default function HistorialPagos() {
             </Card>
 
             {payments.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Pagos Registrados</CardTitle>
+                <Card className="overflow-hidden">
+                    <CardHeader className="pb-3 sm:pb-4">
+                        <CardTitle className="text-base sm:text-lg">Pagos Registrados</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <Table>
+                    <CardContent className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-6">
+                        <Table className="min-w-[500px] sm:min-w-0">
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Recibo #</TableHead>
-                                    <TableHead>Fecha</TableHead>
-                                    <TableHead>Cajero</TableHead>
-                                    <TableHead>Medio de Pago</TableHead>
-                                    <TableHead className="text-right">Monto</TableHead>
-                                    <TableHead className="text-center">Acciones</TableHead>
+                                    <TableHead className="text-xs sm:text-sm">Recibo #</TableHead>
+                                    <TableHead className="text-xs sm:text-sm">Fecha</TableHead>
+                                    <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Cajero</TableHead>
+                                    <TableHead className="text-xs sm:text-sm">Medio</TableHead>
+                                    <TableHead className="text-right text-xs sm:text-sm">Monto</TableHead>
+                                    <TableHead className="text-center text-xs sm:text-sm w-10 sm:w-auto"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {payments.map((payment) => (
                                     <TableRow key={payment.ingreso_id}>
-                                        <TableCell className="font-medium">{payment.ingreso_id}</TableCell>
-                                        <TableCell>{new Date(payment.fecha_transaccion).toLocaleString()}</TableCell>
-                                        <TableCell>{payment.cajero}</TableCell>
-                                        <TableCell className="capitalize">{payment.medio_pago}</TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell className="font-medium text-xs sm:text-sm py-2 sm:py-4">{payment.ingreso_id}</TableCell>
+                                        <TableCell className="text-xs sm:text-sm py-2 sm:py-4">
+                                            <span className="sm:hidden">
+                                                {new Date(payment.fecha_transaccion).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}
+                                            </span>
+                                            <span className="hidden sm:inline">
+                                                {new Date(payment.fecha_transaccion).toLocaleString()}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">{payment.cajero}</TableCell>
+                                        <TableCell className="capitalize text-xs sm:text-sm py-2 sm:py-4">{payment.medio_pago}</TableCell>
+                                        <TableCell className="text-right text-xs sm:text-sm py-2 sm:py-4">
                                             ${parseFloat(payment.monto_total_recibido).toLocaleString('es-CO')}
                                         </TableCell>
-                                        <TableCell className="text-center">
+                                        <TableCell className="text-center py-2 sm:py-4">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => handleDownload(payment.ingreso_id)}
                                                 disabled={downloading === payment.ingreso_id}
+                                                className="h-8 w-8 p-0"
                                             >
                                                 {downloading === payment.ingreso_id ? (
                                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -176,7 +174,7 @@ export default function HistorialPagos() {
             )}
 
             {payments.length === 0 && !loading && !error && plate.length >= 3 && (
-                <div className="text-center text-muted-foreground py-10">
+                <div className="text-center text-muted-foreground py-8 sm:py-10 text-sm sm:text-base">
                     No se encontraron pagos para este vehículo.
                 </div>
             )}

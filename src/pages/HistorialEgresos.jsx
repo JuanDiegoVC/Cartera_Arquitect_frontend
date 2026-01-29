@@ -371,37 +371,37 @@ export default function HistorialEgresos() {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <Table>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <Table className="min-w-[600px]">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead>Hora</TableHead>
-                      <TableHead>Categoría</TableHead>
-                      <TableHead>Descripción</TableHead>
-                      <TableHead>Método</TableHead>
-                      <TableHead>Usuario</TableHead>
-                      <TableHead className="text-right">Monto</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Fecha</TableHead>
+                      <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Hora</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Categoría</TableHead>
+                      <TableHead className="text-xs sm:text-sm hidden md:table-cell">Descripción</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Método</TableHead>
+                      <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Usuario</TableHead>
+                      <TableHead className="text-xs sm:text-sm text-right">Monto</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {egresos.map((egreso) => (
                       <TableRow key={egreso.egreso_id}>
-                        <TableCell className="whitespace-nowrap">
+                        <TableCell className="whitespace-nowrap text-xs sm:text-sm">
                           {formatearFecha(egreso.fecha_egreso)}
                         </TableCell>
-                        <TableCell className="text-muted-foreground">
+                        <TableCell className="text-muted-foreground text-xs sm:text-sm hidden sm:table-cell">
                           {egreso.hora || "-"}
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-xs sm:text-sm">
                           {egreso.categoria_nombre}
                         </TableCell>
-                        <TableCell className="max-w-[200px] truncate text-sm text-muted-foreground">
+                        <TableCell className="max-w-[200px] truncate text-xs sm:text-sm text-muted-foreground hidden md:table-cell">
                           {egreso.descripcion || "-"}
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${egreso.medio_pago === "efectivo"
+                            className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-xs font-medium ${egreso.medio_pago === "efectivo"
                                 ? "bg-green-100 text-green-800"
                                 : "bg-blue-100 text-blue-800"
                               }`}
@@ -409,10 +409,10 @@ export default function HistorialEgresos() {
                             {egreso.medio_pago_display || egreso.medio_pago}
                           </span>
                         </TableCell>
-                        <TableCell className="text-sm">
+                        <TableCell className="text-xs sm:text-sm hidden sm:table-cell">
                           {egreso.usuario_nombre}
                         </TableCell>
-                        <TableCell className="text-right font-semibold">
+                        <TableCell className="text-right font-semibold text-xs sm:text-sm">
                           {formatCurrency(egreso.valor)}
                         </TableCell>
                       </TableRow>
