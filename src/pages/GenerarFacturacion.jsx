@@ -71,6 +71,10 @@ export default function GenerarFacturacion() {
   // Estado para generación de pólizas
   const [generatingPolizas, setGeneratingPolizas] = useState(false);
 
+  // Estado para generación de rubros ocasionales independientes
+  const [generatingOcasionales, setGeneratingOcasionales] = useState(false);
+  const [resultadoOcasionales, setResultadoOcasionales] = useState(null);
+
   const fetchVehiculos = async () => {
     setLoadingVehiculos(true);
     try {
@@ -151,6 +155,7 @@ export default function GenerarFacturacion() {
       const periodo = `${selectedMonth}-01`;
 
       // Enviar rubros ocasionales agregados (sin seguridad variable)
+      // Nota: Este método genera rubros fijos + ocasionales
       const response = await facturacionService.generarCargos(
         periodo,
         [], // Sin seguridad variable
@@ -168,6 +173,44 @@ export default function GenerarFacturacion() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Genera solo los rubros ocasionales sin afectar los rubros fijos (administración, etc.)
+   */
+  const handleGenerarSoloOcasionales = async () => {
+    if (rubrosOcasionalesAgregados.length === 0) {
+      setError("Debe agregar al menos un rubro ocasional antes de generar.");
+      return;
+    }
+
+    setGeneratingOcasionales(true);
+    setError(null);
+    setResultadoOcasionales(null);
+
+    try {
+      const periodo = `${selectedMonth}-01`;
+      const response = await facturacionService.generarRubrosOcasionales(
+        periodo,
+        rubrosOcasionalesAgregados
+      );
+      setResultadoOcasionales(response.detalles);
+      setRubrosOcasionalesAgregados([]);
+      
+      // Mostrar mensaje de éxito
+      if (response.detalles?.errores?.length > 0) {
+        setError(`Algunos registros tuvieron errores: ${response.detalles.errores.join(", ")}`);
+      }
+    } catch (err) {
+      console.error("Error generando rubros ocasionales:", err);
+      setError(
+        err.detalle ||
+        err.error ||
+        "Error al generar los rubros ocasionales. Por favor intente nuevamente."
+      );
+    } finally {
+      setGeneratingOcasionales(false);
     }
   };
 
@@ -374,6 +417,57 @@ export default function GenerarFacturacion() {
         </Card>
       )}
 
+      {/* Resultado Exitoso - Rubros Ocasionales */}
+      {resultadoOcasionales && (
+        <Card className="shadow-md border-success bg-success/5 animate-in fade-in slide-in-from-bottom-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-success text-lg sm:text-xl">
+              <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6" />
+              Rubros Ocasionales Generados
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-background rounded-lg p-4 space-y-1">
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Periodo
+                </p>
+                <p className="text-lg sm:text-2xl font-bold text-foreground capitalize">
+                  {formatMonthYear(resultadoOcasionales.periodo)}
+                </p>
+              </div>
+
+              <div className="bg-background rounded-lg p-4 space-y-1">
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Deudas Creadas
+                </p>
+                <p className="text-lg sm:text-2xl font-bold text-success">
+                  {resultadoOcasionales.deudas_creadas}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Cargos ocasionales
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 sm:p-4 bg-background rounded-lg">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                ✓ {resultadoOcasionales.mensaje}
+              </p>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-2"
+              onClick={() => setResultadoOcasionales(null)}
+            >
+              Cerrar
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Modal de Pre-Facturación (Rubros Ocasionales) */}
       <Dialog open={showPreFacturacion} onOpenChange={setShowPreFacturacion}>
         <DialogContent className="max-w-4xl h-[90vh] sm:h-auto sm:max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
@@ -516,37 +610,69 @@ export default function GenerarFacturacion() {
 
                 {/* Lista de agregados */}
                 {rubrosOcasionalesAgregados.length > 0 && (
-                  <div className="mt-4 bg-background border rounded-md overflow-x-auto">
-                    <table className="w-full text-xs sm:text-sm min-w-[300px]">
-                      <thead className="bg-muted/50 text-[10px] sm:text-xs uppercase text-muted-foreground">
-                        <tr>
-                          <th className="px-2 sm:px-4 py-2 text-left font-medium">Placa</th>
-                          <th className="px-2 sm:px-4 py-2 text-left font-medium">Rubro</th>
-                          <th className="px-2 sm:px-4 py-2 text-left font-medium">Valor</th>
-                          <th className="px-2 sm:px-4 py-2 w-8 sm:w-10"></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rubrosOcasionalesAgregados.map((item, idx) => (
-                          <tr
-                            key={idx}
-                            className="border-b last:border-0 hover:bg-muted/20"
-                          >
-                            <td className="px-2 sm:px-4 py-2 font-medium">{item.placa}</td>
-                            <td className="px-2 sm:px-4 py-2 truncate max-w-[100px] sm:max-w-none">{item.rubro_nombre}</td>
-                            <td className="px-2 sm:px-4 py-2">${Number(item.valor).toLocaleString("es-CO")}</td>
-                            <td className="px-2 sm:px-4 py-2 text-right">
-                              <button
-                                onClick={() => handleRemoveOcasional(idx)}
-                                className="text-destructive hover:text-destructive/80 transition-colors p-1"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </td>
+                  <div className="mt-4 space-y-3">
+                    <div className="bg-background border rounded-md overflow-x-auto">
+                      <table className="w-full text-xs sm:text-sm min-w-[300px]">
+                        <thead className="bg-muted/50 text-[10px] sm:text-xs uppercase text-muted-foreground">
+                          <tr>
+                            <th className="px-2 sm:px-4 py-2 text-left font-medium">Placa</th>
+                            <th className="px-2 sm:px-4 py-2 text-left font-medium">Rubro</th>
+                            <th className="px-2 sm:px-4 py-2 text-left font-medium">Valor</th>
+                            <th className="px-2 sm:px-4 py-2 w-8 sm:w-10"></th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {rubrosOcasionalesAgregados.map((item, idx) => (
+                            <tr
+                              key={idx}
+                              className="border-b last:border-0 hover:bg-muted/20"
+                            >
+                              <td className="px-2 sm:px-4 py-2 font-medium">{item.placa}</td>
+                              <td className="px-2 sm:px-4 py-2 truncate max-w-[100px] sm:max-w-none">{item.rubro_nombre}</td>
+                              <td className="px-2 sm:px-4 py-2">${Number(item.valor).toLocaleString("es-CO")}</td>
+                              <td className="px-2 sm:px-4 py-2 text-right">
+                                <button
+                                  onClick={() => handleRemoveOcasional(idx)}
+                                  className="text-destructive hover:text-destructive/80 transition-colors p-1"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    
+                    {/* Botón para generar solo rubros ocasionales */}
+                    <div className="flex justify-end">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleGenerarSoloOcasionales}
+                        disabled={generatingOcasionales || rubrosOcasionalesAgregados.length === 0}
+                        className="gap-2"
+                      >
+                        {generatingOcasionales ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Generando...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="h-4 w-4" />
+                            Generar Solo Ocasionales
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    <Alert className="bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800">
+                      <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      <AlertDescription className="text-xs text-amber-800 dark:text-amber-200">
+                        <strong>Tip:</strong> Use "Generar Solo Ocasionales" para crear únicamente estos rubros sin afectar la facturación mensual (administración, etc.).
+                      </AlertDescription>
+                    </Alert>
                   </div>
                 )}
               </div>
@@ -598,9 +724,9 @@ export default function GenerarFacturacion() {
               {loading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <CheckCircle2 className="h-4 w-4 mr-2" />
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
               )}
-              <span className="truncate">Confirmar y Generar</span>
+              <span className="truncate">Generar Facturación Completa</span>
             </Button>
           </DialogFooter>
         </DialogContent>
