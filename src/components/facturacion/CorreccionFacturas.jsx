@@ -482,7 +482,8 @@ export default function CorreccionFacturas() {
               <Label className="text-xs font-medium">Periodo (Mes)</Label>
               <input
                 type="month"
-                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="w-full max-w-full h-9 min-h-[44px] rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring box-border"
+                style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
                 value={filtros.periodo}
                 onChange={(e) => handleFiltroChange("periodo", e.target.value)}
                 max={getCurrentMonth()}

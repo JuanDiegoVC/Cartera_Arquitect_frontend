@@ -277,18 +277,19 @@ export default function GenerarFacturacion() {
             <label className="block text-sm font-medium text-foreground">
               Mes de Facturación
             </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <div className="relative w-full">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
               <input
                 type="month"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base"
+                className="w-full max-w-full pl-10 pr-4 py-2.5 sm:py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base appearance-none box-border"
+                style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
                 disabled={loading}
               />
             </div>
             {selectedMonth && (
-              <p className="text-xs sm:text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground break-words">
                 Se generarán cargos para:{" "}
                 <span className="font-semibold capitalize">
                   {formatMonthYear(`${selectedMonth}-01`)}
