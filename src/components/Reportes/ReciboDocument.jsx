@@ -7,7 +7,7 @@ import {
   Image,
   Font,
 } from "@react-pdf/renderer";
-import logoSotrapeñol from "../../assets/SOTRAPEÑOL.png";
+import logoSotrapeñol from "../../assets/Logo1.png";
 
 // Registrar fuentes (opcional, usa las fuentes predeterminadas del sistema)
 Font.register({
