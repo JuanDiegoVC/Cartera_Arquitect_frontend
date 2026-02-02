@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, DollarSign, Save, X, History } from "lucide-react";
+import { Loader2, DollarSign, Save, X, History, Printer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   obtenerCategorias,
@@ -30,6 +30,8 @@ import {
 import { formatCurrency, getTodayLocalDate } from "@/utils/formatters";
 import { useCurrencyInput } from "@/hooks/useCurrencyInput";
 import { useAuth } from "@/hooks/useAuth";
+import BotonImprimirEgreso from "@/components/Egresos/BotonImprimirEgreso";
+import BotonDescargarEgresosConsolidados from "@/components/Egresos/BotonDescargarEgresosConsolidados";
 
 export default function GestionEgresos() {
   const [categorias, setCategorias] = useState([]);
@@ -41,7 +43,7 @@ export default function GestionEgresos() {
   const [success, setSuccess] = useState(false);
   const [tipoDespachador, setTipoDespachador] = useState(""); // "blancos" o "amarillos"
   const navigate = useNavigate();
-  const { isAdministrador, isGerente } = useAuth();
+  const { isAdministrador, isGerente, user } = useAuth();
 
   // Hook para formato de moneda
   const currencyInput = useCurrencyInput("");
@@ -223,6 +225,12 @@ export default function GestionEgresos() {
               <span className="hidden sm:inline">Historial</span>
             </Button>
           )}
+          {/* Botón de Consolidado PDF */}
+          <BotonDescargarEgresosConsolidados
+            egresos={egresos}
+            total={totalEgresos}
+            usuario={{ id: user?.usuario_id, nombre: user?.nombre_completo || user?.email }}
+          />
           <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 sm:px-4 py-2 flex-1 sm:flex-none justify-center sm:justify-start">
             <DollarSign className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
             <span className="text-xs sm:text-sm font-medium">
@@ -415,6 +423,7 @@ export default function GestionEgresos() {
                         <TableHead>Método</TableHead>
                         <TableHead>Hora</TableHead>
                         <TableHead className="text-right">Monto</TableHead>
+                        <TableHead className="text-center w-[60px]">Imprimir</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -425,11 +434,10 @@ export default function GestionEgresos() {
                           </TableCell>
                           <TableCell>
                             <span
-                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                                egreso.medio_pago === "efectivo"
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                  : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                              }`}
+                              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${egreso.medio_pago === "efectivo"
+                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                }`}
                             >
                               {egreso.medio_pago_display ||
                                 egreso.medio_pago ||
@@ -441,6 +449,9 @@ export default function GestionEgresos() {
                           </TableCell>
                           <TableCell className="text-right font-semibold">
                             {formatCurrency(egreso.valor)}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <BotonImprimirEgreso datosEgreso={egreso} />
                           </TableCell>
                         </TableRow>
                       ))}

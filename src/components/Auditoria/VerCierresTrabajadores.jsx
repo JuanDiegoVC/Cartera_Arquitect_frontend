@@ -46,10 +46,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Users,
+  Download,
 } from "lucide-react";
 import { auditoriaService } from "@/services/auditoriaService";
 import { toast } from "sonner";
 import { getTodayLocalDate, toLocalDateString } from "@/utils/formatters";
+import BotonDescargarCierreTurno from "@/components/Reportes/BotonDescargarCierreTurno";
 
 /**
  * Componente para ver los cierres de turno de trabajadores
@@ -339,8 +341,8 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
                         </TableCell>
                         <TableCell className="text-right">
                           <p className={`font-bold ${cierre.balance_caja_fisica >= 0
-                              ? "text-blue-600"
-                              : "text-orange-600"
+                            ? "text-blue-600"
+                            : "text-orange-600"
                             }`}>
                             {formatearMoneda(cierre.balance_caja_fisica)}
                           </p>
@@ -368,11 +370,71 @@ const VerCierresTrabajadores = ({ open, onOpenChange }) => {
 };
 
 /**
+ * Transforma los datos del cierre del trabajador al formato esperado por CierreTurnoDocument
+ */
+const transformarCierreParaPDF = (cierre) => {
+  return {
+    empresa: {
+      nombre: "SOTRAPEÑOL LTDA",
+      nit: "890.000.000-0",
+      direccion: "Dirección de la empresa",
+      telefono: "(000) 000-0000",
+    },
+    fecha: cierre.fecha_cierre,
+    resumen: {
+      balance_caja_fisica: cierre.resumen?.balance_caja_fisica || 0,
+      total_ingresos_efectivo: cierre.resumen?.total_ingresos_efectivo || 0,
+      total_ingresos_digitales: cierre.resumen?.total_ingresos_digitales || 0,
+      total_ingresos: cierre.resumen?.total_ingresos || 0,
+      total_egresos: cierre.resumen?.total_egresos || 0,
+    },
+    movimientos: {
+      ingresos: (cierre.movimientos?.ingresos || []).map((ing) => ({
+        hora: ing.hora || "-",
+        placa: ing.placa || "-",
+        propietario: ing.propietario || "Sin propietario",
+        tipo_vehiculo: ing.tipo_vehiculo || "-",
+        concepto: ing.concepto || "-",
+        periodo: ing.periodo || "-",
+        medio_pago: ing.medio_pago || "Efectivo",
+        monto: ing.monto || 0,
+      })),
+      egresos: (cierre.movimientos?.egresos || []).map((egr) => ({
+        hora: egr.hora || "-",
+        categoria: egr.categoria || "Sin categoría",
+        descripcion: egr.descripcion || "-",
+        medio_pago: egr.medio_pago || "Efectivo",
+        monto: egr.monto || 0,
+      })),
+    },
+    totalesPorConcepto: cierre.totalesPorConcepto || {
+      ingresos: [],
+      egresos: [],
+    },
+    cajero: {
+      nombre: cierre.usuario?.nombre_completo || "N/A",
+      email: cierre.usuario?.email || "",
+    },
+  };
+};
+
+/**
  * Componente para mostrar el detalle completo de un cierre
  */
 const DetalleCierreTrabajador = ({ cierre, formatearMoneda }) => {
+  // Preparar datos para el PDF
+  const datosPDF = transformarCierreParaPDF(cierre);
+
   return (
     <div className="space-y-6">
+      {/* Botón de descarga PDF */}
+      <div className="flex justify-end">
+        <BotonDescargarCierreTurno
+          datosCierre={datosPDF}
+          variant="default"
+          className="bg-blue-600 hover:bg-blue-700"
+        />
+      </div>
       {/* Información del trabajador */}
       <Card>
         <CardHeader className="pb-3">
